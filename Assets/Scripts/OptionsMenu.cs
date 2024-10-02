@@ -1,58 +1,94 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Audio;
 
 public class OptionsMenu : MonoBehaviour
 {
-    // Referencias a los controles de la UI
+    // Referencias a los controles de la UI asignadas desde el Inspector
     public GameObject optionsPopup;          // Panel de opciones
     public TMP_Dropdown screenModeDropdown;  // Dropdown para seleccionar el modo de pantalla
-    public Slider soundSlider;               // Slider para el sonido
-    public Slider musicSlider;               // Slider para la música
+    public Slider soundSlider;               // Slider para el volumen del sonido
+    public Slider musicSlider;               // Slider para el volumen de la música
     public TMP_Dropdown qualityDropdown;     // Dropdown para cambiar la calidad gráfica
     public Button closeOptionsButton;        // Botón para cerrar el panel de opciones
 
-    private void Start()
+    private bool isInitialized = false;      // Bandera para verificar si ya se inicializó
+
+    private void Awake()
     {
-        // Aseguramos que el pop-up de opciones esté oculto al inicio
-        optionsPopup.SetActive(false);
+        // Activamos temporalmente el optionsPopup para inicializar los componentes
+        bool wasActive = optionsPopup.activeSelf;
+        if (!wasActive)
+        {
+            optionsPopup.SetActive(true);
+        }
 
-        // Inicializamos los controles y listeners
-        InitializeOptions();
+        // Asignamos los listeners y realizamos la inicialización necesaria
+        AssignListeners();
 
-        // Asignar el método CloseOptions al evento onClick del botón
-        closeOptionsButton.onClick.AddListener(CloseOptions);
+        // Restauramos el estado original del optionsPopup
+        if (!wasActive)
+        {
+            optionsPopup.SetActive(false);
+        }
     }
 
-    private void InitializeOptions()
+    private void AssignListeners()
     {
-        // Inicializar el dropdown de pantalla completa
-        screenModeDropdown.value = Screen.fullScreen ? 1 : 0;
+        // Asignar el método CloseOptions al evento onClick del botón
+        if (closeOptionsButton != null)
+        {
+            closeOptionsButton.onClick.AddListener(CloseOptions);
+        }
+        else
+        {
+            Debug.LogError("closeOptionsButton no está asignado en el Inspector.");
+        }
 
-        // Inicializar los sliders con los valores guardados (PlayerPrefs)
-        soundSlider.value = PlayerPrefs.GetFloat("SoundVolume", 5);
-        musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 5);
+        // Añadir listeners a los controles si aún no se han asignado
+        if (!isInitialized)
+        {
+            // Configurar sliders
+            soundSlider.minValue = 0;
+            soundSlider.maxValue = 10;
+            soundSlider.wholeNumbers = true;
 
-        // Inicializar el dropdown de calidad gráfica
-        qualityDropdown.value = QualitySettings.GetQualityLevel();
+            musicSlider.minValue = 0;
+            musicSlider.maxValue = 10;
+            musicSlider.wholeNumbers = true;
 
-        // Añadir listeners a los controles
-        screenModeDropdown.onValueChanged.AddListener(SetScreenMode);
-        soundSlider.onValueChanged.AddListener(SetSoundVolume);
-        musicSlider.onValueChanged.AddListener(SetMusicVolume);
-        qualityDropdown.onValueChanged.AddListener(SetQuality);
+            // Cargar valores guardados
+            soundSlider.value = PlayerPrefs.GetInt("SoundVolume", 10);
+            musicSlider.value = PlayerPrefs.GetInt("MusicVolume", 10);
+
+            // Inicializar el dropdown de pantalla completa
+            screenModeDropdown.value = Screen.fullScreen ? 1 : 0;
+
+            // Inicializar el dropdown de calidad gráfica
+            qualityDropdown.value = QualitySettings.GetQualityLevel();
+
+            // Añadir listeners a los controles
+            screenModeDropdown.onValueChanged.AddListener(SetScreenMode);
+            soundSlider.onValueChanged.AddListener(OnSoundSliderChanged);
+            musicSlider.onValueChanged.AddListener(OnMusicSliderChanged);
+            qualityDropdown.onValueChanged.AddListener(SetQuality);
+
+            isInitialized = true;
+            Debug.Log("Opciones inicializadas y listeners asignados.");
+        }
     }
 
     // Mostrar el menú de opciones
     public void ShowOptions()
     {
-        optionsPopup.SetActive(true);  // Mostrar el pop-up
+        optionsPopup.SetActive(true);  // Mostrar el panel de opciones
     }
 
     // Cerrar el menú de opciones
     public void CloseOptions()
     {
-        optionsPopup.SetActive(false);  // Ocultar el pop-up
+        optionsPopup.SetActive(false);  // Ocultar el panel de opciones
     }
 
     // Cambiar entre ventana y pantalla completa
@@ -61,20 +97,20 @@ public class OptionsMenu : MonoBehaviour
         Screen.fullScreen = mode == 1;  // 1 es pantalla completa, 0 es ventana
     }
 
-    // Ajustar el volumen del sonido
-    public void SetSoundVolume(float volume)
+    // Método llamado cuando el slider de sonido cambia
+    public void OnSoundSliderChanged(float value)
     {
-        Debug.Log("Sonido ajustado a: " + volume);
-        PlayerPrefs.SetFloat("SoundVolume", volume);
-        // Aquí puedes añadir la lógica para ajustar el volumen de los sonidos del juego
+        Debug.Log("Volumen del sonido ajustado a: " + value);
+        PlayerPrefs.SetInt("SoundVolume", (int)value);
+        AudioManager.instance.SetSoundVolume(value);
     }
 
-    // Ajustar el volumen de la música
-    public void SetMusicVolume(float volume)
+    // Método llamado cuando el slider de música cambia
+    public void OnMusicSliderChanged(float value)
     {
-        Debug.Log("Música ajustada a: " + volume);
-        PlayerPrefs.SetFloat("MusicVolume", volume);
-        // Aquí puedes añadir la lógica para ajustar el volumen de la música del juego
+        Debug.Log("Volumen de la música ajustado a: " + value);
+        PlayerPrefs.SetInt("MusicVolume", (int)value);
+        AudioManager.instance.SetMusicVolume(value);
     }
 
     // Cambiar la calidad gráfica según el valor del dropdown

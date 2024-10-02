@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
@@ -15,15 +14,15 @@ public class MainMenu : MonoBehaviour
 
     // Pop-up para confirmar salida
     public GameObject quitPopup;  // El panel del pop-up de salida
-    private TextMeshProUGUI popupMessage;  // Texto del pop-up usando TextMeshProUGUI
+    private TMPro.TextMeshProUGUI popupMessage;  // Texto del pop-up usando TextMeshProUGUI
 
-    private void Start()
+    private void Awake()
     {
         // Aseguramos que el pop-up de salida esté inicialmente oculto
         quitPopup.SetActive(false);
 
         // Obtenemos el componente TextMeshProUGUI directamente del objeto asociado
-        popupMessage = quitPopup.GetComponentInChildren<TextMeshProUGUI>();
+        popupMessage = quitPopup.GetComponentInChildren<TMPro.TextMeshProUGUI>();
     }
 
     // Función para el botón "Nuevo Juego"
@@ -35,7 +34,7 @@ public class MainMenu : MonoBehaviour
     // Función para el botón "Opciones"
     public void OpenOptions()
     {
-        // Llamamos a la función que abre el menú de opciones
+        Debug.Log("Botón de opciones presionado");
         optionsMenu.ShowOptions();
     }
 
