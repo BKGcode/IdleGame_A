@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2374bd316e4c7aa4a9fbc1af00092e3b
+timeCreated: 1504105087
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Demos/Solid/Models/Decoration/Materials/white.mat
+  uploadId: 622208

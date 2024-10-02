@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3b9c337159cd6d549b4070a836ec6468
+timeCreated: 1492795657
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Demos/Solid/Models/Emily/Materials/EmilyBottom.mat
+  uploadId: 622208

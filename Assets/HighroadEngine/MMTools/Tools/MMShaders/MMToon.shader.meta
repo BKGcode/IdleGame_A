@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 83e4eb1c16a47f44e898b0393a5322e8
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/MMTools/Tools/MMShaders/MMToon.shader
+  uploadId: 622208

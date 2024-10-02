@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f62086875b3114f418f8f1ced5b0b10f
+timeCreated: 1492795657
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Demos/Solid/Models/Emily/Materials/EmilyLights.mat
+  uploadId: 622208

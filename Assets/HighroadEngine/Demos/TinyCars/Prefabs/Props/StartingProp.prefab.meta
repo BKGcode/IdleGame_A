@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3f69a63b633c262419fd60e17e2e9f52
+timeCreated: 1460409141
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Demos/TinyCars/Prefabs/Props/StartingProp.prefab
+  uploadId: 622208

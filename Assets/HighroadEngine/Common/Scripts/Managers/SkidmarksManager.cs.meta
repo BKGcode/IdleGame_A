@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 72cd168326f5341dba5fe74cba660276
+timeCreated: 1482156829
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Common/Scripts/Managers/SkidmarksManager.cs
+  uploadId: 622208

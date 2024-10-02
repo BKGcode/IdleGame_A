@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: ae39497c178bb48fc8bd9bc307b888ba
+timeCreated: 1516357222
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Demos/Aphex/Resources/Vehicles/AphexMajor PUN.prefab
+  uploadId: 622208

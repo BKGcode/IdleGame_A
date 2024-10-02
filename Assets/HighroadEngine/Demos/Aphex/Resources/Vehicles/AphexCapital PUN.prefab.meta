@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 2716287e00222421d9feec6ac58589dd
+timeCreated: 1516357221
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Demos/Aphex/Resources/Vehicles/AphexCapital PUN.prefab
+  uploadId: 622208

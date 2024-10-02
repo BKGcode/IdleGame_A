@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: e91211a5fed0a41faa964218272567af
+timeCreated: 1516357270
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73798
+  packageName: Highroad Engine
+  packageVersion: 1.3.1
+  assetPath: Assets/HighroadEngine/Common/Prefabs/PunWaterMark.prefab
+  uploadId: 622208
