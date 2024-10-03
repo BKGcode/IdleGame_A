@@ -3,50 +3,97 @@ using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour
 {
-    public static AudioManager instance;  // Singleton
+    // Singleton Instance
+    public static AudioManager instance;
 
-    public AudioMixer audioMixer;  // Asigna el MasterMixer desde el Inspector
+    [Header("Audio Mixer")]
+    public AudioMixer audioMixer;
+
+    // Nombres de los parámetros tal como aparecen en el AudioMixer
+    private string masterVolumeParam = "Master";
+    private string musicVolumeParam = "Music";
 
     private void Awake()
     {
-        // Implementación del patrón Singleton para mantener una sola instancia
+        // Implementación del Patrón Singleton
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);  // No destruir al cargar nuevas escenas
+            DontDestroyOnLoad(gameObject); // Persistir entre escenas
+            LoadAndApplyVolumeSettings();
         }
         else
         {
-            Destroy(gameObject);
-            return;
+            Destroy(gameObject); // Destruir duplicados
         }
-
-        // Cargar y aplicar los ajustes de volumen
-        LoadAndApplyVolumeSettings();
     }
 
     private void LoadAndApplyVolumeSettings()
     {
-        // Cargar los valores guardados o establecer valores por defecto
-        int soundVolume = PlayerPrefs.GetInt("SoundVolume", 10);
-        int musicVolume = PlayerPrefs.GetInt("MusicVolume", 10);
+        // Cargar los volúmenes guardados o usar valores por defecto (0 dB)
+        float masterVolume = PlayerPrefs.GetFloat("MasterVolume", 0f);
+        float musicVolume = PlayerPrefs.GetFloat("MusicVolume", 0f);
 
-        // Aplicar los volúmenes
-        SetSoundVolume(soundVolume);
+        SetMasterVolume(masterVolume);
         SetMusicVolume(musicVolume);
     }
 
-    public void SetSoundVolume(float volume)
+    public void SetMasterVolume(float volume)
     {
-        // Convertir el volumen de 0-10 a decibelios (-80dB a 0dB)
-        float dB = (volume == 0) ? -80f : Mathf.Lerp(-80f, 0f, volume / 10f);
-        audioMixer.SetFloat("SoundVolume", dB);
+        if (audioMixer != null)
+        {
+            bool result = audioMixer.SetFloat(masterVolumeParam, volume);
+            if (!result)
+            {
+                Debug.LogError($"El parámetro '{masterVolumeParam}' no existe en el AudioMixer.");
+            }
+        }
+        else
+        {
+            Debug.LogError("AudioMixer no está asignado en AudioManager.");
+        }
     }
 
     public void SetMusicVolume(float volume)
     {
-        // Convertir el volumen de 0-10 a decibelios (-80dB a 0dB)
-        float dB = (volume == 0) ? -80f : Mathf.Lerp(-80f, 0f, volume / 10f);
-        audioMixer.SetFloat("MusicVolume", dB);
+        if (audioMixer != null)
+        {
+            bool result = audioMixer.SetFloat(musicVolumeParam, volume);
+            if (!result)
+            {
+                Debug.LogError($"El parámetro '{musicVolumeParam}' no existe en el AudioMixer.");
+            }
+        }
+        else
+        {
+            Debug.LogError("AudioMixer no está asignado en AudioManager.");
+        }
+    }
+
+    public void SaveVolumeSettings()
+    {
+        // Obtener los valores actuales del AudioMixer y guardarlos
+        float masterVolume;
+        float musicVolume;
+
+        if (audioMixer.GetFloat(masterVolumeParam, out masterVolume))
+        {
+            PlayerPrefs.SetFloat("MasterVolume", masterVolume);
+        }
+        else
+        {
+            Debug.LogError($"El parámetro '{masterVolumeParam}' no existe en el AudioMixer.");
+        }
+
+        if (audioMixer.GetFloat(musicVolumeParam, out musicVolume))
+        {
+            PlayerPrefs.SetFloat("MusicVolume", musicVolume);
+        }
+        else
+        {
+            Debug.LogError($"El parámetro '{musicVolumeParam}' no existe en el AudioMixer.");
+        }
+
+        PlayerPrefs.Save();
     }
 }
