@@ -2,26 +2,20 @@ using UnityEngine;
 
 public class PlayerMovement2D : MonoBehaviour
 {
+    [Header("Movement Settings")]
     public float moveSpeed = 5f;
-    public float jumpForce = 7f;
-
-    public float jumpCooldown = 0.5f; // Tiempo en segundos para permitir saltos consecutivos
-    private float jumpCooldownTimer;  // Temporizador para rastrear el tiempo desde el último salto
 
     private Vector3 movement;
     private Rigidbody rb;
-    private bool isGrounded;
-
-    public Transform groundCheck;
-    public float groundCheckRadius = 0.2f;
-    public LayerMask groundLayer;
-
-    private int jumpCount;  // Contador de saltos
 
     private void Start()
     {
-        // Inicializamos el rigidbody
+        // Inicializamos el Rigidbody
         rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("Rigidbody no está asignado en el PlayerMovement2D.");
+        }
     }
 
     void Update()
@@ -36,27 +30,7 @@ public class PlayerMovement2D : MonoBehaviour
             transform.forward = movement;
         }
 
-        // Verificamos si el personaje está tocando el suelo
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
-
-        if (isGrounded)
-        {
-            // Reiniciamos el temporizador y contador de saltos cuando toca el suelo
-            jumpCooldownTimer = jumpCooldown;
-            jumpCount = 0;  // Restablecer el contador de saltos al tocar el suelo
-        }
-
-        // Detectamos el salto
-        if (Input.GetButtonDown("Jump") && (isGrounded || (jumpCount < 2 && jumpCooldownTimer > 0)))
-        {
-            Jump();
-        }
-
-        // Reducimos el temporizador si no está en el suelo
-        if (!isGrounded && jumpCooldownTimer > 0)
-        {
-            jumpCooldownTimer -= Time.deltaTime;
-        }
+        // No hay lógica de salto, así que no es necesario verificar si está en el suelo
     }
 
     void FixedUpdate()
@@ -65,16 +39,30 @@ public class PlayerMovement2D : MonoBehaviour
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
 
-    void Jump()
+    // Método para recibir daño
+    public void ReceiveDamage(int damageAmount)
     {
-        // Restablecemos la velocidad vertical antes de aplicar el salto
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        // Aquí podrías manejar la salud del jugador si tienes un sistema de salud adicional
 
-        // Aumentamos el contador de saltos
-        jumpCount++;
-
-        // Reiniciamos el temporizador de salto tras un salto exitoso
-        jumpCooldownTimer = jumpCooldown;
+        // Informar al GameManager que el jugador ha recibido daño
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.DecreaseLife();
+        }
+        else
+        {
+            Debug.LogError("GameManager.instance es null. Asegúrate de que el GameManager está en la escena.");
+        }
     }
+
+    // Método para curarse (opcional)
+    public void Heal(int healAmount)
+    {
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.IncreaseLife();
+        }
+    }
+
+    // Otros métodos relacionados con el jugador...
 }

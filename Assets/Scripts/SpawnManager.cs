@@ -8,32 +8,12 @@ public class SpawnManager : MonoBehaviour
     public Transform spawnPoint;     // Punto de spawn en la escena
     public float countdownTime = 10f; // Tiempo en segundos antes de spawnear al jugador
 
-    [Header("Audio Settings")]
-    public AudioClip spawnSound;      // Sonido a reproducir al spawnear al jugador
-    private AudioSource audioSource;
-
-    [Header("Camera Settings")]
-    public CinemachineVirtualCamera virtualCamera; // Referencia a la Cinemachine Virtual Camera
-
     private float currentTime;
     private bool hasSpawned = false;
 
     private void Start()
     {
         currentTime = countdownTime;
-
-        // Obtener o añadir el componente AudioSource
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
-
-        // Asignar el AudioClip al AudioSource
-        if (spawnSound != null)
-        {
-            audioSource.clip = spawnSound;
-        }
     }
 
     private void Update()
@@ -62,17 +42,14 @@ public class SpawnManager : MonoBehaviour
             // Instanciar al jugador
             GameObject playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
 
-            // Reproducir el sonido de spawn
-            if (audioSource != null && spawnSound != null)
+            // Asignar el jugador a los campos Follow y Look At de la cámara a través del GameManager
+            if (GameManager.instance != null)
             {
-                audioSource.PlayOneShot(spawnSound);
+                GameManager.instance.SetCameraTarget(playerInstance.transform);
             }
-
-            // Asignar el jugador a los campos Follow y Look At de la cámara
-            if (virtualCamera != null)
+            else
             {
-                virtualCamera.Follow = playerInstance.transform;
-                virtualCamera.LookAt = playerInstance.transform;
+                Debug.LogError("GameManager.instance es null. Asegúrate de que el GameManager está en la escena.");
             }
         }
     }

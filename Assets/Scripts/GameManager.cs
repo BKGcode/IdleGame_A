@@ -1,164 +1,133 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using Cinemachine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    // Singleton Instance
-    public static GameManager Instance { get; private set; }
+    public static GameManager instance;
 
-    [Header("UI Elements")]
-    public GameObject gameOverPanel;
-    public Image[] heartImages; // Asigna estas imágenes en el Inspector
-    public Sprite fullHeart;
-    public Sprite emptyHeart;
+    [Header("Cinemachine")]
+    public CinemachineVirtualCamera virtualCamera;
 
-    [Header("Audio Settings")]
-    public AudioClip gameOverSound;
-    private AudioSource audioSource;
+    [Header("Lives Settings")]
+    public int maxLives = 3; // Número máximo de vidas
+    private int currentLives;
 
-    private int maxHearts = 5;
-    private int currentHearts;
+    [Header("UI Settings")]
+    public Image[] heartImages; // Array de imágenes de corazones
+    public Sprite fullHeart;    // Sprite del corazón lleno
+    public Sprite emptyHeart;   // Sprite del corazón vacío
+    public GameObject gameOverPanel; // Panel de Game Over
 
-    private bool isGameOver = false;
+    // Evento para cuando el jugador muere
+    public delegate void OnPlayerDeath();
+    public event OnPlayerDeath PlayerDeathEvent;
 
     private void Awake()
     {
-        // Implementación del patrón Singleton
-        if (Instance == null)
+        // Implementar el Patrón Singleton
+        if (instance == null)
         {
-            Instance = this;
+            instance = this;
             DontDestroyOnLoad(gameObject); // Persistir entre escenas
+            InitializeLives();
         }
         else
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // Destruir duplicados
             return;
-        }
-
-        // Obtener o añadir AudioSource
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
         }
     }
 
-    private void Start()
+    private void InitializeLives()
     {
-        // Inicializar estados
-        currentHearts = maxHearts;
+        currentLives = maxLives;
         UpdateHeartsUI();
 
         if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
-        else
-            Debug.LogError("Game Over Panel no está asignado en el Inspector.");
-
-        if (gameOverSound == null)
-            Debug.LogWarning("Game Over Sound no está asignado en el Inspector.");
-    }
-
-    #region Heart Management
-
-    public void UpdateHearts(int newHeartCount)
-    {
-        currentHearts = Mathf.Clamp(newHeartCount, 0, maxHearts);
-        UpdateHeartsUI();
-
-        if (currentHearts <= 0)
         {
-            TriggerGameOver();
+            gameOverPanel.SetActive(false);
         }
     }
 
+    // Método para asignar el objetivo de la cámara
+    public void SetCameraTarget(Transform target)
+    {
+        if (virtualCamera != null)
+        {
+            virtualCamera.Follow = target;
+            virtualCamera.LookAt = target;
+        }
+        else
+        {
+            Debug.LogError("Cinemachine Virtual Camera no está asignada en el GameManager.");
+        }
+    }
+
+    // Método para disminuir una vida
+    public void DecreaseLife()
+    {
+        if (currentLives > 0)
+        {
+            currentLives--;
+            UpdateHeartsUI();
+
+            if (currentLives <= 0)
+            {
+                Die();
+            }
+        }
+    }
+
+    // Método para aumentar una vida (opcional)
+    public void IncreaseLife()
+    {
+        if (currentLives < maxLives)
+        {
+            currentLives++;
+            UpdateHeartsUI();
+        }
+    }
+
+    // Actualizar la UI de los corazones con sprites
     private void UpdateHeartsUI()
     {
-        if (heartImages == null || fullHeart == null || emptyHeart == null)
-        {
-            Debug.LogError("Heart Images o Sprites no están correctamente asignados en el GameManager.");
-            return;
-        }
-
         for (int i = 0; i < heartImages.Length; i++)
         {
-            if (i < currentHearts)
+            if (i < currentLives)
+            {
                 heartImages[i].sprite = fullHeart;
+            }
             else
+            {
                 heartImages[i].sprite = emptyHeart;
+            }
         }
     }
 
-    #endregion
-
-    #region Game Over Management
-
-    public void TriggerGameOver()
+    // Método a llamar cuando el jugador muere
+    private void Die()
     {
-        if (isGameOver)
-            return;
-
-        isGameOver = true;
-
+        Debug.Log("Jugador ha muerto");
         if (gameOverPanel != null)
+        {
             gameOverPanel.SetActive(true);
+        }
 
-        if (audioSource != null && gameOverSound != null)
-            audioSource.PlayOneShot(gameOverSound);
+        // Invocar el evento de muerte del jugador
+        PlayerDeathEvent?.Invoke();
 
-        Time.timeScale = 0f; // Pausar el juego
+        // Aquí puedes agregar lógica adicional como pausar el juego, reiniciar la escena, etc.
     }
 
-    public void RestartGame()
+    // Método para resetear las vidas (opcional)
+    public void ResetLives()
     {
-        Time.timeScale = 1f; // Reanudar el juego
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        currentLives = maxLives;
+        UpdateHeartsUI();
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+        }
     }
-
-    public void QuitToMainMenu()
-    {
-        Time.timeScale = 1f; // Reanudar el juego
-        SceneManager.LoadScene("MainMenu"); // Asegúrate de que el nombre coincide
-    }
-
-    #endregion
-
-    #region Event Subscription
-
-    private void OnEnable()
-    {
-        // Suscribirse a los eventos
-        GameEvents.OnPlayerDamaged += HandlePlayerDamaged;
-        GameEvents.OnPlayerHealed += HandlePlayerHealed;
-        GameEvents.OnPlayerDeath += HandlePlayerDeath;
-    }
-
-    private void OnDisable()
-    {
-        // Desuscribirse de los eventos
-        GameEvents.OnPlayerDamaged -= HandlePlayerDamaged;
-        GameEvents.OnPlayerHealed -= HandlePlayerHealed;
-        GameEvents.OnPlayerDeath -= HandlePlayerDeath;
-    }
-
-    #endregion
-
-    #region Event Handlers
-
-    private void HandlePlayerDamaged(int damage)
-    {
-        UpdateHearts(currentHearts - damage);
-    }
-
-    private void HandlePlayerHealed(int amount)
-    {
-        UpdateHearts(currentHearts + amount);
-    }
-
-    private void HandlePlayerDeath()
-    {
-        TriggerGameOver();
-    }
-
-    #endregion
 }

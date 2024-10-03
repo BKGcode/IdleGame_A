@@ -2988,7 +2988,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 767825200}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
         m_MethodName: CloseOptions
         m_Mode: 1
@@ -3565,9 +3565,7 @@ GameObject:
   - component: {fileID: 767825196}
   - component: {fileID: 767825197}
   - component: {fileID: 767825198}
-  - component: {fileID: 767825200}
   - component: {fileID: 767825199}
-  - component: {fileID: 767825201}
   m_Layer: 5
   m_Name: CNT_MainButtons
   m_TagString: Untagged
@@ -3665,33 +3663,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 521f50966539deb439f58214dbba0e14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &767825200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 767825195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18231aa63fcdfb54c9117a4198017b1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  masterSlider: {fileID: 761348922}
-  musicSlider: {fileID: 284213320}
---- !u!114 &767825201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 767825195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c233d23a63af82f4f95a77d50ccb9636, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioMixer: {fileID: 24100000, guid: a71061c9b417b0040b80975a4fcdc61c, type: 2}
 --- !u!1 &777025416
 GameObject:
   m_ObjectHideFlags: 0
@@ -6314,7 +6285,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 767825200}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
         m_MethodName: CloseOptions
         m_Mode: 1

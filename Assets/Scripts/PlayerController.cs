@@ -2,57 +2,52 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Health Settings")]
-    public int maxHearts = 5;
-    private int currentHearts;
+    [Header("Movement Settings")]
+    public float speed = 5f;
+    private Rigidbody rb;
 
-    private void Start()
+    void Start()
     {
-        currentHearts = maxHearts;
-        // Emitir evento inicial para actualizar la UI de corazones
-        GameEvents.PlayerHealed(0); // Pasa 0 para solo actualizar la UI
-    }
-
-    private void Update()
-    {
-        // Aquí puedes agregar la lógica de movimiento u otras interacciones del jugador
-    }
-
-    public void TakeDamage(int damage)
-    {
-        currentHearts -= damage;
-        if (currentHearts <= 0)
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
         {
-            currentHearts = 0;
-            Die();
+            Debug.LogError("Rigidbody no está asignado en el PlayerController.");
         }
-
-        // Emitir evento de daño para que otros sistemas lo escuchen
-        GameEvents.PlayerDamaged(damage);
     }
 
-    public void Heal(int amount)
+    void FixedUpdate()
     {
-        currentHearts += amount;
-        if (currentHearts > maxHearts)
-            currentHearts = maxHearts;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
 
-        // Emitir evento de curación para que otros sistemas lo escuchen
-        GameEvents.PlayerHealed(amount);
+        Vector3 movement = new Vector3(horizontal, 0, vertical).normalized * speed * Time.fixedDeltaTime;
+        rb.MovePosition(rb.position + movement);
     }
 
-    private void Die()
+    // Método para recibir daño
+    public void ReceiveDamage(int damageAmount)
     {
-        // Emitir evento de muerte
-        GameEvents.PlayerDied();
+        // Aquí podrías manejar la salud del jugador si tienes un sistema de salud adicional
 
-        // Opcional: Desactivar al jugador, reproducir animación de muerte, etc.
-        gameObject.SetActive(false);
+        // Informar al GameManager que el jugador ha recibido daño
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.DecreaseLife();
+        }
+        else
+        {
+            Debug.LogError("GameManager.instance es null. Asegúrate de que el GameManager está en la escena.");
+        }
     }
 
-    // Método para obtener el estado actual de corazones (opcional)
-    public int GetCurrentHearts()
+    // Método para curarse (opcional)
+    public void Heal(int healAmount)
     {
-        return currentHearts;
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.IncreaseLife();
+        }
     }
+
+    // Otros métodos relacionados con el jugador...
 }

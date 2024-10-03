@@ -408,21 +408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
   m_Name: ExteriorVolumeProfile
   m_EditorClassIdentifier: 
-  components:
-  - {fileID: -8075041343399620118}
-  - {fileID: 5580338249648076752}
-  - {fileID: 6508213727735904763}
-  - {fileID: 7879906963843830384}
-  - {fileID: -8067166546897044546}
-  - {fileID: 3884085445312726101}
-  - {fileID: 1469905032442258176}
-  - {fileID: 4624770114631576748}
-  - {fileID: 254486641261711594}
-  - {fileID: -6975776770395274358}
-  - {fileID: 1918416040923684496}
-  - {fileID: -5853923668859720466}
-  - {fileID: 4302018370519120706}
-  - {fileID: -3552054655843743451}
+  components: []
 --- !u!114 &254486641261711594
 MonoBehaviour:
   m_ObjectHideFlags: 3
