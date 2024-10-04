@@ -136,6 +136,16 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         Time.timeScale = 1f; // Restablecer el tiempo
+        points = 0; // Resetear los puntos
+        timePlayed = 0; // Resetear el tiempo jugado
+        playerMoney = 100; // Restablecer el dinero inicial
+        incomeMultiplier = 1f; // Restablecer el multiplicador de ingresos
+        cooldownReduction = 1f; // Restablecer el cooldown
+
+        // Notificar los cambios a los suscriptores
+        OnMoneyChanged?.Invoke();
+        OnPointsChanged?.Invoke();
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Reiniciar la escena actual
     }
 

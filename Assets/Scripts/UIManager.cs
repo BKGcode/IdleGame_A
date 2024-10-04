@@ -4,9 +4,13 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     [Header("UI Text Elements")]
-    [SerializeField] private TextMeshProUGUI moneyText; // Text element for money
-    [SerializeField] private TextMeshProUGUI pointsText; // Text element for points
-    [SerializeField] private TextMeshProUGUI timePlayedText; // Text element for time played
+    [SerializeField] private TextMeshProUGUI moneyText; // Elemento de texto para el dinero
+    [SerializeField] private TextMeshProUGUI pointsText; // Elemento de texto para los puntos
+    [SerializeField] private TextMeshProUGUI timePlayedText; // Elemento de texto para el tiempo jugado
+
+    public int score; // Puntos del jugador
+    public float timePlayed; // Tiempo jugado
+    public int money; // Dinero del jugador
 
     private void Start()
     {
@@ -61,5 +65,18 @@ public class UIManager : MonoBehaviour
             int seconds = Mathf.FloorToInt(timePlayed % 60F);
             timePlayedText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         }
+    }
+
+    // Método para resetear los contadores y estadísticas de la UI al reiniciar el juego
+    public void ResetUI()
+    {
+        score = 0; // Reiniciar los puntos
+        timePlayed = 0; // Reiniciar el tiempo de juego
+        money = 100; // Restablecer el dinero inicial
+
+        // Actualizar los textos en la interfaz
+        UpdateMoneyText();
+        UpdatePointsText();
+        UpdateTimePlayedText();
     }
 }

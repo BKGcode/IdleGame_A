@@ -1,11 +1,14 @@
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI; // Añadir esta directiva para usar el tipo Button
 
 public class PopupManager : MonoBehaviour
 {
     [SerializeField] private GameObject gameOverPopup;
-    [SerializeField] private TMPro.TextMeshProUGUI gameOverPointsText;
-    [SerializeField] private TMPro.TextMeshProUGUI gameOverMoneyText;
-    [SerializeField] private TMPro.TextMeshProUGUI gameOverTimeText;
+    [SerializeField] private TextMeshProUGUI gameOverPointsText;
+    [SerializeField] private TextMeshProUGUI gameOverMoneyText;
+    [SerializeField] private TextMeshProUGUI gameOverTimeText;
+    [SerializeField] private Button restartButton; // Botón de Reiniciar
 
     private GameManager gameManager;
     private SaveManager saveManager;
@@ -15,6 +18,9 @@ public class PopupManager : MonoBehaviour
         gameManager = GameManager.Instance;
         saveManager = FindObjectOfType<SaveManager>();
         gameOverPopup.SetActive(false); // Asegurarse de que el popup esté oculto al inicio
+
+        // Añadir el listener para el botón de reinicio
+        restartButton.onClick.AddListener(RestartGame);
     }
 
     public void ShowGameOverPopup()
@@ -24,7 +30,7 @@ public class PopupManager : MonoBehaviour
         // Actualizar los textos con la información del GameManager
         gameOverPointsText.text = gameManager.GetPoints().ToString();
         gameOverMoneyText.text = gameManager.GetMoney().ToString();
-        
+
         // Formatear el tiempo en minutos:segundos (MM:SS)
         float timePlayed = gameManager.GetTimePlayed();
         int minutes = Mathf.FloorToInt(timePlayed / 60);
@@ -53,5 +59,12 @@ public class PopupManager : MonoBehaviour
             // Guardar los datos utilizando el SaveManager
             saveManager.SaveGameData(gameData);
         }
+    }
+
+    // Método para reiniciar el juego
+    private void RestartGame()
+    {
+        // Llamar al método de reiniciar partida en GameManager
+        gameManager.RestartGame();
     }
 }
