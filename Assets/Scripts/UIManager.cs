@@ -1,25 +1,59 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public Image[] hearts; // Array de imágenes de los corazones
-    public Sprite fullHeart; // Sprite de corazón lleno
-    public Sprite emptyHeart; // Sprite de corazón vacío
+    [SerializeField] private TextMeshProUGUI moneyText; // Texto que muestra el dinero
+    [SerializeField] private TextMeshProUGUI pointsText; // Texto que muestra los puntos
+    [SerializeField] private TextMeshProUGUI timePlayedText; // Texto que muestra el tiempo jugado
+    [SerializeField] private Image[] lifeIcons; // Imágenes que representan las vidas
 
-    // Método para actualizar la UI de las vidas
-    public void UpdateLivesUI(int lives)
+    private void OnEnable()
     {
-        for (int i = 0; i < hearts.Length; i++)
+        GameManager.Instance.OnMoneyChanged += UpdateMoneyText;
+        GameManager.Instance.OnPointsChanged += UpdatePointsText;
+        // Suscribirse a otros eventos si es necesario
+    }
+
+    private void OnDisable()
+    {
+        GameManager.Instance.OnMoneyChanged -= UpdateMoneyText;
+        GameManager.Instance.OnPointsChanged -= UpdatePointsText;
+        // Cancelar suscripción a otros eventos si es necesario
+    }
+
+    private void Start()
+    {
+        UpdateMoneyText();
+        UpdatePointsText();
+        UpdateTimePlayedText();
+    }
+
+    // Método para actualizar el texto del dinero
+    private void UpdateMoneyText()
+    {
+        moneyText.text = $"Money: {GameManager.Instance.GetMoney()}";
+    }
+
+    // Método para actualizar el texto de los puntos
+    private void UpdatePointsText()
+    {
+        pointsText.text = $"Points: {GameManager.Instance.GetPoints()}";
+    }
+
+    // Método para actualizar el texto del tiempo jugado
+    private void UpdateTimePlayedText()
+    {
+        timePlayedText.text = $"Time Played: {GameManager.Instance.GetTimePlayed()}s";
+    }
+
+    // Método para actualizar las vidas en la UI
+    public void UpdateLivesUI(int currentLives)
+    {
+        for (int i = 0; i < lifeIcons.Length; i++)
         {
-            if (i < lives)
-            {
-                hearts[i].sprite = fullHeart; // Mostrar corazón lleno
-            }
-            else
-            {
-                hearts[i].sprite = emptyHeart; // Mostrar corazón vacío
-            }
+            lifeIcons[i].enabled = i < currentLives;
         }
     }
 }

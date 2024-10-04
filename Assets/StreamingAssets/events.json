@@ -1,0 +1,18 @@
+{
+    "events": [
+        {
+            "eventName": "Doble Dinero",
+            "startTime": "2024-10-05T10:00:00",
+            "endTime": "2024-10-06T23:59:00",
+            "rewardMultiplier": 2,
+            "isActive": false
+        },
+        {
+            "eventName": "Triple Puntos",
+            "startTime": "2024-11-01T00:00:00",
+            "endTime": "2024-11-03T23:59:00",
+            "rewardMultiplier": 3,
+            "isActive": false
+        }
+    ]
+}

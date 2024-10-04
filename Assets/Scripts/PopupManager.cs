@@ -1,18 +1,24 @@
 using UnityEngine;
-using TMPro; // Para TextMeshPro
+using TMPro;
 
 public class PopupManager : MonoBehaviour
 {
-    public GameObject gameOverPopup; // Panel del popup de Game Over
-    public TextMeshProUGUI pointsText; // Texto para mostrar los puntos
-    public TextMeshProUGUI timeText; // Texto para mostrar la duración de la partida
+    [Header("Popup UI Components")]
+    [SerializeField] private GameObject gameOverPopup;
+    [SerializeField] private TextMeshProUGUI pointsText;
+    [SerializeField] private TextMeshProUGUI timeText;
 
-    public GameManager gameManager; // Referencia al GameManager para obtener puntos y tiempo
+    private GameManager gameManager;
 
-    // Método para mostrar el popup de Game Over
+    private void Start()
+    {
+        gameManager = GameManager.Instance;
+    }
+
+    // Mostrar el popup de Game Over
     public void ShowGameOverPopup()
     {
-        gameOverPopup.SetActive(true); // Activar el popup
+        gameOverPopup.SetActive(true); // Mostrar popup
         pointsText.text = "Points: " + gameManager.GetPoints(); // Mostrar puntos
         timeText.text = "Time: " + gameManager.GetTimePlayed() + " seconds"; // Mostrar tiempo
     }

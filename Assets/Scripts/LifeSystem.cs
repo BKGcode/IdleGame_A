@@ -1,41 +1,65 @@
 using UnityEngine;
-using System;
 
 public class LifeSystem : MonoBehaviour
 {
-    public int maxLives = 3; // Vidas máximas
-    public int currentLives; // Vidas actuales
+    [SerializeField] private int maxLives = 3;
+    private int currentLives;
 
-    public event Action OnLifeLost; // Evento cuando se pierde una vida
-    public event Action OnLifeGained; // Evento cuando se gana una vida
-    public event Action OnGameOver; // Evento cuando el jugador pierde todas las vidas
-
-    public UIManager uiManager; // Referencia al sistema de UI para actualizar corazones
+    private UIManager uiManager;
 
     private void Start()
     {
-        currentLives = maxLives; // Inicializar las vidas
-        uiManager.UpdateLivesUI(currentLives); // Actualizar la UI
-    }
+        currentLives = maxLives;
+        uiManager = FindObjectOfType<UIManager>();
 
-    // Método para perder vidas
-    public void LoseLife(int damage)
-    {
-        currentLives -= damage;
-        OnLifeLost?.Invoke(); // Disparar el evento de pérdida de vida
-        uiManager.UpdateLivesUI(currentLives); // Actualizar UI
-
-        if (currentLives <= 0)
+        if (uiManager == null)
         {
-            OnGameOver?.Invoke(); // Disparar el evento de Game Over
+            Debug.LogError("No se encontró UIManager en la escena.");
+        }
+        else
+        {
+            uiManager.UpdateLivesUI(currentLives);
         }
     }
 
-    // Método para ganar vidas
+    // Método para perder una vida
+    public void LoseLife(int damageAmount)
+    {
+        currentLives -= damageAmount;
+        if (currentLives < 0)
+        {
+            currentLives = 0;
+        }
+
+        if (uiManager != null)
+        {
+            uiManager.UpdateLivesUI(currentLives);
+        }
+
+        if (currentLives <= 0)
+        {
+            GameOver();
+        }
+    }
+
+    // Método para ganar una vida
     public void GainLife(int amount)
     {
-        currentLives = Mathf.Min(currentLives + amount, maxLives); // Limitar el número de vidas al máximo
-        OnLifeGained?.Invoke(); // Disparar el evento de ganancia de vida
-        uiManager.UpdateLivesUI(currentLives); // Actualizar UI
+        currentLives += amount;
+        if (currentLives > maxLives)
+        {
+            currentLives = maxLives;
+        }
+
+        if (uiManager != null)
+        {
+            uiManager.UpdateLivesUI(currentLives);
+        }
+    }
+
+    private void GameOver()
+    {
+        // Lógica para el fin del juego
+        GameManager.Instance.GameOver();
     }
 }
