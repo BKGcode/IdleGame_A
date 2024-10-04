@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f; // Velocidad del jugador
+    public float moveSpeed = 5f; // Velocidad normal del jugador
+    public float boostSpeed = 10f; // Velocidad de impulso al presionar Shift
     private Vector3 moveDirection; // Dirección de movimiento
 
     public LifeSystem lifeSystem; // Referencia al sistema de vidas
@@ -21,7 +22,8 @@ public class PlayerController : MonoBehaviour
 
         if (moveDirection.magnitude >= 0.1f)
         {
-            transform.Translate(moveDirection * moveSpeed * Time.deltaTime, Space.World); // Movimiento del jugador
+            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? boostSpeed : moveSpeed; // Cambiar velocidad si se presiona Shift
+            transform.Translate(moveDirection * currentSpeed * Time.deltaTime, Space.World); // Movimiento del jugador
         }
     }
 

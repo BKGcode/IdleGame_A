@@ -6,9 +6,10 @@ public class UpgradeButtonUI : MonoBehaviour
 {
     [Header("UI Components")]
     [SerializeField] private TextMeshProUGUI upgradeNameText;
-    [SerializeField] private TextMeshProUGUI upgradeInfoText;
-    [SerializeField] private Image upgradeImage; // Imagen que ya tiene el prefab
-    [SerializeField] private Image unavailableOverlayImage; // Imagen gris que aparece si no está disponible
+    [SerializeField] private TextMeshProUGUI upgradeCostText; 
+    [SerializeField] private TextMeshProUGUI upgradeUsesText; 
+    [SerializeField] private Image upgradeImage; 
+    [SerializeField] private Image unavailableOverlayImage;
     [SerializeField] private Button upgradeButton;
 
     private UpgradeData assignedUpgrade;
@@ -18,7 +19,8 @@ public class UpgradeButtonUI : MonoBehaviour
     {
         assignedUpgrade = upgrade;
         upgradeNameText.text = upgrade.upgradeName;
-        upgradeInfoText.text = $"Cost: {upgrade.baseCost} | Uses: {UpgradeManager.Instance.GetRemainingUses(upgrade)}";
+        upgradeCostText.text = upgrade.baseCost.ToString(); // Asigna solo el valor del coste
+        upgradeUsesText.text = UpgradeManager.Instance.GetRemainingUses(upgrade).ToString(); // Asigna solo el valor de usos
         
         // Actualizar el estado del botón cuando se inicializa
         UpdateButtonState();
@@ -34,32 +36,20 @@ public class UpgradeButtonUI : MonoBehaviour
     // Actualiza el estado visual del botón
     private void UpdateButtonState()
     {
-        // Verificamos si la mejora sigue estando disponible
         bool isAvailable = UpgradeManager.Instance.IsUpgradeAvailable(assignedUpgrade);
-
-        // Mostramos u ocultamos la imagen gris superpuesta según la disponibilidad
         unavailableOverlayImage.gameObject.SetActive(!isAvailable);
-
-        // Habilitamos o deshabilitamos el botón dependiendo de si la mejora está disponible
         upgradeButton.interactable = isAvailable;
-
-        // Añadimos un Log para verificar el estado del botón y la imagen gris
-        Debug.Log("Actualizando estado del botón. Disponible: " + isAvailable);
     }
 
     // Método que se llama cuando el jugador intenta comprar la mejora
     public void OnUpgradeButtonPressed()
     {
-        Debug.Log("Intentando comprar la mejora: " + assignedUpgrade.upgradeName);
-
         if (UpgradeManager.Instance.TryPurchaseUpgrade(assignedUpgrade))
         {
-            Debug.Log("Mejora comprada: " + assignedUpgrade.upgradeName);
             UpdateButtonState(); // Actualizar el estado visual del botón después de la compra
-        }
-        else
-        {
-            Debug.LogWarning("No se pudo comprar la mejora: " + assignedUpgrade.upgradeName);
+
+            // Actualizar el texto de usos después de la compra
+            upgradeUsesText.text = UpgradeManager.Instance.GetRemainingUses(assignedUpgrade).ToString();
         }
     }
 }

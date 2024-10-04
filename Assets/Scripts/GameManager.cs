@@ -74,7 +74,6 @@ public class GameManager : MonoBehaviour
     {
         playerMoney += amount;
         OnMoneyChanged?.Invoke(); // Disparar el evento cuando cambie el dinero
-        Debug.Log("Dinero actualizado: " + playerMoney);
     }
 
     // Método para gastar dinero
@@ -102,7 +101,6 @@ public class GameManager : MonoBehaviour
     {
         points += amount;
         OnPointsChanged?.Invoke(); // Disparar evento al cambiar puntos
-        Debug.Log("Puntos actualizados: " + points);
     }
 
     public int GetPoints()
@@ -130,7 +128,6 @@ public class GameManager : MonoBehaviour
     public void ApplyIncomeMultiplier(float multiplier)
     {
         incomeMultiplier += multiplier;
-        Debug.Log("Nuevo multiplicador de ingresos aplicado: " + incomeMultiplier);
     }
 
     // Método para reducir los cooldowns globales
@@ -141,7 +138,6 @@ public class GameManager : MonoBehaviour
         {
             cooldownReduction = 0.1f;
         }
-        Debug.Log("Reducción de cooldown aplicada: " + cooldownReduction);
     }
 
     // Métodos para obtener los multiplicadores y la reducción de cooldowns
@@ -188,8 +184,7 @@ public class GameManager : MonoBehaviour
     // Método para manejar el Game Over
     public void GameOver()
     {
-        Debug.Log("El juego ha terminado.");
         ChangeGameState(GameState.GameOver);
-        OnGameOverAchievementsCheck?.Invoke(); // Llamar evento para verificar logros de Game Over
+        Debug.Log("El juego ha terminado.");
     }
 }

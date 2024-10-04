@@ -219,6 +219,7 @@ GameObject:
   - component: {fileID: 3553647587490821061}
   - component: {fileID: 7565825721301450473}
   - component: {fileID: 5692950476737476265}
+  - component: {fileID: 5986124328159197773}
   m_Layer: 0
   m_Name: PFB_Player_A
   m_TagString: Player
@@ -337,3 +338,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 2, z: 1}
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &5986124328159197773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7616494312453400471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c70e64afe49a224ba932836453710c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  lifeSystem: {fileID: 0}

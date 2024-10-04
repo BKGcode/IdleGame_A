@@ -1,65 +1,105 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
 
 public class LifeSystem : MonoBehaviour
 {
-    [SerializeField] private int maxLives = 3;
+    [Header("Life Settings")]
+    [SerializeField] private int maxLives = 3; // Define el número máximo de vidas
+    [SerializeField] private float cooldownTime = 2f; // Tiempo de cooldown entre la pérdida de vidas
     private int currentLives;
+    private bool canTakeDamage = true; // Variable para rastrear si se puede recibir daño
 
-    private UIManager uiManager;
+    [Header("UI Settings")]
+    [SerializeField] private GameObject heartPrefab; // Prefab del corazón que se muestra en la UI
+    [SerializeField] private Transform heartsContainer; // Contenedor para los corazones en la UI
+    [SerializeField] private Sprite fullHeartSprite; // Sprite del corazón lleno
+    [SerializeField] private Sprite emptyHeartSprite; // Sprite del corazón vacío
+
+    private List<Image> heartImages = new List<Image>();
 
     private void Start()
     {
         currentLives = maxLives;
-        uiManager = FindObjectOfType<UIManager>();
+        GenerateHearts(); // Generar corazones en la UI al inicio
+        UpdateHeartsUI(); // Actualizar la UI para reflejar el número de vidas actuales
+    }
 
-        if (uiManager == null)
+    private void GenerateHearts()
+    {
+        // Limpiar corazones existentes
+        foreach (var heart in heartImages)
         {
-            Debug.LogError("No se encontró UIManager en la escena.");
+            Destroy(heart.gameObject);
         }
-        else
+        heartImages.Clear();
+
+        // Generar corazones basados en maxLives
+        for (int i = 0; i < maxLives; i++)
         {
-            uiManager.UpdateLivesUI(currentLives);
+            GameObject newHeart = Instantiate(heartPrefab, heartsContainer);
+            Image heartImage = newHeart.GetComponent<Image>();
+            heartImages.Add(heartImage);
         }
     }
 
-    // Método para perder una vida
+    private void UpdateHeartsUI()
+    {
+        // Actualizar los corazones en la UI basado en currentLives
+        for (int i = 0; i < heartImages.Count; i++)
+        {
+            if (i < currentLives)
+            {
+                heartImages[i].sprite = fullHeartSprite; // Corazón lleno
+            }
+            else
+            {
+                heartImages[i].sprite = emptyHeartSprite; // Corazón vacío
+            }
+        }
+    }
+
     public void LoseLife(int damageAmount)
     {
-        currentLives -= damageAmount;
-        if (currentLives < 0)
+        if (canTakeDamage)
         {
-            currentLives = 0;
-        }
+            currentLives -= damageAmount;
+            if (currentLives < 0)
+            {
+                currentLives = 0;
+            }
+            UpdateHeartsUI(); // Actualizar la UI cuando cambien las vidas
 
-        if (uiManager != null)
-        {
-            uiManager.UpdateLivesUI(currentLives);
-        }
+            if (currentLives <= 0)
+            {
+                ShowGameOver();
+            }
 
-        if (currentLives <= 0)
-        {
-            GameOver();
+            StartCoroutine(DamageCooldown()); // Iniciar cooldown después de recibir daño
         }
     }
 
-    // Método para ganar una vida
-    public void GainLife(int amount)
+    private IEnumerator DamageCooldown()
     {
-        currentLives += amount;
+        canTakeDamage = false;
+        yield return new WaitForSeconds(cooldownTime);
+        canTakeDamage = true;
+    }
+
+    public void GainLife(int healAmount)
+    {
+        currentLives += healAmount;
         if (currentLives > maxLives)
         {
             currentLives = maxLives;
         }
-
-        if (uiManager != null)
-        {
-            uiManager.UpdateLivesUI(currentLives);
-        }
+        UpdateHeartsUI(); // Actualizar la UI cuando cambien las vidas
     }
 
-    private void GameOver()
+    private void ShowGameOver()
     {
-        // Lógica para el fin del juego
-        GameManager.Instance.GameOver();
+        // Lógica para desencadenar el game over
+        Debug.Log("Game Over!");
     }
 }

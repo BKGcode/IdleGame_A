@@ -1,27 +1,12 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI moneyText; // Texto que muestra el dinero
-    [SerializeField] private TextMeshProUGUI pointsText; // Texto que muestra los puntos
-    [SerializeField] private TextMeshProUGUI timePlayedText; // Texto que muestra el tiempo jugado
-    [SerializeField] private Image[] lifeIcons; // Imágenes que representan las vidas
-
-    private void OnEnable()
-    {
-        GameManager.Instance.OnMoneyChanged += UpdateMoneyText;
-        GameManager.Instance.OnPointsChanged += UpdatePointsText;
-        // Suscribirse a otros eventos si es necesario
-    }
-
-    private void OnDisable()
-    {
-        GameManager.Instance.OnMoneyChanged -= UpdateMoneyText;
-        GameManager.Instance.OnPointsChanged -= UpdatePointsText;
-        // Cancelar suscripción a otros eventos si es necesario
-    }
+    [Header("UI Text Elements")]
+    [SerializeField] private TextMeshProUGUI moneyText; // Text element for money
+    [SerializeField] private TextMeshProUGUI pointsText; // Text element for points
+    [SerializeField] private TextMeshProUGUI timePlayedText; // Text element for time played
 
     private void Start()
     {
@@ -30,30 +15,35 @@ public class UIManager : MonoBehaviour
         UpdateTimePlayedText();
     }
 
-    // Método para actualizar el texto del dinero
+    private void Update()
+    {
+        UpdateTimePlayedText();
+    }
+
     private void UpdateMoneyText()
     {
-        moneyText.text = $"Money: {GameManager.Instance.GetMoney()}";
+        if (GameManager.Instance != null)
+        {
+            moneyText.text = GameManager.Instance.GetMoney().ToString();
+        }
     }
 
-    // Método para actualizar el texto de los puntos
     private void UpdatePointsText()
     {
-        pointsText.text = $"Points: {GameManager.Instance.GetPoints()}";
+        if (GameManager.Instance != null)
+        {
+            pointsText.text = GameManager.Instance.GetPoints().ToString();
+        }
     }
 
-    // Método para actualizar el texto del tiempo jugado
     private void UpdateTimePlayedText()
     {
-        timePlayedText.text = $"Time Played: {GameManager.Instance.GetTimePlayed()}s";
-    }
-
-    // Método para actualizar las vidas en la UI
-    public void UpdateLivesUI(int currentLives)
-    {
-        for (int i = 0; i < lifeIcons.Length; i++)
+        if (GameManager.Instance != null)
         {
-            lifeIcons[i].enabled = i < currentLives;
+            float timePlayed = GameManager.Instance.GetTimePlayed();
+            int minutes = Mathf.FloorToInt(timePlayed / 60F);
+            int seconds = Mathf.FloorToInt(timePlayed % 60F);
+            timePlayedText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         }
     }
 }
