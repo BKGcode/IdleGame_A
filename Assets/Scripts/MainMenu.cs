@@ -1,195 +1,163 @@
+using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 
 public class MainMenu : MonoBehaviour
 {
-    // Referencias a los botones del menú principal
+    // --- Botones del Menú Principal ---
+    [Header("Main Menu Buttons")]
     public Button newGameButton;
-    public Button rankingButton;
     public Button optionsButton;
-    public Button quitButton;
+    public Button rankingButton;
+    public Button exitButton;
 
-    // Referencias a los popups
-    public GameObject newGamePopup;
-    public GameObject rankingPopup;
-    public GameObject optionsPopup;
-    public GameObject quitPopup;
+    // --- Panel de Confirmación ---
+    [Header("Confirmation Popup")]
+    public GameObject confirmationPrefab;
+    public TextMeshProUGUI confirmationTitle;
+    public TextMeshProUGUI confirmationMessage;
+    public Image confirmationImage;
+    public Button confirmButton;
+    public Button cancelButton;
 
-    // Referencias a los botones dentro de los popups
-    public Button confirmNewGameButton;
-    public Button cancelNewGameButton;
-    public Button closeRankingButton;
+    // --- Texto e Imagen del Popup (Editable en el Inspector) ---
+    [Header("New Game Confirmation")]
+    public string newGameTitle;
+    public string newGameMessage;
+    public Sprite newGameImage;
+
+    [Header("Exit Game Confirmation")]
+    public string exitTitle;
+    public string exitMessage;
+    public Sprite exitImage;
+
+    // --- Panel de Opciones ---
+    [Header("Options Panel")]
+    public GameObject optionsPanel;
     public Button closeOptionsButton;
-    public Button confirmQuitButton;
-    public Button cancelQuitButton;
 
-    // Referencias para el ranking
-    public GameObject rankingEntryPrefab;  // Prefab de la entrada del ranking
-    public Transform rankingContent;       // Contenedor donde se añaden las entradas
+    // --- Panel de Ranking ---
+    [Header("Ranking Panel")]
+    public GameObject rankingPanel;
+    public Button closeRankingButton;
 
-    private void Start()
+    // Delegados para las acciones de confirmación
+    private Action confirmAction;
+
+    void Start()
     {
-        // Asignar listeners a los botones del menú principal
-        newGameButton.onClick.AddListener(OnNewGameButtonClicked);
-        rankingButton.onClick.AddListener(OpenRanking);
+        // Asignar funciones a los botones del menú principal
+        newGameButton.onClick.AddListener(OnNewGame);
         optionsButton.onClick.AddListener(OpenOptions);
-        quitButton.onClick.AddListener(ShowQuitPopup);
+        rankingButton.onClick.AddListener(OpenRanking);
+        exitButton.onClick.AddListener(OnExit);
 
-        // Asignar listeners a los botones del popup de nueva partida
-        confirmNewGameButton.onClick.AddListener(ConfirmNewGame);
-        cancelNewGameButton.onClick.AddListener(CancelNewGame);
+        // Asignar funciones a los botones de cierre de paneles
+        closeOptionsButton.onClick.AddListener(CloseOptionsPanel);
+        closeRankingButton.onClick.AddListener(CloseRankingPanel);
 
-        // Asignar listener al botón de cerrar del popup de ranking
-        closeRankingButton.onClick.AddListener(CloseRanking);
-
-        // Asignar listeners a los botones del popup de opciones
-        closeOptionsButton.onClick.AddListener(CloseOptions);
-
-        // Asignar listeners a los botones del popup de salir
-        confirmQuitButton.onClick.AddListener(ConfirmQuit);
-        cancelQuitButton.onClick.AddListener(CancelQuit);
-
-        // Asegurarse de que los popups estén desactivados al inicio
-        if (newGamePopup != null)
-            newGamePopup.SetActive(false);
-
-        if (rankingPopup != null)
-            rankingPopup.SetActive(false);
-
-        if (optionsPopup != null)
-            optionsPopup.SetActive(false);
-
-        if (quitPopup != null)
-            quitPopup.SetActive(false);
+        // Asegurarse de que los paneles estén cerrados al iniciar
+        CloseAllPanels();
     }
 
-    // Método llamado al hacer clic en el botón "Nuevo Juego"
-    public void OnNewGameButtonClicked()
+    // --- Confirmación para Nuevo Juego ---
+    void OnNewGame()
     {
-        // Mostrar el popup de confirmación para iniciar una nueva partida
-        if (newGamePopup != null)
-            newGamePopup.SetActive(true);
+        ShowConfirmation(newGameTitle,
+                         newGameMessage,
+                         newGameImage,
+                         () =>
+                         {
+                             // Cargar la escena del juego si se confirma, sin cerrar el panel
+                             SceneManager.LoadScene("SCENE_A");
+                         });
     }
 
-    // Método llamado al confirmar iniciar una nueva partida
-    public void ConfirmNewGame()
+    // --- Confirmación para Salir del Juego ---
+    void OnExit()
     {
-        // Cerrar el popup de nueva partida
-        if (newGamePopup != null)
-            newGamePopup.SetActive(false);
-
-        // Iniciar una nueva partida
-        StartNewGame();
+        ShowConfirmation(exitTitle,
+                         exitMessage,
+                         exitImage,
+                         () =>
+                         {
+                             // Cerrar el juego si se confirma, sin cerrar el panel
+                             Application.Quit();
+                         });
     }
 
-    // Método para cancelar la creación de una nueva partida
-    public void CancelNewGame()
+    // --- Abrir Panel de Opciones ---
+    void OpenOptions()
     {
-        if (newGamePopup != null)
-            newGamePopup.SetActive(false);
+        optionsPanel.SetActive(true);
     }
 
-    // Método para iniciar una nueva partida
-    private void StartNewGame()
+    // --- Abrir Panel de Ranking ---
+    void OpenRanking()
     {
-        // Reiniciar los datos del ScoreManager
-        if (ScoreManager.instance != null)
+        rankingPanel.SetActive(true);
+    }
+
+    // --- Cerrar el Panel de Opciones ---
+    void CloseOptionsPanel()
+    {
+        optionsPanel.SetActive(false);
+    }
+
+    // --- Cerrar el Panel de Ranking ---
+    void CloseRankingPanel()
+    {
+        rankingPanel.SetActive(false);
+    }
+
+    // --- Mostrar Popup de Confirmación ---
+    void ShowConfirmation(string title, string message, Sprite image, Action onConfirm)
+    {
+        if (confirmationTitle == null || confirmationMessage == null || confirmButton == null || cancelButton == null)
         {
-            ScoreManager.instance.ResetData();
+            Debug.LogError("Please assign all popup components in the Inspector.");
+            return;
         }
 
-        // Cargar la escena SCENE_A
-        SceneManager.LoadScene("SCENE_A");
-    }
+        confirmationTitle.text = title;
+        confirmationMessage.text = message;
 
-    // Método para abrir el popup de ranking
-    public void OpenRanking()
-    {
-        if (rankingPopup != null)
-            rankingPopup.SetActive(true);
-
-        UpdateRankingUI();
-    }
-
-    // Método para cerrar el popup de ranking
-    public void CloseRanking()
-    {
-        if (rankingPopup != null)
-            rankingPopup.SetActive(false);
-    }
-
-    // Método para actualizar la UI del ranking
-    public void UpdateRankingUI()
-    {
-        // Limpiar las entradas existentes
-        foreach (Transform child in rankingContent)
+        if (image != null)
         {
-            Destroy(child.gameObject);
+            confirmationImage.sprite = image;
+            confirmationImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            confirmationImage.gameObject.SetActive(false);
         }
 
-        // Verificar que el ScoreManager existe
-        if (ScoreManager.instance != null)
+        confirmAction = onConfirm;
+
+        confirmButton.onClick.RemoveAllListeners();
+        confirmButton.onClick.AddListener(() =>
         {
-            // Obtener las mejores partidas del ScoreManager
-            List<ScoreManager.GameData> bestGames = ScoreManager.instance.bestGames;
+            // Ejecutar la acción de confirmación, sin cerrar el panel
+            confirmAction.Invoke();
+        });
 
-            // Generar las entradas del ranking
-            for (int i = 0; i < bestGames.Count; i++)
-            {
-                ScoreManager.GameData gameData = bestGames[i];
+        cancelButton.onClick.RemoveAllListeners();
+        cancelButton.onClick.AddListener(() =>
+        {
+            // Cerrar el panel de confirmación al cancelar
+            confirmationPrefab.SetActive(false);
+        });
 
-                // Instanciar el prefab
-                GameObject entryObj = Instantiate(rankingEntryPrefab, rankingContent);
-
-                // Obtener el componente de texto y actualizarlo
-                TextMeshProUGUI entryText = entryObj.GetComponent<TextMeshProUGUI>();
-                int position = i + 1;
-                int score = gameData.score;
-                float time = gameData.time;
-                int minutes = Mathf.FloorToInt(time / 60F);
-                int seconds = Mathf.FloorToInt(time % 60F);
-                int milliseconds = Mathf.FloorToInt((time * 100F) % 100F);
-
-                entryText.text = string.Format("{0}. Puntos: {1} - Tiempo: {2:00}:{3:00}:{4:00}", position, score, minutes, seconds, milliseconds);
-            }
-        }
+        confirmationPrefab.SetActive(true);
     }
 
-    // Función para abrir el menú de opciones
-    public void OpenOptions()
+    // --- Cerrar Todos los Paneles ---
+    void CloseAllPanels()
     {
-        if (optionsPopup != null)
-            optionsPopup.SetActive(true);
-    }
-
-    // Función para cerrar el menú de opciones
-    public void CloseOptions()
-    {
-        if (optionsPopup != null)
-            optionsPopup.SetActive(false);
-    }
-
-    // Función para mostrar el popup de salir
-    public void ShowQuitPopup()
-    {
-        if (quitPopup != null)
-            quitPopup.SetActive(true);
-    }
-
-    // Función para confirmar la salida del juego
-    public void ConfirmQuit()
-    {
-        Debug.Log("Saliendo del juego...");
-        Application.Quit();
-    }
-
-    // Función para cancelar la salida
-    public void CancelQuit()
-    {
-        if (quitPopup != null)
-            quitPopup.SetActive(false);
+        optionsPanel.SetActive(false);
+        rankingPanel.SetActive(false);
+        confirmationPrefab.SetActive(false);
     }
 }

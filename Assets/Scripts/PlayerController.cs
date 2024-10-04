@@ -2,52 +2,38 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float speed = 5f;
-    private Rigidbody rb;
+    public float moveSpeed = 5f; // Velocidad del jugador
+    private Vector3 moveDirection; // DirecciÛn de movimiento
 
-    void Start()
+    public LifeSystem lifeSystem; // Referencia al sistema de vidas
+
+    private void Update()
     {
-        rb = GetComponent<Rigidbody>();
-        if (rb == null)
+        HandleMovement(); // Manejar el movimiento del jugador
+    }
+
+    private void HandleMovement()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+
+        moveDirection = new Vector3(moveX, 0, moveZ).normalized; // Direccion de movimiento
+
+        if (moveDirection.magnitude >= 0.1f)
         {
-            Debug.LogError("Rigidbody no est√° asignado en el PlayerController.");
+            transform.Translate(moveDirection * moveSpeed * Time.deltaTime, Space.World); // Movimiento del jugador
         }
     }
 
-    void FixedUpdate()
+    // MÈtodo para simular recibir daÒo
+    public void TakeDamage(int damageAmount)
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        Vector3 movement = new Vector3(horizontal, 0, vertical).normalized * speed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + movement);
+        lifeSystem.LoseLife(damageAmount); // Perder vidas a travÈs del sistema de vidas
     }
 
-    // M√©todo para recibir da√±o
-    public void ReceiveDamage(int damageAmount)
+    // MÈtodo para ganar vidas
+    public void GainLife(int amount)
     {
-        // Aqu√≠ podr√≠as manejar la salud del jugador si tienes un sistema de salud adicional
-
-        // Informar al GameManager que el jugador ha recibido da√±o
-        if (GameManager.instance != null)
-        {
-            GameManager.instance.DecreaseLife();
-        }
-        else
-        {
-            Debug.LogError("GameManager.instance es null. Aseg√∫rate de que el GameManager est√° en la escena.");
-        }
+        lifeSystem.GainLife(amount); // Ganar vidas a travÈs del sistema de vidas
     }
-
-    // M√©todo para curarse (opcional)
-    public void Heal(int healAmount)
-    {
-        if (GameManager.instance != null)
-        {
-            GameManager.instance.IncreaseLife();
-        }
-    }
-
-    // Otros m√©todos relacionados con el jugador...
 }

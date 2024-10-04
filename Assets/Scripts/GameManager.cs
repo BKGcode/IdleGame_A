@@ -1,133 +1,71 @@
 using UnityEngine;
-using Cinemachine;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    public int points; // Puntos del jugador en la partida actual
+    private float timePlayed; // Tiempo jugado en la partida actual
+    public LifeSystem lifeSystem; // Referencia al sistema de vidas
+    public PopupManager popupManager; // Referencia al popup manager
 
-    [Header("Cinemachine")]
-    public CinemachineVirtualCamera virtualCamera;
-
-    [Header("Lives Settings")]
-    public int maxLives = 3; // Número máximo de vidas
-    private int currentLives;
-
-    [Header("UI Settings")]
-    public Image[] heartImages; // Array de imágenes de corazones
-    public Sprite fullHeart;    // Sprite del corazón lleno
-    public Sprite emptyHeart;   // Sprite del corazón vacío
-    public GameObject gameOverPanel; // Panel de Game Over
-
-    // Evento para cuando el jugador muere
-    public delegate void OnPlayerDeath();
-    public event OnPlayerDeath PlayerDeathEvent;
-
-    private void Awake()
+    private void Start()
     {
-        // Implementar el Patrón Singleton
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject); // Persistir entre escenas
-            InitializeLives();
-        }
-        else
-        {
-            Destroy(gameObject); // Destruir duplicados
-            return;
-        }
+        // Suscribirse al evento de Game Over del sistema de vidas
+        lifeSystem.OnGameOver += HandleGameOver;
     }
 
-    private void InitializeLives()
+    private void Update()
     {
-        currentLives = maxLives;
-        UpdateHeartsUI();
-
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-        }
+        timePlayed += Time.deltaTime; // Actualizar el tiempo jugado
     }
 
-    // Método para asignar el objetivo de la cámara
-    public void SetCameraTarget(Transform target)
+    // Llamar este método cuando el jugador muera o la partida termine
+    public void EndGame()
     {
-        if (virtualCamera != null)
-        {
-            virtualCamera.Follow = target;
-            virtualCamera.LookAt = target;
-        }
-        else
-        {
-            Debug.LogError("Cinemachine Virtual Camera no está asignada en el GameManager.");
-        }
+        GameData data = new GameData(points, timePlayed); // Crear los datos de la partida
+        SaveSystem.SaveGame(data); // Guardar la partida
+
+        popupManager.ShowGameOverPopup(); // Mostrar el popup de "Game Over"
     }
 
-    // Método para disminuir una vida
-    public void DecreaseLife()
+    // Método para reiniciar el juego
+    public void RestartGame()
     {
-        if (currentLives > 0)
-        {
-            currentLives--;
-            UpdateHeartsUI();
+        // Reiniciar puntos y tiempo jugado
+        points = 0;
+        timePlayed = 0;
 
-            if (currentLives <= 0)
-            {
-                Die();
-            }
-        }
+        // Aquí puedes agregar lógica adicional para reiniciar la escena
+        // Ejemplo: UnityEngine.SceneManagement.SceneManager.LoadScene("YourGameScene");
     }
 
-    // Método para aumentar una vida (opcional)
-    public void IncreaseLife()
+    // Método para manejar el Game Over
+    private void HandleGameOver()
     {
-        if (currentLives < maxLives)
-        {
-            currentLives++;
-            UpdateHeartsUI();
-        }
+        EndGame(); // Llamar al final de la partida cuando el jugador pierda todas las vidas
     }
 
-    // Actualizar la UI de los corazones con sprites
-    private void UpdateHeartsUI()
+    // Obtener los puntos actuales (para el popup)
+    public int GetPoints()
     {
-        for (int i = 0; i < heartImages.Length; i++)
-        {
-            if (i < currentLives)
-            {
-                heartImages[i].sprite = fullHeart;
-            }
-            else
-            {
-                heartImages[i].sprite = emptyHeart;
-            }
-        }
+        return points;
     }
 
-    // Método a llamar cuando el jugador muere
-    private void Die()
+    // Obtener el tiempo jugado (para el popup)
+    public float GetTimePlayed()
     {
-        Debug.Log("Jugador ha muerto");
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(true);
-        }
-
-        // Invocar el evento de muerte del jugador
-        PlayerDeathEvent?.Invoke();
-
-        // Aquí puedes agregar lógica adicional como pausar el juego, reiniciar la escena, etc.
+        return timePlayed;
     }
 
-    // Método para resetear las vidas (opcional)
-    public void ResetLives()
+    // Salir al menú principal
+    public void ExitToMainMenu()
     {
-        currentLives = maxLives;
-        UpdateHeartsUI();
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-        }
+        // Aquí puedes agregar la lógica para volver al menú principal
+        // Ejemplo: UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+    }
+
+    private void OnDestroy()
+    {
+        // Desuscribirse del evento para evitar errores
+        lifeSystem.OnGameOver -= HandleGameOver;
     }
 }
