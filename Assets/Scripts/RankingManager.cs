@@ -1,16 +1,12 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RankingManager : MonoBehaviour
 {
-    public void ShowRanking()
+    public void LoadRankings()
     {
-        List<GameData> gameDataList = SaveSystem.LoadGameData(); // Cargar el ranking
-        gameDataList.Sort((x, y) => y.points.CompareTo(x.points)); // Ordenar por puntos de mayor a menor
-
-        foreach (GameData gameData in gameDataList)
-        {
-            Debug.Log($"Puntos: {gameData.points}, Tiempo: {gameData.timePlayed} segundos, Fecha: {gameData.saveDate}");
-        }
+        GameData[] rankings = SaveSystem.LoadRankings();
+        
+        // Mostrar los datos de rankings en la UI
+        // Aquí puedes implementar la lógica para mostrar la lista de rankings
     }
 }

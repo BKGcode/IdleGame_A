@@ -10,14 +10,30 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        // Actualizar los valores al inicio
         UpdateMoneyText();
         UpdatePointsText();
         UpdateTimePlayedText();
+
+        // Suscribirse a los eventos de cambio en el GameManager
+        GameManager.Instance.OnMoneyChanged += UpdateMoneyText;
+        GameManager.Instance.OnPointsChanged += UpdatePointsText;
     }
 
     private void Update()
     {
+        // Actualizar el tiempo en cada frame
         UpdateTimePlayedText();
+    }
+
+    private void OnDestroy()
+    {
+        // Cancelar suscripción cuando el objeto es destruido
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnMoneyChanged -= UpdateMoneyText;
+            GameManager.Instance.OnPointsChanged -= UpdatePointsText;
+        }
     }
 
     private void UpdateMoneyText()

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
@@ -11,7 +10,6 @@ public class Manager : MonoBehaviour
     [Header("UI Components")]
     [SerializeField] private GameObject costContainer; // Objeto que contiene el texto del coste (padre del texto)
     [SerializeField] private TMPro.TextMeshProUGUI costText; // Texto del costo del manager
-    [SerializeField] private Button hireButton; // Botón para contratar al manager
 
     private bool isHired = false; // Indica si el manager está contratado
 
@@ -24,24 +22,31 @@ public class Manager : MonoBehaviour
         }
 
         UpdateCostText();
-        hireButton.onClick.AddListener(HireManager);
-        UpdateButtonState(); // Actualizar el estado del botón al inicio
-        
-        GameManager.Instance.OnMoneyChanged += UpdateButtonInteractable; // Suscribirse al evento de cambio de dinero
-        UpdateButtonInteractable(); // Actualizar el estado del botón al inicio
+        costContainer.SetActive(true); // Mostrar el contenedor del coste al inicio
+        GameManager.Instance.OnMoneyChanged += UpdateInteractableState; // Suscribirse al evento de cambio de dinero
+        UpdateInteractableState();
     }
 
     private void OnDestroy()
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnMoneyChanged -= UpdateButtonInteractable; // Cancelar la suscripción al evento de cambio de dinero
+            GameManager.Instance.OnMoneyChanged -= UpdateInteractableState; // Cancelar la suscripción al evento de cambio de dinero
+        }
+    }
+
+    // Detectar la colisión con un trigger
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player") && !isHired && GameManager.Instance.CanAfford(cost))
+        {
+            HireManager();
         }
     }
 
     public void HireManager()
     {
-        if (GameManager.Instance != null && GameManager.Instance.CanAfford(cost) && !isHired)
+        if (GameManager.Instance != null && !isHired)
         {
             GameManager.Instance.SpendMoney(cost); // Gasta el dinero
             isHired = true; // Marcar como contratado
@@ -54,14 +59,8 @@ public class Manager : MonoBehaviour
             }
 
             AutomateBusiness(); // Automatizar el negocio
-            UpdateButtonState(); // Actualizar el estado del botón después de contratar
-            hireButton.gameObject.SetActive(false); // Ocultar el botón de contratar
             costContainer.SetActive(false); // Ocultar el objeto contenedor del texto de coste
             Debug.Log(managerName + " ha sido contratado para automatizar " + assignedBusiness.name);
-        }
-        else
-        {
-            Debug.LogWarning("No se puede contratar el manager: Dinero insuficiente o ya está contratado.");
         }
     }
 
@@ -82,17 +81,8 @@ public class Manager : MonoBehaviour
         }
     }
 
-    private void UpdateButtonState()
+    private void UpdateInteractableState()
     {
-        // El botón solo será interactivo si el manager no está contratado
-        hireButton.interactable = !isHired;
-    }
-
-    private void UpdateButtonInteractable()
-    {
-        if (!isHired && GameManager.Instance != null)
-        {
-            hireButton.interactable = GameManager.Instance.CanAfford(cost); // Solo habilita el botón si el jugador tiene suficiente dinero
-        }
+        // No es necesario para botones, pero puedes agregar lógica aquí si es necesario.
     }
 }

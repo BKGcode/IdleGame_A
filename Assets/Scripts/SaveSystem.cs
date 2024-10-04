@@ -1,52 +1,36 @@
 using System.IO;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public static class SaveSystem
 {
-    private static string filePath = Application.persistentDataPath + "/saveData.json"; // Ruta del archivo de guardado
+    private static string savePath = Application.persistentDataPath + "/rankings.dat";
 
-    // Guarda los datos de partida en un archivo JSON
-    public static void SaveGame(GameData data)
+    public static void SaveGameData(GameData gameData)
     {
-        List<GameData> savedGames = LoadGameData(); // Cargar los datos anteriores
-        if (savedGames == null)
-            savedGames = new List<GameData>();
+        BinaryFormatter formatter = new BinaryFormatter();
+        FileStream stream = new FileStream(savePath, FileMode.Append);
 
-        savedGames.Add(data); // Añadir la nueva partida al ranking
-        string json = JsonUtility.ToJson(new GameDataList(savedGames), true); // Convertir a JSON
-        File.WriteAllText(filePath, json); // Escribir en el archivo
+        formatter.Serialize(stream, gameData);
+        stream.Close();
     }
 
-    // Cargar todas las partidas guardadas desde el archivo JSON
-    public static List<GameData> LoadGameData()
+    public static GameData[] LoadRankings()
     {
-        if (File.Exists(filePath))
+        if (File.Exists(savePath))
         {
-            string json = File.ReadAllText(filePath);
-            GameDataList dataList = JsonUtility.FromJson<GameDataList>(json);
-            return dataList.games;
-        }
-        return new List<GameData>();
-    }
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(savePath, FileMode.Open);
 
-    // Borrar los datos de guardado (reiniciar ranking)
-    public static void ClearSaveData()
-    {
-        if (File.Exists(filePath))
+            GameData[] data = (GameData[])formatter.Deserialize(stream);
+            stream.Close();
+
+            return data;
+        }
+        else
         {
-            File.Delete(filePath);
+            Debug.LogError("Save file not found in " + savePath);
+            return null;
         }
-    }
-}
-
-[System.Serializable]
-public class GameDataList
-{
-    public List<GameData> games;
-
-    public GameDataList(List<GameData> games)
-    {
-        this.games = games;
     }
 }

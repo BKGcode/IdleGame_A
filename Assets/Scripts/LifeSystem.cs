@@ -6,10 +6,10 @@ using System.Collections.Generic;
 public class LifeSystem : MonoBehaviour
 {
     [Header("Life Settings")]
-    [SerializeField] private int maxLives = 3; // Define el número máximo de vidas
+    [SerializeField] private int maxLives = 3; // Número máximo de vidas
     [SerializeField] private float cooldownTime = 2f; // Tiempo de cooldown entre la pérdida de vidas
     private int currentLives;
-    private bool canTakeDamage = true; // Variable para rastrear si se puede recibir daño
+    private bool canTakeDamage = true; // Controla si el jugador puede recibir daño
 
     [Header("UI Settings")]
     [SerializeField] private GameObject heartPrefab; // Prefab del corazón que se muestra en la UI
@@ -73,7 +73,7 @@ public class LifeSystem : MonoBehaviour
 
             if (currentLives <= 0)
             {
-                ShowGameOver();
+                TriggerGameOver(); // Disparar Game Over cuando no haya más vidas
             }
 
             StartCoroutine(DamageCooldown()); // Iniciar cooldown después de recibir daño
@@ -87,6 +87,13 @@ public class LifeSystem : MonoBehaviour
         canTakeDamage = true;
     }
 
+    private void TriggerGameOver()
+    {
+        // Llamar a la lógica de Game Over en el GameManager
+        GameManager.Instance.SetGameOver();
+        FindObjectOfType<PopupManager>().ShowGameOverPopup(); // Mostrar el popup de Game Over
+    }
+
     public void GainLife(int healAmount)
     {
         currentLives += healAmount;
@@ -95,11 +102,5 @@ public class LifeSystem : MonoBehaviour
             currentLives = maxLives;
         }
         UpdateHeartsUI(); // Actualizar la UI cuando cambien las vidas
-    }
-
-    private void ShowGameOver()
-    {
-        // Lógica para desencadenar el game over
-        Debug.Log("Game Over!");
     }
 }

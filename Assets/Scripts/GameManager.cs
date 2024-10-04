@@ -45,102 +45,29 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         saveManager = FindObjectOfType<SaveManager>();
-        if (saveManager == null)
-        {
-            Debug.LogError("No se encontró SaveManager en la escena.");
-        }
-
-        InvokeRepeating(nameof(UpdateTimePlayed), 0f, 1f); // Actualiza el tiempo jugado cada segundo
+        currentState = GameState.Running;
     }
 
-    private void UpdateTimePlayed()
+    private void Update()
     {
         if (currentState == GameState.Running)
         {
-            timePlayed += 1f;
+            timePlayed += Time.deltaTime; // Solo actualizar el tiempo si el juego está en estado Running
         }
     }
 
-    // Método para reiniciar el juego
-    public void RestartGame()
+    // Método para restaurar estadísticas del jugador al cargar una partida
+    public void SetPlayerStats(int money, int points, float timePlayed)
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        ResetPlayerStats();
-        ChangeGameState(GameState.Running);
+        this.playerMoney = money;
+        this.points = points;
+        this.timePlayed = timePlayed;
+
+        OnMoneyChanged?.Invoke(); // Notificar que el dinero ha cambiado
+        OnPointsChanged?.Invoke(); // Notificar que los puntos han cambiado
     }
 
-    // Método para agregar dinero
-    public void AddMoney(int amount)
-    {
-        playerMoney += amount;
-        OnMoneyChanged?.Invoke(); // Disparar el evento cuando cambie el dinero
-    }
-
-    // Método para gastar dinero
-    public void SpendMoney(int amount)
-    {
-        if (CanAfford(amount))
-        {
-            playerMoney -= amount;
-            OnMoneyChanged?.Invoke(); // Disparar el evento cuando cambie el dinero
-        }
-    }
-
-    public bool CanAfford(int amount)
-    {
-        return playerMoney >= amount;
-    }
-
-    public int GetMoney()
-    {
-        return playerMoney;
-    }
-
-    // Métodos para manejar los puntos
-    public void AddPoints(int amount)
-    {
-        points += amount;
-        OnPointsChanged?.Invoke(); // Disparar evento al cambiar puntos
-    }
-
-    public int GetPoints()
-    {
-        return points;
-    }
-
-    // Método para obtener el tiempo jugado
-    public float GetTimePlayed()
-    {
-        return timePlayed;
-    }
-
-    // Método para salir al menú principal
-    public void ExitToMainMenu()
-    {
-        if (saveManager != null)
-        {
-            saveManager.SaveGame(this);
-        }
-        SceneManager.LoadScene("MainMenu");
-    }
-
-    // Método para aplicar el multiplicador de ingresos
-    public void ApplyIncomeMultiplier(float multiplier)
-    {
-        incomeMultiplier += multiplier;
-    }
-
-    // Método para reducir los cooldowns globales
-    public void ReduceCooldowns(float reductionAmount)
-    {
-        cooldownReduction -= reductionAmount;
-        if (cooldownReduction < 0.1f) // Evitar que el cooldown sea menor que 0.1
-        {
-            cooldownReduction = 0.1f;
-        }
-    }
-
-    // Métodos para obtener los multiplicadores y la reducción de cooldowns
+    // Métodos para el manejo del multiplicador de ingresos y reducción de cooldowns
     public float GetIncomeMultiplier()
     {
         return incomeMultiplier;
@@ -151,40 +78,71 @@ public class GameManager : MonoBehaviour
         return cooldownReduction;
     }
 
-    private void ResetPlayerStats()
+    public void AddMoney(int amount)
     {
-        points = 0;
-        timePlayed = 0f;
-        playerMoney = 100;
-        incomeMultiplier = 1f;
-        cooldownReduction = 1f;
+        playerMoney += amount;
+        OnMoneyChanged?.Invoke(); // Notificar cuando cambie el dinero
     }
 
-    private void ChangeGameState(GameState newState)
+    public bool CanAfford(int cost)
     {
-        currentState = newState;
-        OnGameStateChanged?.Invoke(newState);
+        return playerMoney >= cost;
     }
 
-    public void SetPlayerStats(int money, int points, float timePlayed)
+    public void SpendMoney(int amount)
     {
-        this.playerMoney = money;
-        this.points = points;
-        this.timePlayed = timePlayed;
-    }
-
-    public void LoadGame()
-    {
-        if (saveManager != null)
+        if (CanAfford(amount))
         {
-            saveManager.LoadGame(this);
+            playerMoney -= amount;
+            OnMoneyChanged?.Invoke(); // Notificar cuando cambie el dinero
         }
     }
 
-    // Método para manejar el Game Over
-    public void GameOver()
+    public void ApplyIncomeMultiplier(float amount)
     {
-        ChangeGameState(GameState.GameOver);
-        Debug.Log("El juego ha terminado.");
+        incomeMultiplier += amount; // Aplicar un multiplicador al ingreso
+    }
+
+    public void ReduceCooldowns(float amount)
+    {
+        cooldownReduction -= amount; // Reducir los cooldowns
+        if (cooldownReduction < 0.1f) cooldownReduction = 0.1f; // Asegurarse de que no sea negativo
+    }
+
+    public int GetPoints()
+    {
+        return points;
+    }
+
+    public float GetTimePlayed()
+    {
+        return timePlayed;
+    }
+
+    public int GetMoney()
+    {
+        return playerMoney;
+    }
+
+    // Método que activa el Game Over y detiene el tiempo del juego
+    public void SetGameOver()
+    {
+        currentState = GameState.GameOver;
+        OnGameStateChanged?.Invoke(currentState);
+        Time.timeScale = 0f; // Detener el tiempo del juego
+    }
+
+    // Reiniciar el juego
+    public void RestartGame()
+    {
+        Time.timeScale = 1f; // Restablecer el tiempo
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Reiniciar la escena actual
+    }
+
+    // Volver al menú principal
+    public void ExitToMainMenu()
+    {
+        Time.timeScale = 1f; // Restablecer el tiempo
+        SceneManager.LoadScene("MainMenu"); // Volver al menú principal
     }
 }

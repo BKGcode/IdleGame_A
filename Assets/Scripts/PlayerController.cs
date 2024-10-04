@@ -27,6 +27,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Método para detectar colisiones con objetos
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            // Si el objeto tiene el tag "Enemy", el jugador pierde vida
+            lifeSystem.LoseLife(1); // Perder 1 vida al colisionar con un enemigo
+        }
+    }
+
     // Método para simular recibir daño
     public void TakeDamage(int damageAmount)
     {
