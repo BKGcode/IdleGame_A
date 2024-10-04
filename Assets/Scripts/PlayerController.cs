@@ -7,23 +7,48 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection; // Dirección de movimiento
 
     public LifeSystem lifeSystem; // Referencia al sistema de vidas
+    public Camera mainCamera; // Cámara principal para proyectar el punto de clic del ratón
+    public LayerMask groundLayer; // Capa para detectar el suelo
 
     private void Update()
     {
+        HandleRotation(); // Manejar la rotación del jugador
         HandleMovement(); // Manejar el movimiento del jugador
+    }
+
+    private void HandleRotation()
+    {
+        // Ray desde la cámara hacia el punto donde está el cursor del ratón
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        // Si el ray colisiona con el plano del suelo (groundLayer), rotar hacia ese punto
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, groundLayer))
+        {
+            Vector3 targetPosition = hit.point;
+            Vector3 directionToLook = (targetPosition - transform.position).normalized;
+            directionToLook.y = 0; // Evitar que el jugador se incline hacia arriba o abajo
+
+            // Rotar el jugador hacia la dirección del puntero del ratón
+            if (directionToLook != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(directionToLook);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f); // Suavizar la rotación
+            }
+        }
     }
 
     private void HandleMovement()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        float moveZ = Input.GetAxis("Vertical"); // Avanzar (W) o retroceder (S)
 
-        moveDirection = new Vector3(moveX, 0, moveZ).normalized; // Direccion de movimiento
-
-        if (moveDirection.magnitude >= 0.1f)
+        if (Mathf.Abs(moveZ) > 0.1f) // Si se presiona W o S
         {
-            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? boostSpeed : moveSpeed; // Cambiar velocidad si se presiona Shift
-            transform.Translate(moveDirection * currentSpeed * Time.deltaTime, Space.World); // Movimiento del jugador
+            // Velocidad actual, cambiada si se presiona Shift
+            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? boostSpeed : moveSpeed;
+
+            // Mover hacia adelante o hacia atrás basado en la dirección local del jugador
+            transform.Translate(Vector3.forward * moveZ * currentSpeed * Time.deltaTime, Space.Self);
         }
     }
 
