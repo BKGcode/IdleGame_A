@@ -8,56 +8,31 @@ public class Manager : MonoBehaviour
     [SerializeField] private Business assignedBusiness; // Negocio que este manager va a automatizar
 
     [Header("UI Components")]
-    [SerializeField] private GameObject costContainer; // Objeto que contiene el texto del coste (padre del texto)
-    [SerializeField] private TMPro.TextMeshProUGUI costText; // Texto del costo del manager
-
-    private bool isHired = false; // Indica si el manager está contratado
+    [SerializeField] private GameObject costContainer; // Contenedor del costo en la UI
+    [SerializeField] private TMPro.TextMeshProUGUI costText; // Texto para mostrar el costo
+    [SerializeField] private UIManager uiManager; // Referencia a UIManager para actualizar la UI
+    private bool isHired = false;
 
     private void Start()
     {
-        if (GameManager.Instance == null)
-        {
-            Debug.LogError("GameManager no está inicializado.");
-            return;
-        }
-
-        UpdateCostText();
-        costContainer.SetActive(true); // Mostrar el contenedor del coste al inicio
-        GameManager.Instance.OnMoneyChanged += UpdateInteractableState; // Suscribirse al evento de cambio de dinero
-        UpdateInteractableState();
+        UpdateCostText(); // Actualizar el texto del costo al iniciar
     }
 
-    private void OnDestroy()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnMoneyChanged -= UpdateInteractableState; // Cancelar la suscripción al evento de cambio de dinero
-        }
-    }
-
-    // Detectar la colisión con un trigger
+    // Detectar la colisión con el jugador para contratar al manager
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && !isHired && GameManager.Instance.CanAfford(cost))
+        if (other.CompareTag("Player") && !isHired)
         {
-            HireManager();
+            TryHireManager(); // Intentar contratar al manager si aún no está contratado
         }
     }
 
-    public void HireManager()
+    private void TryHireManager()
     {
-        if (GameManager.Instance != null && !isHired)
+        if (GameManager.Instance.CanAfford(cost))
         {
-            GameManager.Instance.SpendMoney(cost); // Gasta el dinero
-            isHired = true; // Marcar como contratado
-
-            // Verificar si el negocio asignado no es nulo
-            if (assignedBusiness == null)
-            {
-                Debug.LogError("assignedBusiness no está asignado al manager.");
-                return;
-            }
-
+            GameManager.Instance.SpendMoney(cost); // Restar el costo al dinero del jugador
+            isHired = true;
             AutomateBusiness(); // Automatizar el negocio
             costContainer.SetActive(false); // Ocultar el objeto contenedor del texto de coste
             Debug.Log(managerName + " ha sido contratado para automatizar " + assignedBusiness.name);
@@ -79,10 +54,5 @@ public class Manager : MonoBehaviour
         {
             costText.text = cost.ToString(); // Actualiza el texto del costo
         }
-    }
-
-    private void UpdateInteractableState()
-    {
-        // No es necesario para botones, pero puedes agregar lógica aquí si es necesario.
     }
 }

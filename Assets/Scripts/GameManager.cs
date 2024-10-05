@@ -1,33 +1,20 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using System;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    public static GameManager Instance { get; private set; }
 
-    [Header("Player Stats")]
-    [SerializeField] private int points = 0; // Puntos actuales del jugador
-    [SerializeField] private float timePlayed = 0f; // Tiempo jugado
-    [SerializeField] private int playerMoney = 100; // Dinero inicial del jugador
-    private float incomeMultiplier = 1f; // Multiplicador de ingresos
-    private float cooldownReduction = 1f; // Reducción de cooldown (1 significa sin reducción)
-
+    public int playerMoney;
+    public int points;
+    public float timePlayed;
     private SaveManager saveManager;
+    private float incomeMultiplier = 1f;
+    private float cooldownReduction = 1f;
 
-    public event Action OnMoneyChanged; // Evento que se dispara al cambiar el dinero
-    public event Action OnPointsChanged; // Evento que se dispara al cambiar los puntos
-    public event Action<GameState> OnGameStateChanged;
-    public event Action OnGameOverAchievementsCheck;
-
-    public enum GameState
-    {
-        Running,
-        Paused,
-        GameOver
-    }
-
-    private GameState currentState;
+    public Action OnMoneyChanged;
+    public Action OnPointsChanged;
+    public Action OnGameOverAchievementsCheck; // Evento para verificar logros cuando termina el juego
 
     private void Awake()
     {
@@ -45,29 +32,54 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         saveManager = FindObjectOfType<SaveManager>();
-        currentState = GameState.Running;
+        NewGame(); // Comenzar con un nuevo estado del juego.
     }
 
     private void Update()
     {
-        if (currentState == GameState.Running)
+        if (timePlayed >= 0) // Solo rastrear el tiempo cuando se está jugando
         {
-            timePlayed += Time.deltaTime; // Solo actualizar el tiempo si el juego está en estado Running
+            timePlayed += Time.deltaTime;
         }
     }
 
-    // Método para restaurar estadísticas del jugador al cargar una partida
-    public void SetPlayerStats(int money, int points, float timePlayed)
+    // Método para iniciar o reiniciar una nueva partida
+    public void NewGame()
     {
-        this.playerMoney = money;
-        this.points = points;
-        this.timePlayed = timePlayed;
+        playerMoney = 0;
+        points = 0;
+        timePlayed = 0;
 
-        OnMoneyChanged?.Invoke(); // Notificar que el dinero ha cambiado
-        OnPointsChanged?.Invoke(); // Notificar que los puntos han cambiado
+        // Reiniciar todos los sistemas relevantes, como el sistema de vidas
+        LifeSystem.Instance.ResetLives();
+        OnMoneyChanged?.Invoke();
+        OnPointsChanged?.Invoke();
     }
 
-    // Métodos para el manejo del multiplicador de ingresos y reducción de cooldowns
+    // Método para reiniciar el juego
+    public void RestartGame()
+    {
+        saveManager.DeleteCurrentSave(); // Eliminar datos antiguos si es necesario
+        NewGame();
+    }
+
+    // Métodos para obtener puntos, dinero y tiempo jugado
+    public int GetPoints()
+    {
+        return points;
+    }
+
+    public int GetMoney()
+    {
+        return playerMoney;
+    }
+
+    public float GetTimePlayed()
+    {
+        return timePlayed;
+    }
+
+    // Métodos relacionados con los multiplicadores de ingresos y reducción de cooldowns
     public float GetIncomeMultiplier()
     {
         return incomeMultiplier;
@@ -78,12 +90,18 @@ public class GameManager : MonoBehaviour
         return cooldownReduction;
     }
 
-    public void AddMoney(int amount)
+    public void ApplyIncomeMultiplier(float amount)
     {
-        playerMoney += amount;
-        OnMoneyChanged?.Invoke(); // Notificar cuando cambie el dinero
+        incomeMultiplier += amount;
     }
 
+    public void ReduceCooldowns(float amount)
+    {
+        cooldownReduction -= amount;
+        if (cooldownReduction < 0.1f) cooldownReduction = 0.1f;
+    }
+
+    // Métodos relacionados con la gestión de dinero
     public bool CanAfford(int cost)
     {
         return playerMoney >= cost;
@@ -94,65 +112,36 @@ public class GameManager : MonoBehaviour
         if (CanAfford(amount))
         {
             playerMoney -= amount;
-            OnMoneyChanged?.Invoke(); // Notificar cuando cambie el dinero
+            OnMoneyChanged?.Invoke();
         }
     }
 
-    public void ApplyIncomeMultiplier(float amount)
+    public void AddMoney(int amount)
     {
-        incomeMultiplier += amount; // Aplicar un multiplicador al ingreso
+        playerMoney += amount;
+        OnMoneyChanged?.Invoke();
     }
 
-    public void ReduceCooldowns(float amount)
+    // Método para restaurar las estadísticas del jugador después de cargar una partida
+    public void SetPlayerStats(int money, int points, float timePlayed)
     {
-        cooldownReduction -= amount; // Reducir los cooldowns
-        if (cooldownReduction < 0.1f) cooldownReduction = 0.1f; // Asegurarse de que no sea negativo
-    }
+        this.playerMoney = money;
+        this.points = points;
+        this.timePlayed = timePlayed;
 
-    public int GetPoints()
-    {
-        return points;
-    }
-
-    public float GetTimePlayed()
-    {
-        return timePlayed;
-    }
-
-    public int GetMoney()
-    {
-        return playerMoney;
-    }
-
-    // Método que activa el Game Over y detiene el tiempo del juego
-    public void SetGameOver()
-    {
-        currentState = GameState.GameOver;
-        OnGameStateChanged?.Invoke(currentState);
-        Time.timeScale = 0f; // Detener el tiempo del juego
-    }
-
-    // Reiniciar el juego
-    public void RestartGame()
-    {
-        Time.timeScale = 1f; // Restablecer el tiempo
-        points = 0; // Resetear los puntos
-        timePlayed = 0; // Resetear el tiempo jugado
-        playerMoney = 100; // Restablecer el dinero inicial
-        incomeMultiplier = 1f; // Restablecer el multiplicador de ingresos
-        cooldownReduction = 1f; // Restablecer el cooldown
-
-        // Notificar los cambios a los suscriptores
         OnMoneyChanged?.Invoke();
         OnPointsChanged?.Invoke();
-
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Reiniciar la escena actual
     }
 
-    // Volver al menú principal
+    // Método para salir al menú principal
     public void ExitToMainMenu()
     {
-        Time.timeScale = 1f; // Restablecer el tiempo
-        SceneManager.LoadScene("MainMenu"); // Volver al menú principal
+        Debug.Log("Saliendo al menú principal...");
+    }
+
+    // Método para verificar logros después del Game Over
+    public void CheckGameOverAchievements()
+    {
+        OnGameOverAchievementsCheck?.Invoke();
     }
 }

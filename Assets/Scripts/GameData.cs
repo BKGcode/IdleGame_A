@@ -3,13 +3,13 @@ using System;
 [Serializable]
 public class GameData
 {
-    public int points; // Puntos conseguidos en la partida
-    public float timePlayed; // Tiempo en segundos jugado en la partida
-    public int money; // Dinero conseguido en la partida
-    public string saveDate; // Fecha y hora cuando se guardó la partida
+    public int points;         // Puntos conseguidos en la partida
+    public float timePlayed;   // Tiempo en segundos jugado en la partida
+    public int money;          // Dinero conseguido en la partida
+    public string saveDate;    // Fecha y hora cuando se guardó la partida
 
     // Constructor para inicializar los datos de la partida
-    public GameData(int points, float timePlayed, int money)
+    public GameData(int money, int points, float timePlayed)
     {
         this.points = points;
         this.timePlayed = timePlayed;
