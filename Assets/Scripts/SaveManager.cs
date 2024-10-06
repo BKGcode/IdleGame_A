@@ -1,48 +1,52 @@
-using System;
 using UnityEngine;
 
 public class SaveManager : MonoBehaviour
 {
-    public static SaveManager Instance { get; private set; }
+    public SaveData saveData;  // Referencia al ScriptableObject de datos de guardado
+    public LifeData lifeData;  // Referencia al ScriptableObject de vidas
+    public TimeData timeData;  // Referencia al ScriptableObject de tiempo
+    public ScoreData scoreData;  // Referencia al ScriptableObject de puntos
 
-    private void Awake()
+    private void Start()
     {
-        if (Instance == null)
+        // Comprobamos si el archivo de guardado existe
+        if (SaveSystem.LoadGame(saveData) == null)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // Si no existe, inicializamos los datos
+            ResetGame(lifeData.maxLives);
         }
         else
         {
-            Destroy(gameObject);
+            ApplyLoadedData();
         }
     }
 
-    // Save the current game state
+    // Método para guardar los datos actuales
     public void SaveGame()
     {
-        SaveSystem.SaveGame(GameManager.Instance.playerMoney, GameManager.Instance.points, GameManager.Instance.timePlayed);
+        saveData.currentLives = lifeData.currentLives;
+        saveData.currentTime = timeData.currentTime;
+        saveData.currentScore = scoreData.currentScore;
+
+        SaveSystem.SaveGame(saveData);
     }
 
-    // Load a saved game state
-    public void LoadGame()
+    // Método para cargar los datos en los sistemas
+    public void ApplyLoadedData()
     {
-        GameData data = SaveSystem.LoadGame();
-        if (data != null)
-        {
-            GameManager.Instance.SetPlayerStats(data.money, data.points, data.timePlayed);
-        }
+        lifeData.currentLives = saveData.currentLives;
+        timeData.currentTime = saveData.currentTime;
+        scoreData.currentScore = saveData.currentScore;
+
+        lifeData.onLifeLost.Invoke();  // Actualizamos la UI de vidas
+        timeData.onTimeChanged.Invoke();  // Actualizamos la UI de tiempo
+        scoreData.onScoreChanged.Invoke();  // Actualizamos la UI de puntos
     }
 
-    // Save game data specifically for ranking, etc.
-    public void SaveGameData()
+    // Método para reiniciar los datos de guardado (cuando se empieza una nueva partida)
+    public void ResetGame(int maxLives)
     {
-        SaveGame();
-    }
-
-    // Optional: Delete current save file
-    public void DeleteCurrentSave()
-    {
-        SaveSystem.DeleteSaveFile(); // Optional: clears save data for a fresh start
+        saveData.ResetData(maxLives);
+        ApplyLoadedData();
     }
 }

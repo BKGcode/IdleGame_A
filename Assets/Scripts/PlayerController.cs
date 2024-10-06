@@ -2,75 +2,88 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f; // Velocidad normal del jugador
-    public float boostSpeed = 10f; // Velocidad de impulso al presionar Shift
-    private Vector3 moveDirection; // DirecciÛn de movimiento
+    public float moveSpeed = 5f;  // Velocidad de movimiento normal
+    public float boostMultiplier = 2f;  // Multiplicador de velocidad para el boost
+    public Camera mainCamera;  // C√°mara principal para detectar la posici√≥n del rat√≥n
+    public LifeData lifeData;  // Sistema de vidas (ScriptableObject)
 
-    public LifeSystem lifeSystem; // Referencia al sistema de vidas
-    public Camera mainCamera; // C·mara principal para proyectar el punto de clic del ratÛn
-    public LayerMask groundLayer; // Capa para detectar el suelo
+    private Vector3 moveDirection;  // Direcci√≥n de movimiento
+    private bool isAlive = true;  // Control para evitar m√°s da√±o si ya est√° muerto
 
     private void Update()
     {
-        HandleRotation(); // Manejar la rotaciÛn del jugador
-        HandleMovement(); // Manejar el movimiento del jugador
-    }
-
-    private void HandleRotation()
-    {
-        // Ray desde la c·mara hacia el punto donde est· el cursor del ratÛn
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        // Si el ray colisiona con el plano del suelo (groundLayer), rotar hacia ese punto
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, groundLayer))
+        if (isAlive)
         {
-            Vector3 targetPosition = hit.point;
-            Vector3 directionToLook = (targetPosition - transform.position).normalized;
-            directionToLook.y = 0; // Evitar que el jugador se incline hacia arriba o abajo
-
-            // Rotar el jugador hacia la direcciÛn del puntero del ratÛn
-            if (directionToLook != Vector3.zero)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(directionToLook);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f); // Suavizar la rotaciÛn
-            }
+            RotateTowardsMouse();  // Maneja la rotaci√≥n del jugador hacia el puntero del rat√≥n
+            ProcessInput();  // Control del movimiento del jugador
         }
     }
 
-    private void HandleMovement()
+    // M√©todo para hacer que el jugador apunte hacia el puntero del rat√≥n
+    private void RotateTowardsMouse()
     {
-        float moveZ = Input.GetAxis("Vertical"); // Avanzar (W) o retroceder (S)
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);  // Lanza un rayo desde la c√°mara hacia el rat√≥n
+        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);  // Creamos un plano que representa el suelo
 
-        if (Mathf.Abs(moveZ) > 0.1f) // Si se presiona W o S
+        if (groundPlane.Raycast(ray, out float rayDistance))
         {
-            // Velocidad actual, cambiada si se presiona Shift
-            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? boostSpeed : moveSpeed;
+            Vector3 point = ray.GetPoint(rayDistance);  // Obtenemos el punto donde el rayo golpea el plano
+            Vector3 lookDirection = point - transform.position;  // Calculamos la direcci√≥n hacia ese punto
+            lookDirection.y = 0;  // Ignoramos la rotaci√≥n en el eje Y para evitar que el jugador gire verticalmente
 
-            // Mover hacia adelante o hacia atr·s basado en la direcciÛn local del jugador
-            transform.Translate(Vector3.forward * moveZ * currentSpeed * Time.deltaTime, Space.Self);
+            transform.LookAt(transform.position + lookDirection);  // Ajustamos la rotaci√≥n del jugador
         }
     }
 
-    // MÈtodo para detectar colisiones con objetos
-    private void OnCollisionEnter(Collision collision)
+    // M√©todo para procesar la entrada del teclado
+    private void ProcessInput()
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        // Obtenemos las entradas de teclado
+        float moveHorizontal = Input.GetAxisRaw("Horizontal");
+        float moveVertical = Input.GetAxisRaw("Vertical");
+
+        // Calculamos la direcci√≥n de movimiento en el espacio local
+        moveDirection = new Vector3(moveHorizontal, 0, moveVertical).normalized;
+
+        // Movemos al jugador si hay una entrada v√°lida
+        if (moveDirection.magnitude >= 0.1f)
         {
-            // Si el objeto tiene el tag "Enemy", el jugador pierde vida
-            lifeSystem.LoseLife(1); // Perder 1 vida al colisionar con un enemigo
+            MovePlayer();
         }
     }
 
-    // MÈtodo para simular recibir daÒo
+    // M√©todo para mover al jugador sin Rigidbody
+    private void MovePlayer()
+    {
+        // Comprobamos si se est√° presionando la tecla Shift para aplicar el boost
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? moveSpeed * boostMultiplier : moveSpeed;
+
+        // Convertimos la direcci√≥n de movimiento a espacio local
+        Vector3 movement = transform.TransformDirection(moveDirection) * currentSpeed * Time.deltaTime;
+
+        // Movemos al jugador usando transform.Translate
+        transform.Translate(movement, Space.World);
+    }
+
+    // M√©todo para recibir da√±o y perder vidas
     public void TakeDamage(int damageAmount)
     {
-        lifeSystem.LoseLife(damageAmount); // Perder vidas a travÈs del sistema de vidas
+        if (!isAlive) return;  // Evitar recibir da√±o si ya ha muerto
+
+        // En lugar de reducir las vidas directamente, usamos el m√©todo LoseLife() en LifeData
+        lifeData.LoseLife();
+
+        if (lifeData.currentLives <= 0)
+        {
+            Die();  // Si las vidas llegan a 0, el jugador muere
+        }
     }
 
-    // MÈtodo para ganar vidas
-    public void GainLife(int amount)
+    // M√©todo para manejar la muerte del jugador
+    private void Die()
     {
-        lifeSystem.GainLife(amount); // Ganar vidas a travÈs del sistema de vidas
+        isAlive = false;
+        Debug.Log("Player Died");
+        // Aqu√≠ puedes manejar la l√≥gica de Game Over, reiniciar el nivel, etc.
     }
 }

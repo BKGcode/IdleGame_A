@@ -2,62 +2,50 @@ using UnityEngine;
 
 public class LifeSystem : MonoBehaviour
 {
-    public static LifeSystem Instance { get; private set; }
-    public int maxLives = 3;
-    public int currentLives;
-
-    [SerializeField] private UIManager uiManager; // Referencia a UIManager para actualizar la UI de vidas
-    [SerializeField] private PopupManager popupManager; // Referencia al PopupManager para mostrar GameOver
-
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
+    // Referencia al ScriptableObject de vidas
+    public LifeData lifeData;
 
     private void Start()
     {
-        ResetLives();  // Llamar para asegurarse que las vidas se inicializan correctamente
+        // Asignamos las funciones para cuando se ganen o pierdan vidas
+        lifeData.onLifeLost.AddListener(OnLifeLost);
+        lifeData.onLifeGained.AddListener(OnLifeGained);
     }
 
-    // Resetear vidas al valor m�ximo y actualizar la UI al inicio del juego
-    public void ResetLives()
+    // Función para que el jugador o enemigo pierda una vida
+    public void TakeDamage()
     {
-        currentLives = maxLives;
-        uiManager.UpdateLivesUI(currentLives); // Asegurarse de que la UI se actualice correctamente
-    }
+        lifeData.LoseLife();  // El personaje pierde una vida
 
-    public void LoseLife(int damage = 1)
-    {
-        currentLives -= damage;
-        uiManager.UpdateLivesUI(currentLives); // Actualizar UI
-
-        if (currentLives <= 0)
+        if (lifeData.currentLives <= 0)
         {
-            GameOver(); // Mostrar GameOver cuando las vidas lleguen a 0
+            Die();  // Si las vidas llegan a 0, el personaje muere
         }
     }
 
-    public void GainLife(int amount = 1)
+    // Función para manejar la muerte
+    private void Die()
     {
-        currentLives += amount;
-        if (currentLives > maxLives)
-        {
-            currentLives = maxLives;
-        }
-        uiManager.UpdateLivesUI(currentLives); // Actualizar UI
+        Debug.Log("Character has died");  // Aquí puedes manejar el Game Over o la muerte del enemigo
+        // Puedes añadir más lógica aquí para la muerte del personaje o enemigo
     }
 
-    // M�todo para manejar el fin del juego
-    private void GameOver()
+    // Función para llamar cuando el personaje pierde una vida
+    private void OnLifeLost()
     {
-        popupManager.ShowGameOverPopup(); // Mostrar el popup de GameOver
+        // Aquí puedes actualizar la UI o añadir efectos visuales/sonoros
+    }
+
+    // Función para llamar cuando el personaje gana una vida
+    private void OnLifeGained()
+    {
+        // Aquí puedes actualizar la UI o añadir efectos visuales/sonoros
+    }
+
+    private void OnDestroy()
+    {
+        // Removemos los listeners al destruir este objeto
+        lifeData.onLifeLost.RemoveListener(OnLifeLost);
+        lifeData.onLifeGained.RemoveListener(OnLifeGained);
     }
 }

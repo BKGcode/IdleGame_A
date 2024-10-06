@@ -3,43 +3,30 @@ using UnityEngine;
 
 public static class SaveSystem
 {
-    private static string saveFilePath = Application.persistentDataPath + "/savefile.json";
+    private static string savePath = Application.persistentDataPath + "/savefile.json";
 
-    public static void SaveGame(int money, int points, float timePlayed)
+    // Método para guardar los datos en JSON
+    public static void SaveGame(SaveData saveData)
     {
-        // Aquí no forzamos la conversión si GameData espera un float
-        GameData data = new GameData(money, points, timePlayed);
-        string json = JsonUtility.ToJson(data);
-        File.WriteAllText(saveFilePath, json);
+        string json = JsonUtility.ToJson(saveData);
+        File.WriteAllText(savePath, json);
+        Debug.Log("Game Saved: " + savePath);
     }
 
-    public static GameData LoadGame()
+    // Método para cargar los datos desde JSON
+    public static SaveData LoadGame(SaveData saveData)
     {
-        if (File.Exists(saveFilePath))
+        if (File.Exists(savePath))
         {
-            string json = File.ReadAllText(saveFilePath);
-            return JsonUtility.FromJson<GameData>(json);
+            string json = File.ReadAllText(savePath);
+            JsonUtility.FromJsonOverwrite(json, saveData);
+            Debug.Log("Game Loaded: " + savePath);
+            return saveData;
         }
-        return null;
-    }
-
-    public static void DeleteSaveFile()
-    {
-        if (File.Exists(saveFilePath))
+        else
         {
-            File.Delete(saveFilePath);
+            Debug.LogWarning("Save file not found.");
+            return null;
         }
-    }
-
-    // Método para cargar datos de ranking desde un archivo utilizando GameData
-    public static GameData[] LoadRankings()
-    {
-        string rankingFilePath = Application.persistentDataPath + "/rankings.json";
-        if (File.Exists(rankingFilePath))
-        {
-            string json = File.ReadAllText(rankingFilePath);
-            return JsonUtility.FromJson<GameData[]>(json); // Usamos GameData[]
-        }
-        return new GameData[0]; // Retorna un array vacío si no hay rankings
     }
 }
