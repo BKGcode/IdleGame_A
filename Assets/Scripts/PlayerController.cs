@@ -13,20 +13,15 @@ public class PlayerController : MonoBehaviour
     private float remainingBoostTime;
     private float cooldownTimer = 0f;
 
-    // Referencias para el sistema de vida
-    public LifeSystem lifeSystem;
-
-    // Sonido y efectos visuales
-    [SerializeField] private AudioClip damageSound; // Sonido cuando el Player recibe daño
-    [SerializeField] private ParticleSystem damageFXPrefab; // Prefab del efecto visual de daño
-    private AudioSource audioSource; // Reproductor de audio
+    // Sonido y efectos visuales para daño
+    [SerializeField] private AudioClip damageSound; 
+    [SerializeField] private ParticleSystem damageFXPrefab; 
+    private AudioSource audioSource;
 
     private void Start()
     {
         mainCamera = Camera.main;
         remainingBoostTime = boostDuration;
-
-        // Obtener el AudioSource del Player
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -38,7 +33,7 @@ public class PlayerController : MonoBehaviour
         HandleBoostInput();
     }
 
-    // Rotación del Player hacia el puntero del ratón
+    // Rotar hacia la posición del ratón en un plano 3D
     private void RotateTowardsMouse()
     {
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -46,7 +41,7 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 targetPosition = hitInfo.point;
             Vector3 direction = (targetPosition - transform.position).normalized;
-            direction.y = 0; 
+            direction.y = 0; // Mantener rotación en el plano
             transform.forward = direction;
         }
     }
@@ -58,66 +53,45 @@ public class PlayerController : MonoBehaviour
         if (vertical > 0)
         {
             float currentSpeed = isBoosting ? moveSpeed * boostMultiplier : moveSpeed;
-            transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
+            transform.Translate(Vector3.forward * currentSpeed * vertical * Time.deltaTime);
         }
     }
 
-    // Manejo del temporizador de boost y cooldown
+    // Manejo de temporizadores para el boost
     private void HandleBoostTimers()
     {
         if (isBoosting)
         {
-            remainingBoostTime -= Time.deltaTime; 
+            remainingBoostTime -= Time.deltaTime;
             if (remainingBoostTime <= 0)
             {
                 isBoosting = false;
-                remainingBoostTime = 0;
                 cooldownTimer = boostCooldown;
             }
         }
-        else if (cooldownTimer > 0)
+        else
         {
             cooldownTimer -= Time.deltaTime;
         }
     }
 
-    // Manejo de la entrada para activar o desactivar el boost
+    // Entrada para activar el boost
     private void HandleBoostInput()
     {
-        if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && remainingBoostTime > 0 && cooldownTimer <= 0)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isBoosting && cooldownTimer <= 0)
         {
             isBoosting = true;
-        }
-        else
-        {
-            isBoosting = false;
+            remainingBoostTime = boostDuration;
         }
     }
 
-    // Función para manejar el impacto con el enemigo
-    private void OnTriggerEnter(Collider other)
+    // Método para aplicar daño al Player con efectos de sonido y visuales
+    public void TakeDamage()
     {
-        if (other.CompareTag("Enemy"))
-        {
-            // El Player recibe daño
-            lifeSystem.ReduceLife(1); // Reduce una vida usando el sistema de vida
+        if (damageSound != null)
+            audioSource.PlayOneShot(damageSound);
 
-            // Reproducir sonido de daño
-            if (damageSound != null && audioSource != null)
-            {
-                audioSource.PlayOneShot(damageSound);
-            }
-
-            // Instanciar y reproducir FX de daño
-            if (damageFXPrefab != null)
-            {
-                ParticleSystem damageFX = Instantiate(damageFXPrefab, transform.position, Quaternion.identity);
-                damageFX.Play();
-                Destroy(damageFX.gameObject, damageFX.main.duration); // Destruir el FX después de que termine
-            }
-
-            // Destruir al enemigo después del impacto
-            Destroy(other.gameObject);
-        }
+        if (damageFXPrefab != null)
+            Instantiate(damageFXPrefab, transform.position, Quaternion.identity);
     }
 }
