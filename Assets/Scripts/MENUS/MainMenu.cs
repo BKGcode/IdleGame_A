@@ -1,81 +1,19 @@
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public ConfirmationPopup confirmationPopup;
-    public GameObject saveSlotMenu; // Menú que muestra los 4 slots de guardado
-    public GameObject loadSlotMenu; // Menú que muestra los 4 slots de carga
-    public SaveManager saveManager;
+    public string gameplaySceneName = "GameplayScene"; // Nombre de la escena de juego
 
-    public void ShowSaveSlotMenu()
+    // Función simplificada para iniciar una nueva partida
+    public void StartNewGame()
     {
-        saveSlotMenu.SetActive(true);
+        SceneManager.LoadScene(gameplaySceneName); // Cambia a la escena del juego
     }
 
-    public void ShowLoadSlotMenu()
-    {
-        loadSlotMenu.SetActive(true);
-        saveManager.LoadGameData(); // Carga la información de los slots
-    }
-
-    public void SelectSaveSlot(int slotIndex)
-    {
-        if (saveManager.IsSlotUsed(slotIndex))
-        {
-            confirmationPopup.OnConfirm.AddListener(() => OverwriteSave(slotIndex));
-            confirmationPopup.OnCancel.AddListener(CancelSave);
-            confirmationPopup.Show();
-        }
-        else
-        {
-            StartNewGame(slotIndex);
-        }
-    }
-
-    private void OverwriteSave(int slotIndex)
-    {
-        StartNewGame(slotIndex);
-        confirmationPopup.OnConfirm.RemoveAllListeners();
-        confirmationPopup.OnCancel.RemoveAllListeners();
-    }
-
-    private void CancelSave()
-    {
-        confirmationPopup.OnConfirm.RemoveAllListeners();
-        confirmationPopup.OnCancel.RemoveAllListeners();
-    }
-
-    private void StartNewGame(int slotIndex)
-    {
-        saveManager.CreateNewGame(slotIndex);
-        SceneManager.LoadScene("X"); // Cambia a la escena del juego
-    }
-
-    public void LoadGame(int slotIndex)
-    {
-        saveManager.LoadGameFromSlot(slotIndex);
-        SceneManager.LoadScene("X");
-    }
-
+    // Función para salir del juego con confirmación
     public void ExitGame()
     {
-        confirmationPopup.OnConfirm.AddListener(ConfirmExit);
-        confirmationPopup.OnCancel.AddListener(CancelExit);
-        confirmationPopup.Show();
-    }
-
-    private void ConfirmExit()
-    {
-        Application.Quit();
-        confirmationPopup.OnConfirm.RemoveListener(ConfirmExit);
-        confirmationPopup.OnCancel.RemoveListener(CancelExit);
-    }
-
-    private void CancelExit()
-    {
-        confirmationPopup.OnConfirm.RemoveListener(ConfirmExit);
-        confirmationPopup.OnCancel.RemoveListener(CancelExit);
+        Application.Quit(); // Cierra la aplicación
     }
 }

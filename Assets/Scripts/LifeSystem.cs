@@ -37,6 +37,13 @@ public class LifeSystem : MonoBehaviour
         lifeData.onLifeGained.Invoke(); // Actualiza la UI de vidas
     }
 
+    // Método para reiniciar las vidas al máximo (usado en el inicio de una nueva partida)
+    public void ResetLives()
+    {
+        lifeData.currentLives = lifeData.maxLives;
+        lifeData.onLifeGained.Invoke(); // Actualiza la UI de vidas para reflejar el reinicio
+    }
+
     // Método para verificar si se ha alcanzado el estado de Game Over
     private void CheckGameOver()
     {

@@ -2,18 +2,34 @@ using UnityEngine;
 
 public class TimeSystem : MonoBehaviour
 {
-    // Referencia al ScriptableObject de tiempo
-    public TimeData timeData;
+    public TimeData timeData; // Datos del tiempo
 
     private void Update()
     {
-        // Actualizamos el tiempo transcurrido en cada frame
-        timeData.UpdateTime(Time.deltaTime);
+        // Solo incrementa el tiempo si el juego no está en pausa ni en Game Over
+        if (timeData != null && !timeData.isPaused)
+        {
+            timeData.currentTime += Time.deltaTime;
+            timeData.onTimeChanged.Invoke(); // Invoca el evento para actualizar la UI
+        }
     }
 
-    private void OnDestroy()
+    // Método para reiniciar el tiempo a cero
+    public void ResetTime()
     {
-        // Aseguramos que no queden listeners pendientes al destruir el objeto
-        timeData.onTimeChanged.RemoveAllListeners();
+        timeData.currentTime = 0f;
+        timeData.onTimeChanged.Invoke(); // Actualiza la UI del tiempo
+    }
+
+    // Pausar el tiempo
+    public void PauseTime()
+    {
+        timeData.isPaused = true;
+    }
+
+    // Reanudar el tiempo
+    public void ResumeTime()
+    {
+        timeData.isPaused = false;
     }
 }

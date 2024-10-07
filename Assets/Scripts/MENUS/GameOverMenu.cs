@@ -1,32 +1,52 @@
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class GameOverMenu : MonoBehaviour
 {
-    public UnityEvent OnRestart;
-    private int currentSaveSlot = 0;
+    public GameObject gameOverUI; // Referencia al panel de la UI del Game Over
+    public string mainMenuSceneName = "MainMenu"; // Nombre de la escena del menú principal
+    public string gameplaySceneName = "GameplayScene"; // Nombre de la escena de juego para reiniciar
 
-    // Método para inicializar con el slot actual
-    public void Initialize(int saveSlot)
+    public SaveManager saveManager; // Referencia al SaveManager para reiniciar los datos
+    public TimeSystem timeSystem; // Referencia al TimeSystem para reiniciar el tiempo
+    private int currentSaveSlot = 0; // Slot de guardado actual (para reiniciar la partida)
+
+    // Muestra el menú de Game Over
+    public void ShowGameOver()
     {
-        currentSaveSlot = saveSlot;
+        gameOverUI.SetActive(true); // Activa la UI del Game Over
     }
 
+    // Función para confirmar y volver al menú principal
+    public void ConfirmGameOver()
+    {
+        SceneManager.LoadScene(mainMenuSceneName); // Carga la escena del menú principal
+    }
+
+    // Método para reiniciar la partida
     public void RestartGame()
     {
-        OnRestart?.Invoke();
-        SceneManager.LoadScene("Gameplay"); // Reinicia la escena de juego
+        // Reinicia todos los datos de la partida en el slot actual
+        saveManager.CreateNewGame(currentSaveSlot);
+
+        // Asegúrate de que el tiempo se restablezca antes de reiniciar la escena
+        if (timeSystem != null)
+        {
+            timeSystem.ResetTime();
+        }
+
+        SceneManager.LoadScene(gameplaySceneName); // Recarga la escena de juego para reiniciar
     }
 
-    public void ReturnToMainMenu()
+    // Método para inicializar el Game Over (compatibilidad con LifeSystem)
+    public void Initialize(int saveSlot)
     {
-        SaveManager.Instance.SaveGame(currentSaveSlot); // Guarda los datos antes de salir al MainMenu
-        SceneManager.LoadScene("MainMenu");
+        currentSaveSlot = saveSlot; // Guarda el slot actual para usarlo en el reinicio
     }
 
+    // Método para mostrar el menú de Game Over (llamado desde LifeSystem)
     public void Show()
     {
-        gameObject.SetActive(true);
+        ShowGameOver(); // Llama al método existente para activar la UI.
     }
 }

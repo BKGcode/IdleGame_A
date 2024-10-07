@@ -3,30 +3,35 @@ using UnityEngine;
 
 public static class SaveSystem
 {
-    private static string savePath = Application.persistentDataPath + "/savefile.json";
+    private static string savePath = Application.persistentDataPath;
 
-    // Método para guardar los datos en JSON
-    public static void SaveGame(SaveData saveData)
+    public static void SaveGame(SaveData saveData, int slotIndex)
     {
         string json = JsonUtility.ToJson(saveData);
-        File.WriteAllText(savePath, json);
-        Debug.Log("Game Saved: " + savePath);
+        string slotSavePath = GetSlotSavePath(slotIndex);
+        File.WriteAllText(slotSavePath, json);
+        Debug.Log("Game Saved: " + slotSavePath);
     }
 
-    // Método para cargar los datos desde JSON
-    public static SaveData LoadGame(SaveData saveData)
+    public static SaveData LoadGame(SaveData saveData, int slotIndex)
     {
-        if (File.Exists(savePath))
+        string slotSavePath = GetSlotSavePath(slotIndex);
+        if (File.Exists(slotSavePath))
         {
-            string json = File.ReadAllText(savePath);
+            string json = File.ReadAllText(slotSavePath);
             JsonUtility.FromJsonOverwrite(json, saveData);
-            Debug.Log("Game Loaded: " + savePath);
+            Debug.Log("Game Loaded: " + slotSavePath);
             return saveData;
         }
         else
         {
-            Debug.LogWarning("Save file not found.");
+            Debug.LogWarning("Save file not found for slot " + slotIndex);
             return null;
         }
+    }
+
+    private static string GetSlotSavePath(int slotIndex)
+    {
+        return Path.Combine(savePath, $"savefile_slot{slotIndex}.json");
     }
 }

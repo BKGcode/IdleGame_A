@@ -934,9 +934,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23eec9efa5d3ae84db4a7917f54a0e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnRestart:
-    m_PersistentCalls:
-      m_Calls: []
+  gameOverUI: {fileID: 706161782}
+  mainMenuSceneName: Scene_MainMenu_A
+  gameplaySceneName: Scene_Game_A
+  saveManager: {fileID: 422636580}
 --- !u!114 &286640802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -949,10 +950,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7fa85ae7775ef343a0187457c3816c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnGameResume:
-    m_PersistentCalls:
-      m_Calls: []
-  confirmationPopup: {fileID: 2327619337566254778}
+  pauseMenuUI: {fileID: 816819889}
+  mainMenuSceneName: Scene_MainMenu_A
 --- !u!1 &300603437
 GameObject:
   m_ObjectHideFlags: 0
@@ -1311,6 +1310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeData: {fileID: 11400000, guid: 5b4e961fc47133f429b69696f8558d3c, type: 2}
+  gameOverMenu: {fileID: 286640801}
 --- !u!114 &422636577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1365,10 +1365,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c3e025cb12688a43966c3cf57aa741a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  saveData: {fileID: 11400000, guid: 21433d97f4886ba44be9acbdb8af2f39, type: 2}
+  saveSlots: []
   lifeData: {fileID: 11400000, guid: 5b4e961fc47133f429b69696f8558d3c, type: 2}
   timeData: {fileID: 11400000, guid: d504be82e16ef824b81133e778cb5507, type: 2}
   scoreData: {fileID: 11400000, guid: 75087052f5bfc5a428efb7c1193cae96, type: 2}
+  saveSuccessMessage: 
+  loadSuccessMessage: 
+  resetSuccessMessage: 
 --- !u!114 &422636581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3949,7 +3952,7 @@ PrefabInstance:
     - target: {fileID: 2281221467973821477, guid: 6d45cc6e0f916264899055b69bd7337f,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Show
+      value: ExitToMainMenu
       objectReference: {fileID: 0}
     - target: {fileID: 2281221467973821477, guid: 6d45cc6e0f916264899055b69bd7337f,
         type: 3}
@@ -4338,7 +4341,7 @@ PrefabInstance:
     - target: {fileID: 2281221467973821477, guid: 6d45cc6e0f916264899055b69bd7337f,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ReturnToMainMenu
+      value: ConfirmGameOver
       objectReference: {fileID: 0}
     - target: {fileID: 2281221467973821477, guid: 6d45cc6e0f916264899055b69bd7337f,
         type: 3}
@@ -5307,6 +5310,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: BTN_Restart
+      objectReference: {fileID: 0}
+    - target: {fileID: 2452229878851799395, guid: 6d45cc6e0f916264899055b69bd7337f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3109225413533453450, guid: 6d45cc6e0f916264899055b69bd7337f,
         type: 3}
@@ -8029,18 +8037,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a1762c4d3a1540343a55727123f1a05d, type: 3}
---- !u!114 &2327619337566254778 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3457651557249650955, guid: a1762c4d3a1540343a55727123f1a05d,
-    type: 3}
-  m_PrefabInstance: {fileID: 2327619337566254777}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 862cc10861e16774e9693968c367d66e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &5784148228925584703
 PrefabInstance:
   m_ObjectHideFlags: 0

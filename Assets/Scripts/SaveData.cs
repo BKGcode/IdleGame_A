@@ -1,17 +1,17 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SaveData", menuName = "Game Systems/Save Data")]
+[CreateAssetMenu(fileName = "NewSaveData", menuName = "Save System/Save Data")]
 public class SaveData : ScriptableObject
 {
     public int currentLives;
     public float currentTime;
     public int currentScore;
 
-    // Método para reiniciar los datos
+    // Método para resetear los datos de guardado
     public void ResetData(int maxLives)
     {
         currentLives = maxLives;
-        currentTime = 0;
+        currentTime = 0f;
         currentScore = 0;
     }
 }

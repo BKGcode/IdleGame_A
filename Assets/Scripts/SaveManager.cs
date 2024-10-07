@@ -4,10 +4,14 @@ public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
 
-    public SaveData[] saveSlots; // Array de ScriptableObjects para los 4 slots de guardado
+    public SaveData[] saveSlots; // Array de ScriptableObjects para los slots de guardado
     public LifeData lifeData;  // Referencia al ScriptableObject de vidas
     public TimeData timeData;  // Referencia al ScriptableObject de tiempo
     public ScoreData scoreData;  // Referencia al ScriptableObject de puntos
+
+    public string saveSuccessMessage; // Mensaje configurable para mostrar cuando se guarda correctamente
+    public string loadSuccessMessage; // Mensaje configurable para mostrar cuando se carga correctamente
+    public string resetSuccessMessage; // Mensaje configurable para mostrar cuando se resetea un slot
 
     private void Awake()
     {
@@ -22,89 +26,72 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    // Crea una nueva partida en un slot específico
+    public void CreateNewGame(int slotIndex)
     {
-        // Cargamos la partida del primer slot por defecto, o inicializamos si no hay datos.
-        if (SaveSystem.LoadGame(saveSlots[0]) == null)
+        if (slotIndex < 0 || slotIndex >= saveSlots.Length)
         {
-            ResetGame(lifeData.maxLives);
+            Debug.LogError($"Índice de slot {slotIndex} fuera de los límites del array saveSlots.");
+            return;
         }
-        else
-        {
-            ApplyLoadedData(0);
-        }
+
+        saveSlots[slotIndex].ResetData(lifeData.maxLives);
+
+        // Aplica las vidas restauradas para asegurar que el jugador comienza con vidas completas
+        lifeData.currentLives = lifeData.maxLives;
+        lifeData.onLifeGained.Invoke(); // Actualiza la UI de vidas
+
+        // Asegura que el tiempo también se reinicie
+        timeData.currentTime = 0f;
+        timeData.onTimeChanged.Invoke(); // Actualiza la UI del tiempo
+
+        SaveGame(slotIndex);
+        Debug.Log(saveSuccessMessage); // Mensaje personalizado al guardar
     }
 
-    // Método para guardar los datos en el slot seleccionado
+    // Guarda los datos actuales en el slot seleccionado
     public void SaveGame(int slotIndex)
     {
+        if (slotIndex < 0 || slotIndex >= saveSlots.Length)
+        {
+            Debug.LogError($"Índice de slot {slotIndex} fuera de los límites del array saveSlots.");
+            return;
+        }
+
         saveSlots[slotIndex].currentLives = lifeData.currentLives;
         saveSlots[slotIndex].currentTime = timeData.currentTime;
         saveSlots[slotIndex].currentScore = scoreData.currentScore;
 
-        SaveSystem.SaveGame(saveSlots[slotIndex]);
-        Debug.Log($"Game saved successfully in slot {slotIndex}.");
+        SaveSystem.SaveGame(saveSlots[slotIndex], slotIndex);
+        Debug.Log(saveSuccessMessage); // Mensaje personalizado al guardar
     }
 
-    // Método para cargar datos de un slot específico en el juego
-    public void ApplyLoadedData(int slotIndex)
+    // Carga los datos desde un slot específico y los aplica al juego
+    public void LoadGameFromSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= saveSlots.Length)
+        {
+            Debug.LogError($"Índice de slot {slotIndex} fuera de los límites del array saveSlots.");
+            return;
+        }
+
+        if (SaveSystem.LoadGame(saveSlots[slotIndex], slotIndex) != null)
+        {
+            ApplyLoadedData(slotIndex);
+            Debug.Log(loadSuccessMessage); // Mensaje personalizado al cargar
+        }
+    }
+
+    // Aplica los datos cargados del slot al juego
+    private void ApplyLoadedData(int slotIndex)
     {
         lifeData.currentLives = saveSlots[slotIndex].currentLives;
         timeData.currentTime = saveSlots[slotIndex].currentTime;
         scoreData.currentScore = saveSlots[slotIndex].currentScore;
 
-        // Actualiza las UI correspondientes
-        lifeData.onLifeLost.Invoke();  
-        timeData.onTimeChanged.Invoke();  
-        scoreData.onScoreChanged.Invoke();  
-
-        Debug.Log($"Game data loaded successfully from slot {slotIndex}.");
-    }
-
-    // Método para cargar los datos desde un slot específico y aplicarlos
-    public void LoadGameFromSlot(int slotIndex)
-    {
-        if (SaveSystem.LoadGame(saveSlots[slotIndex]) != null)
-        {
-            ApplyLoadedData(slotIndex);
-        }
-    }
-
-    // Verifica si un slot tiene datos guardados
-    public bool IsSlotUsed(int slotIndex)
-    {
-        return SaveSystem.LoadGame(saveSlots[slotIndex]) != null;
-    }
-
-    // Método para resetear el juego, cargando los datos iniciales en el primer slot
-    public void ResetGame(int maxLives)
-    {
-        saveSlots[0].ResetData(maxLives); // Resetea el primer slot por defecto
-        ApplyLoadedData(0);
-        Debug.Log("Game reset successfully.");
-    }
-
-    // Método para crear una nueva partida en un slot específico
-    public void CreateNewGame(int slotIndex)
-    {
-        saveSlots[slotIndex].ResetData(lifeData.maxLives);
-        SaveGame(slotIndex);
-    }
-
-    // Método para cargar la información de todos los slots (para mostrar en la UI)
-    public void LoadGameData()
-    {
-        for (int i = 0; i < saveSlots.Length; i++)
-        {
-            var data = SaveSystem.LoadGame(saveSlots[i]);
-            if (data != null)
-            {
-                Debug.Log($"Slot {i}: Lives - {saveSlots[i].currentLives}, Time - {saveSlots[i].currentTime}, Score - {saveSlots[i].currentScore}");
-            }
-            else
-            {
-                Debug.Log($"Slot {i}: Empty");
-            }
-        }
+        // Invoca los eventos para actualizar las UI correspondientes
+        lifeData.onLifeLost.Invoke();
+        timeData.onTimeChanged.Invoke();
+        scoreData.onScoreChanged.Invoke();
     }
 }
