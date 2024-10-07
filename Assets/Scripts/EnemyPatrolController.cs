@@ -3,149 +3,136 @@ using System.Collections;
 
 public class EnemyPatrolController : MonoBehaviour
 {
-    public EnemyData enemyData;  // Datos del enemigo
+    // Variables de patrulla
+    [SerializeField] private float patrolRadius = 10f; // Radio de patrulla
+    [SerializeField] private float patrolSpeed = 2f; // Velocidad de movimiento durante la patrulla
+    [SerializeField] private float minPatrolCooldown = 2f; // Tiempo mínimo antes de moverse a otro punto
+    [SerializeField] private float maxPatrolCooldown = 5f; // Tiempo máximo antes de moverse a otro punto
+    
+    // Variables de detección del Player
+    [SerializeField] private float detectionRadius = 5f; // Radio de detección del Player
+    [SerializeField] private float chaseSpeed = 4f; // Velocidad durante la persecución
+    [SerializeField] private int chaseProbability = 7; // Probabilidad de 0 a 10 de perseguir al Player
 
-    public float patrolRadius = 10f;  // Radio en el que patrullará el enemigo
-    public float detectionRadius = 5f;  // Radio de detección del jugador
-    public float chaseSpeed = 3f;  // Velocidad de persecución del jugador
-    public float patrolSpeed = 2f;  // Velocidad de patrulla
-    public float stopDistance = 1.5f;  // Distancia mínima para detenerse cerca del jugador
-
-    public bool destroyOnImpact = true;  // Si se destruye el enemigo al impactar
-    public float damageCooldown = 2f;  // Tiempo de cooldown antes de hacer más daño al Player
-    public float destructionDelay = 1.5f;  // Cooldown antes de destruir el enemigo
-
-    private Vector3 startPosition;
-    private Vector3 patrolPoint;
-    private int currentLives;
-    private bool isChasing = false;
-    private bool canDamagePlayer = true;  // Controla si el enemigo puede hacer daño
-
-    private Transform player;
-    private EnemyFXController enemyFX;  // Referencia al controlador de efectos del enemigo
+    private Vector3 patrolCenter; // Centro de la patrulla
+    private Transform player; // Referencia al Player
+    private bool isChasing = false; // Estado de persecución
+    private bool isPatrolling = true; // Estado de patrulla
+    private float cooldownTimer = 0f; // Tiempo de cooldown antes de moverse a otro punto
+    private Vector3 nextPatrolPoint; // Siguiente punto de patrulla
 
     private void Start()
     {
-        startPosition = transform.position;
-        currentLives = enemyData.maxLives;
+        // Definir el centro de patrulla como la posición inicial del enemigo
+        patrolCenter = transform.position;
 
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        // Encontrar al Player usando tags
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject != null)
+        {
+            player = playerObject.transform;
+        }
 
-        // Intentamos obtener el controlador de FX del enemigo
-        enemyFX = GetComponent<EnemyFXController>();
-
-        SetRandomPatrolPoint();
+        // Elegir el primer punto de patrulla
+        ChooseNextPatrolPoint();
     }
 
     private void Update()
     {
-        DetectPlayer();  // Detecta si el jugador está cerca
-
         if (isChasing)
         {
-            ChasePlayer();  // Persigue al jugador si está en rango
+            ChasePlayer();
         }
-        else
+        else if (isPatrolling)
         {
-            Patrol();  // Patrulla si no está persiguiendo al jugador
+            Patrol();
         }
+
+        DetectPlayer();
     }
 
-    // Método para patrullar entre puntos aleatorios
+    // Elegir un nuevo punto de patrulla aleatorio dentro del radio
+    private void ChooseNextPatrolPoint()
+    {
+        Vector2 randomPoint = Random.insideUnitCircle * patrolRadius; // Elegir un punto aleatorio en el círculo de patrulla
+        nextPatrolPoint = patrolCenter + new Vector3(randomPoint.x, 0, randomPoint.y); // Definir la posición del siguiente punto de patrulla
+        cooldownTimer = Random.Range(minPatrolCooldown, maxPatrolCooldown); // Reiniciar el cooldown
+    }
+
+    // Patrullar hacia el siguiente punto de patrulla
     private void Patrol()
     {
-        MoveTo(patrolPoint, patrolSpeed);
-
-        if (Vector3.Distance(transform.position, patrolPoint) < 0.5f)
+        if (Vector3.Distance(transform.position, nextPatrolPoint) <= 0.2f)
         {
-            SetRandomPatrolPoint();
-        }
-    }
-
-    private void SetRandomPatrolPoint()
-    {
-        Vector3 randomPoint = Random.insideUnitSphere * patrolRadius;
-        randomPoint += startPosition;
-        patrolPoint = new Vector3(randomPoint.x, transform.position.y, randomPoint.z);  // Mantenemos la altura constante
-    }
-
-    private void DetectPlayer()
-    {
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        if (distanceToPlayer <= detectionRadius && distanceToPlayer > stopDistance)
-        {
-            isChasing = true;  // El enemigo empieza a perseguir al jugador
+            ChooseNextPatrolPoint(); // Elegir el siguiente punto si ya llegó al actual
         }
         else
         {
-            isChasing = false;
+            MoveToPoint(nextPatrolPoint, patrolSpeed); // Moverse al siguiente punto
         }
     }
 
+    // Perseguir al Player si está en el radio de detección y pasa la probabilidad de persecución
     private void ChasePlayer()
     {
-        if (Vector3.Distance(transform.position, player.position) > stopDistance)
+        if (Vector3.Distance(transform.position, player.position) > detectionRadius)
         {
-            MoveTo(player.position, chaseSpeed);  // Perseguir al jugador
+            // Si el Player se ha salido del radio, volver a patrullar
+            isChasing = false;
+            isPatrolling = true;
+        }
+        else
+        {
+            MoveToPoint(player.position, chaseSpeed); // Perseguir al Player
         }
     }
 
-    // Método para mover al enemigo sin Rigidbody
-    private void MoveTo(Vector3 target, float speed)
+    // Detectar si el Player está en el radio de detección
+    private void DetectPlayer()
     {
-        Vector3 direction = (target - transform.position).normalized;
-        transform.Translate(direction * speed * Time.deltaTime, Space.World);
-    }
+        if (player == null) return;
 
-    // Método para infligir daño al jugador
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player") && canDamagePlayer)
+        if (Vector3.Distance(transform.position, player.position) <= detectionRadius)
         {
-            PlayerController playerController = other.GetComponent<PlayerController>();
-
-            if (playerController != null)
+            int randomChance = Random.Range(0, 11); // Generar un valor aleatorio de 0 a 10
+            if (randomChance <= chaseProbability)
             {
-                playerController.TakeDamage(enemyData.damage);  // Inflige daño al jugador
-
-                // Emite sonido y partículas
-                if (enemyFX != null)
-                {
-                    enemyFX.PlayImpactFX();
-                }
-
-                if (destroyOnImpact)
-                {
-                    StartCoroutine(DieWithDelay());
-                }
-
-                canDamagePlayer = false;
-                StartCoroutine(DamageCooldown());
+                isChasing = true;
+                isPatrolling = false; // Dejar de patrullar cuando persiga
             }
         }
     }
 
-    // Enfriamiento para evitar daño continuo
-    private IEnumerator DamageCooldown()
+    // Moverse hacia un punto con una velocidad específica y orientarse hacia el movimiento
+    private void MoveToPoint(Vector3 target, float speed)
     {
-        yield return new WaitForSeconds(damageCooldown);
-        canDamagePlayer = true;
+        Vector3 direction = (target - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            RotateTowardsMovement(target, 5f); // Rotar hacia el objetivo
+        }
+        transform.position += direction * speed * Time.deltaTime; // Moverse hacia el punto objetivo
     }
 
-    // Método para destruir al enemigo después de un retraso
-    private IEnumerator DieWithDelay()
+    // Método para actualizar la rotación del enemigo en la dirección de movimiento
+    private void RotateTowardsMovement(Vector3 targetPosition, float rotationSpeed)
     {
-        yield return new WaitForSeconds(destructionDelay);
-        Destroy(gameObject);
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        }
     }
 
-    // Mostrar las áreas de patrulla y detección en el editor
+    // Dibujar Gizmos para mostrar el radio de patrulla y de detección en la vista de escena
     private void OnDrawGizmosSelected()
     {
+        // Radio de patrulla
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, patrolRadius);
+        Gizmos.DrawWireSphere(patrolCenter, patrolRadius);
 
+        // Radio de detección del Player
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }

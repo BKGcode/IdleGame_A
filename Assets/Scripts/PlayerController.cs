@@ -2,88 +2,122 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f;  // Velocidad de movimiento normal
-    public float boostMultiplier = 2f;  // Multiplicador de velocidad para el boost
-    public Camera mainCamera;  // Cámara principal para detectar la posición del ratón
-    public LifeData lifeData;  // Sistema de vidas (ScriptableObject)
+    // Variables para la velocidad de movimiento y boost
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float boostMultiplier = 2f;
+    [SerializeField] private float boostDuration = 3f;
+    [SerializeField] private float boostCooldown = 5f;
 
-    private Vector3 moveDirection;  // Dirección de movimiento
-    private bool isAlive = true;  // Control para evitar más daño si ya está muerto
+    private Camera mainCamera;
+    private bool isBoosting = false;
+    private float remainingBoostTime;
+    private float cooldownTimer = 0f;
+
+    // Referencias para el sistema de vida
+    public LifeSystem lifeSystem;
+
+    // Sonido y efectos visuales
+    [SerializeField] private AudioClip damageSound; // Sonido cuando el Player recibe daño
+    [SerializeField] private ParticleSystem damageFXPrefab; // Prefab del efecto visual de daño
+    private AudioSource audioSource; // Reproductor de audio
+
+    private void Start()
+    {
+        mainCamera = Camera.main;
+        remainingBoostTime = boostDuration;
+
+        // Obtener el AudioSource del Player
+        audioSource = GetComponent<AudioSource>();
+    }
 
     private void Update()
     {
-        if (isAlive)
-        {
-            RotateTowardsMouse();  // Maneja la rotación del jugador hacia el puntero del ratón
-            ProcessInput();  // Control del movimiento del jugador
-        }
+        RotateTowardsMouse();
+        HandleMovement();
+        HandleBoostTimers();
+        HandleBoostInput();
     }
 
-    // Método para hacer que el jugador apunte hacia el puntero del ratón
+    // Rotación del Player hacia el puntero del ratón
     private void RotateTowardsMouse()
     {
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);  // Lanza un rayo desde la cámara hacia el ratón
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);  // Creamos un plano que representa el suelo
-
-        if (groundPlane.Raycast(ray, out float rayDistance))
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hitInfo))
         {
-            Vector3 point = ray.GetPoint(rayDistance);  // Obtenemos el punto donde el rayo golpea el plano
-            Vector3 lookDirection = point - transform.position;  // Calculamos la dirección hacia ese punto
-            lookDirection.y = 0;  // Ignoramos la rotación en el eje Y para evitar que el jugador gire verticalmente
-
-            transform.LookAt(transform.position + lookDirection);  // Ajustamos la rotación del jugador
+            Vector3 targetPosition = hitInfo.point;
+            Vector3 direction = (targetPosition - transform.position).normalized;
+            direction.y = 0; 
+            transform.forward = direction;
         }
     }
 
-    // Método para procesar la entrada del teclado
-    private void ProcessInput()
+    // Movimiento del Player
+    private void HandleMovement()
     {
-        // Obtenemos las entradas de teclado
-        float moveHorizontal = Input.GetAxisRaw("Horizontal");
-        float moveVertical = Input.GetAxisRaw("Vertical");
-
-        // Calculamos la dirección de movimiento en el espacio local
-        moveDirection = new Vector3(moveHorizontal, 0, moveVertical).normalized;
-
-        // Movemos al jugador si hay una entrada válida
-        if (moveDirection.magnitude >= 0.1f)
+        float vertical = Input.GetAxis("Vertical");
+        if (vertical > 0)
         {
-            MovePlayer();
+            float currentSpeed = isBoosting ? moveSpeed * boostMultiplier : moveSpeed;
+            transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
         }
     }
 
-    // Método para mover al jugador sin Rigidbody
-    private void MovePlayer()
+    // Manejo del temporizador de boost y cooldown
+    private void HandleBoostTimers()
     {
-        // Comprobamos si se está presionando la tecla Shift para aplicar el boost
-        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? moveSpeed * boostMultiplier : moveSpeed;
-
-        // Convertimos la dirección de movimiento a espacio local
-        Vector3 movement = transform.TransformDirection(moveDirection) * currentSpeed * Time.deltaTime;
-
-        // Movemos al jugador usando transform.Translate
-        transform.Translate(movement, Space.World);
-    }
-
-    // Método para recibir daño y perder vidas
-    public void TakeDamage(int damageAmount)
-    {
-        if (!isAlive) return;  // Evitar recibir daño si ya ha muerto
-
-        // En lugar de reducir las vidas directamente, usamos el método LoseLife() en LifeData
-        lifeData.LoseLife();
-
-        if (lifeData.currentLives <= 0)
+        if (isBoosting)
         {
-            Die();  // Si las vidas llegan a 0, el jugador muere
+            remainingBoostTime -= Time.deltaTime; 
+            if (remainingBoostTime <= 0)
+            {
+                isBoosting = false;
+                remainingBoostTime = 0;
+                cooldownTimer = boostCooldown;
+            }
+        }
+        else if (cooldownTimer > 0)
+        {
+            cooldownTimer -= Time.deltaTime;
         }
     }
 
-    // Método para manejar la muerte del jugador
-    private void Die()
+    // Manejo de la entrada para activar o desactivar el boost
+    private void HandleBoostInput()
     {
-        isAlive = false;
-        Debug.Log("Player Died");
-        // Aquí puedes manejar la lógica de Game Over, reiniciar el nivel, etc.
+        if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && remainingBoostTime > 0 && cooldownTimer <= 0)
+        {
+            isBoosting = true;
+        }
+        else
+        {
+            isBoosting = false;
+        }
+    }
+
+    // Función para manejar el impacto con el enemigo
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            // El Player recibe daño
+            lifeSystem.ReduceLife(1); // Reduce una vida usando el sistema de vida
+
+            // Reproducir sonido de daño
+            if (damageSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(damageSound);
+            }
+
+            // Instanciar y reproducir FX de daño
+            if (damageFXPrefab != null)
+            {
+                ParticleSystem damageFX = Instantiate(damageFXPrefab, transform.position, Quaternion.identity);
+                damageFX.Play();
+                Destroy(damageFX.gameObject, damageFX.main.duration); // Destruir el FX después de que termine
+            }
+
+            // Destruir al enemigo después del impacto
+            Destroy(other.gameObject);
+        }
     }
 }

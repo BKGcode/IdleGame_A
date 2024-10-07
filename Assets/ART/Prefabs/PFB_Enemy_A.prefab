@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1933434444519891924}
+  - component: {fileID: 6258098511524694003}
   - component: {fileID: 4912899284231608012}
   - component: {fileID: 8607614362479796614}
   - component: {fileID: 6478674210326344905}
-  - component: {fileID: 8301657151314844619}
-  - component: {fileID: 6164461873079682573}
+  - component: {fileID: 2229302023920498691}
   m_Layer: 0
   m_Name: PFB_Enemy_A
   m_TagString: Enemy
@@ -41,6 +41,33 @@ Transform:
   - {fileID: 212017404406384896}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &6258098511524694003
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 97431682438290556}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!136 &4912899284231608012
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -183,24 +210,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8301657151314844619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 97431682438290556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0a88fdec5928954e95aee0a4bdb1779, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioSource: {fileID: 0}
-  impactSound: {fileID: 8300000, guid: 5a0df2f70058c4f488fc38e1ba3872b3, type: 3}
-  impactParticlesPrefab: {fileID: 9197921778859346998, guid: 997b515cf158b5b429888d331178f939,
-    type: 3}
-  particleSpawnPoint: {fileID: 212017404406384896}
---- !u!114 &6164461873079682573
+--- !u!114 &2229302023920498691
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -212,16 +222,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd7657c393f949498e0935234b4fb90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: c5bc0ef3ef45a1c4581c66c2f61c02b7, type: 2}
   patrolRadius: 20
+  patrolSpeed: 3
+  minPatrolCooldown: 2
+  maxPatrolCooldown: 5
   detectionRadius: 10
-  chaseSpeed: 20
-  idleTimeMin: 1
-  idleTimeMax: 3
-  stopDistance: 1.5
-  destroyOnImpact: 1
-  damageCooldown: 2
-  destructionDelay: 0.3
+  chaseSpeed: 15
+  chaseProbability: 8
 --- !u!1 &1087115592437807638
 GameObject:
   m_ObjectHideFlags: 0

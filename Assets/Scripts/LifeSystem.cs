@@ -2,50 +2,54 @@ using UnityEngine;
 
 public class LifeSystem : MonoBehaviour
 {
-    // Referencia al ScriptableObject de vidas
-    public LifeData lifeData;
+    public LifeData lifeData; // Datos de vidas
+    public GameOverMenu gameOverMenu; // Referencia al GameOverMenu
+    private int currentSaveSlot = 0; // Slot de guardado actual
 
-    private void Start()
+    // Método para inicializar con el slot actual
+    public void Initialize(int saveSlot)
     {
-        // Asignamos las funciones para cuando se ganen o pierdan vidas
-        lifeData.onLifeLost.AddListener(OnLifeLost);
-        lifeData.onLifeGained.AddListener(OnLifeGained);
+        currentSaveSlot = saveSlot; // Establece el slot de guardado actual
     }
 
-    // Función para que el jugador o enemigo pierda una vida
-    public void TakeDamage()
+    private void Update()
     {
-        lifeData.LoseLife();  // El personaje pierde una vida
-
-        if (lifeData.currentLives <= 0)
+        // Comprueba si las vidas han llegado a cero y activa el GameOverMenu
+        if (lifeData.currentLives <= 0 && !gameOverMenu.gameObject.activeSelf)
         {
-            Die();  // Si las vidas llegan a 0, el personaje muere
+            TriggerGameOver();
         }
     }
 
-    // Función para manejar la muerte
-    private void Die()
+    // Método para reducir vidas
+    public void ReduceLife(int amount)
     {
-        Debug.Log("Character has died");  // Aquí puedes manejar el Game Over o la muerte del enemigo
-        // Puedes añadir más lógica aquí para la muerte del personaje o enemigo
+        lifeData.currentLives -= amount;
+        lifeData.onLifeLost.Invoke(); // Actualiza la UI de vidas
+
+        CheckGameOver(); // Verifica si las vidas son 0 después de reducir
     }
 
-    // Función para llamar cuando el personaje pierde una vida
-    private void OnLifeLost()
+    // Método para restaurar vidas
+    public void RestoreLife(int amount)
     {
-        // Aquí puedes actualizar la UI o añadir efectos visuales/sonoros
+        lifeData.currentLives = Mathf.Min(lifeData.currentLives + amount, lifeData.maxLives);
+        lifeData.onLifeGained.Invoke(); // Actualiza la UI de vidas
     }
 
-    // Función para llamar cuando el personaje gana una vida
-    private void OnLifeGained()
+    // Método para verificar si se ha alcanzado el estado de Game Over
+    private void CheckGameOver()
     {
-        // Aquí puedes actualizar la UI o añadir efectos visuales/sonoros
+        if (lifeData.currentLives <= 0)
+        {
+            TriggerGameOver();
+        }
     }
 
-    private void OnDestroy()
+    // Método que se encarga de gestionar el Game Over
+    private void TriggerGameOver()
     {
-        // Removemos los listeners al destruir este objeto
-        lifeData.onLifeLost.RemoveListener(OnLifeLost);
-        lifeData.onLifeGained.RemoveListener(OnLifeGained);
+        gameOverMenu.Initialize(currentSaveSlot); // Inicializa el menú de Game Over con el slot actual
+        gameOverMenu.Show(); // Muestra el menú de Game Over
     }
 }

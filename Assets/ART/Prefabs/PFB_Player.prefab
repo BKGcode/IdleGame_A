@@ -95,10 +95,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4948344951450623475}
-  - component: {fileID: 3102566268478252866}
+  - component: {fileID: 833336767085977274}
   - component: {fileID: 3049731561621160026}
   - component: {fileID: 8086852578275220032}
   - component: {fileID: 3791446299043188442}
+  - component: {fileID: 3102566268478252866}
   m_Layer: 0
   m_Name: PFB_Player
   m_TagString: Player
@@ -125,22 +126,33 @@ Transform:
   - {fileID: 884379313814358394}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3102566268478252866
-MonoBehaviour:
+--- !u!54 &833336767085977274
+Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4104181143366612443}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c70e64afe49a224ba932836453710c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 10
-  boostMultiplier: 2
-  mainCamera: {fileID: 0}
-  lifeData: {fileID: 11400000, guid: 5b4e961fc47133f429b69696f8558d3c, type: 2}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!136 &3049731561621160026
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -160,7 +172,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.7
+  m_Radius: 0.8
   m_Height: 2.1
   m_Direction: 1
   m_Center: {x: 0, y: 1.05, z: 0}
@@ -283,6 +295,26 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &3102566268478252866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4104181143366612443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c70e64afe49a224ba932836453710c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 10
+  boostMultiplier: 2
+  boostDuration: 3
+  boostCooldown: 5
+  lifeSystem: {fileID: 0}
+  damageSound: {fileID: 8300000, guid: 5a0df2f70058c4f488fc38e1ba3872b3, type: 3}
+  damageFXPrefab: {fileID: 9197921778859346996, guid: 997b515cf158b5b429888d331178f939,
+    type: 3}
 --- !u!1 &4351692202775844473
 GameObject:
   m_ObjectHideFlags: 0
