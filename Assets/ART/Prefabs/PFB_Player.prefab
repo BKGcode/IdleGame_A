@@ -95,11 +95,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4948344951450623475}
-  - component: {fileID: 833336767085977274}
+  - component: {fileID: 4476026728508734512}
   - component: {fileID: 3049731561621160026}
   - component: {fileID: 8086852578275220032}
-  - component: {fileID: 3791446299043188442}
   - component: {fileID: 3102566268478252866}
+  - component: {fileID: 57339174033411375}
   m_Layer: 0
   m_Name: PFB_Player
   m_TagString: Player
@@ -126,7 +126,7 @@ Transform:
   - {fileID: 884379313814358394}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &833336767085977274
+--- !u!54 &4476026728508734512
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149,9 +149,9 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!136 &3049731561621160026
 CapsuleCollider:
@@ -188,7 +188,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -273,28 +273,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!195 &3791446299043188442
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4104181143366612443}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!114 &3102566268478252866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,13 +286,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
+  rotationSpeed: 10
   boostMultiplier: 2
   boostDuration: 3
   boostCooldown: 5
-  lifeSystem: {fileID: 0}
-  damageSound: {fileID: 8300000, guid: 5a0df2f70058c4f488fc38e1ba3872b3, type: 3}
-  damageFXPrefab: {fileID: 9197921778859346996, guid: 997b515cf158b5b429888d331178f939,
+  boostKey: 304
+  mainCamera: {fileID: 0}
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 32768
+  collisionSound: {fileID: 8300000, guid: 5a0df2f70058c4f488fc38e1ba3872b3, type: 3}
+  collisionParticles: {fileID: 9197921778859346996, guid: 997b515cf158b5b429888d331178f939,
     type: 3}
+--- !u!114 &57339174033411375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4104181143366612443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a427bc6572a52b40ba397b384fad724, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxLives: 3
+  lifeImages:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  fullHeartSprite: {fileID: 21300000, guid: fea67f542338242de96294de06f1ffbd, type: 3}
+  emptyHeartSprite: {fileID: 21300000, guid: b57d78d5f93584877b7bac489bcd69a5, type: 3}
+  damageSound: {fileID: 8300000, guid: 5a0df2f70058c4f488fc38e1ba3872b3, type: 3}
+  damageEffectPrefab: {fileID: 9197921778859346996, guid: 997b515cf158b5b429888d331178f939,
+    type: 3}
+  audioSource: {fileID: 8086852578275220032}
+  gameOverManager: {fileID: 0}
 --- !u!1 &4351692202775844473
 GameObject:
   m_ObjectHideFlags: 0
