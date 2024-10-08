@@ -42,6 +42,14 @@ public class GameOverManager : MonoBehaviour
     private void ReturnToMainMenu()
     {
         Time.timeScale = 1f; // Reanudar el juego
+
+        // Destruir al Player antes de cargar el menú principal.
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            Destroy(player);
+        }
+
         SceneManager.LoadScene(mainMenuSceneName); // Cargar la escena especificada
     }
 
