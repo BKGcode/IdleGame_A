@@ -166,7 +166,6 @@ public class PlayerController : MonoBehaviour
             }
             else if (isBoosting)
             {
-                // Reiniciar el temporizador del boost si se presiona de nuevo durante el boost
                 boostTimer = boostDuration;
             }
         }
@@ -200,7 +199,7 @@ public class PlayerController : MonoBehaviour
         if (cooldownTimer > 0f)
         {
             cooldownTimer -= Time.fixedDeltaTime;
-            cooldownTimer = Mathf.Max(cooldownTimer, 0f); // Evita que el temporizador sea negativo
+            cooldownTimer = Mathf.Max(cooldownTimer, 0f);
         }
     }
 
@@ -212,6 +211,4 @@ public class PlayerController : MonoBehaviour
     {
         return !isBoosting && cooldownTimer <= 0f;
     }
-
-    // Eliminado: OnCollisionEnter para centralizar en PlayerHealth
 }

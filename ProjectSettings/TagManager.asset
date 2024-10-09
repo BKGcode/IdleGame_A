@@ -8,6 +8,8 @@ TagManager:
   - LifePickup
   - FxTemporaire
   - Projectile
+  - Business
+  - Manager
   layers:
   - Default
   - TransparentFX
