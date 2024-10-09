@@ -1,26 +1,22 @@
 using UnityEngine;
 using System;
 
-public class Business : MonoBehaviour
+public class Business : MonoBehaviour, IAutomatable
 {
-    [SerializeField] private BusinessType businessType;
-    private int level = 1;
+    [SerializeField] private BusinessType businessType; // Tipo de negocio
+    public BusinessType BusinessType => businessType; // Propiedad pública para acceder al tipo de negocio
+
     private float currentIncome;
     private float currentIncomeInterval;
-    private float timer;
+    private int level = 1; // Nivel del negocio
     private bool isAutomated = false;
-    private Manager assignedManager;
     private float efficiencyBonus = 1f;
-    private bool isActivated = false;
 
     public event Action<float> OnIncomeGenerated;
 
     private void Awake()
     {
-        if (businessType == null)
-        {
-            Debug.LogError("BusinessType not assigned to Business!");
-        }
+        Initialize(businessType);
     }
 
     public void Initialize(BusinessType type)
@@ -30,16 +26,23 @@ public class Business : MonoBehaviour
         currentIncomeInterval = businessType.baseIncomeInterval;
     }
 
-    private void Update()
+    public double GetHiringCost()
     {
-        if (isActivated && (isAutomated || assignedManager != null))
+        return businessType.hiringCost;
+    }
+
+    public void Automate()
+    {
+        isAutomated = true;
+        StartCoroutine(GenerateIncomeCoroutine());
+    }
+
+    private System.Collections.IEnumerator GenerateIncomeCoroutine()
+    {
+        while (isAutomated)
         {
-            timer += Time.deltaTime;
-            if (timer >= currentIncomeInterval)
-            {
-                GenerateIncome();
-                timer = 0f;
-            }
+            yield return new WaitForSeconds(currentIncomeInterval);
+            GenerateIncome();
         }
     }
 
@@ -49,11 +52,6 @@ public class Business : MonoBehaviour
         OnIncomeGenerated?.Invoke(generatedIncome);
     }
 
-    public void Activate()
-    {
-        isActivated = true;
-    }
-
     public void Upgrade()
     {
         level++;
@@ -61,46 +59,8 @@ public class Business : MonoBehaviour
         currentIncomeInterval = businessType.baseIncomeInterval * Mathf.Pow(0.95f, level - 1);
     }
 
-    public void Automate()
-    {
-        isAutomated = true;
-    }
-
-    public void SetManager(Manager manager)
-    {
-        assignedManager = manager;
-        isAutomated = true;
-    }
-
     public void ApplyEfficiencyBonus(float bonus)
     {
         efficiencyBonus = bonus;
-    }
-
-    public bool IsActivated()
-    {
-        return isActivated;
-    }
-
-    public bool IsAutomated()
-    {
-        return isAutomated;
-    }
-
-    public bool HasManager()
-    {
-        return assignedManager != null;
-    }
-
-    public float GetBaseIncome() => businessType.baseIncome;
-
-    public float GetUpgradeCost()
-    {
-        return businessType.initialCost * Mathf.Pow(1.5f, level); // Ejemplo de cálculo de costo de mejora
-    }
-
-    public BusinessType GetBusinessType()
-    {
-        return businessType;
     }
 }

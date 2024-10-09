@@ -13,8 +13,6 @@ MonoBehaviour:
   m_Name: Manager_A
   m_EditorClassIdentifier: 
   managerName: Manager_A
-  hireCost: 10
-  portrait: {fileID: 21300000, guid: 1ebe9d3ac5ce74f3589c006da297bdc7, type: 3}
-  managedBusinessTypes:
-  - {fileID: 11400000, guid: 2f56160470d87834ab435351ceecdba3, type: 2}
-  efficiencyBonus: 2
+  hiringCost: 10
+  businessType: {fileID: 11400000, guid: 2f56160470d87834ab435351ceecdba3, type: 2}
+  bonusAmount: 0

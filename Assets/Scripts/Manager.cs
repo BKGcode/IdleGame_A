@@ -1,54 +1,38 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class Manager : MonoBehaviour
 {
-    [SerializeField] private ManagerType managerType;
-    private List<Business> managedBusinesses = new List<Business>();
+    [SerializeField] private ManagerType managerType; // Tipo de manager
+    public ManagerType ManagerType => managerType; // Propiedad pública para acceder al tipo de manager
 
-    public void Initialize(ManagerType type)
+    private Business assignedBusiness;
+    private float appliedBonus;
+
+    public double GetHiringCost()
     {
-        managerType = type;
+        return managerType.hiringCost;
     }
 
-    public bool CanManageBusiness(Business business)
+    public void AssignBusiness(Business business)
     {
-        if (managerType == null) return false;
-        return managerType.managedBusinessTypes.Contains(business.GetBusinessType());
-    }
-
-    public void ManageBusiness(Business business)
-    {
-        if (managerType == null)
+        // Solo asigna si el tipo de negocio coincide con el tipo que el manager puede manejar
+        if (business.BusinessType == managerType.businessType)
         {
-            Debug.LogError("Cannot manage business: ManagerType not set.");
-            return;
+            assignedBusiness = business;
+            ApplyManagerBonus();
+            business.Automate();
         }
-
-        if (CanManageBusiness(business) && !managedBusinesses.Contains(business))
+        else
         {
-            managedBusinesses.Add(business);
-            business.SetManager(this);
-            ApplyEfficiencyBonus(business);
+            Debug.LogWarning("This manager can only automate businesses of type: " + managerType.businessType.businessName);
         }
     }
 
-    private void ApplyEfficiencyBonus(Business business)
+    private void ApplyManagerBonus()
     {
-        if (managerType == null)
+        if (assignedBusiness != null)
         {
-            Debug.LogError("Cannot apply efficiency bonus: ManagerType not set.");
-            return;
+            assignedBusiness.ApplyEfficiencyBonus(managerType.bonusAmount);
         }
-        business.ApplyEfficiencyBonus(managerType.efficiencyBonus);
-    }
-
-    public float GetHireCost() => managerType != null ? managerType.hireCost : 0f;
-
-    public string GetManagerName() => managerType != null ? managerType.managerName : "Unknown Manager";
-
-    public ManagerType GetManagerType()
-    {
-        return managerType;
     }
 }

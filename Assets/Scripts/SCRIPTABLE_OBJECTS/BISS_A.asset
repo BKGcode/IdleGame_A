@@ -10,10 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 386d5c133944da54eabe634091b3fd03, type: 3}
-  m_Name: BISS_A
+  m_Name: Biss_A
   m_EditorClassIdentifier: 
-  businessName: Biss_A
-  initialCost: 10
-  baseIncome: 1
-  baseIncomeInterval: 1
-  icon: {fileID: 21300000, guid: 29bfd827d937048f8a658d9d44ea4adc, type: 3}
+  businessName: Business_A
+  baseIncome: 10
+  baseIncomeInterval: 5
+  hiringCost: 10

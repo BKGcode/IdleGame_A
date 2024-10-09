@@ -1,12 +1,10 @@
 using UnityEngine;
-using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "New Manager Type", menuName = "Business Game/Manager Type")]
+[CreateAssetMenu(fileName = "NewManagerType", menuName = "Manager/New Manager Type")]
 public class ManagerType : ScriptableObject
 {
-    public string managerName;
-    public float hireCost;
-    public Sprite portrait;
-    public List<BusinessType> managedBusinessTypes; // Los tipos de negocios que este manager puede gestionar
-    public float efficiencyBonus; // Bonus de eficiencia (por ejemplo, 1.1 para un 10% de aumento en la producción)
+    public string managerName; // Nombre del manager
+    public double hiringCost; // Coste para contratar este manager
+    public BusinessType businessType; // Tipo de negocio que el manager puede automatizar
+    public float bonusAmount; // Cantidad de bonificación que el manager otorga
 }
