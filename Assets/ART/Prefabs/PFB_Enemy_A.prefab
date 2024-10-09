@@ -229,7 +229,10 @@ MonoBehaviour:
   chaseProbability: 8
   chaseSpeed: 15
   patrolSpeed: 3
-  rotationSpeed: 20
+  destructionParticlesPrefab: {fileID: 1004229041087787908, guid: e6eb729988ef2f349a24b0b4ae8fea47,
+    type: 3}
+  destructionSound: {fileID: 8300000, guid: fd99eb1d9d23fcf4fab0d276fa6e754a, type: 3}
+  maxHealth: 1
 --- !u!1 &1087115592437807638
 GameObject:
   m_ObjectHideFlags: 0

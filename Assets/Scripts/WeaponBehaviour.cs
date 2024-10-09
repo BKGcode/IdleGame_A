@@ -4,6 +4,7 @@ using System.Collections;
 public class WeaponBehaviour : MonoBehaviour
 {
     public WeaponData weaponData;
+    public Transform firePoint;
     
     private int currentAmmo;
     private int currentTotalAmmo;
@@ -31,8 +32,17 @@ public class WeaponBehaviour : MonoBehaviour
             return;
         }
 
-        // Aquí iría la lógica de disparo (instanciar balas, raycast, etc.)
-        Debug.Log($"Disparando {weaponData.weaponName}");
+        if (weaponData.projectilePrefab != null && firePoint != null)
+        {
+            GameObject projectileObject = Instantiate(weaponData.projectilePrefab, firePoint.position, firePoint.rotation);
+            projectileObject.tag = "Projectile";
+            
+            ProjectileBehaviour projectile = projectileObject.GetComponent<ProjectileBehaviour>();
+            if (projectile != null)
+            {
+                projectile.SetSpeed(weaponData.projectileSpeed);
+            }
+        }
 
         currentAmmo--;
         lastFireTime = Time.time;
