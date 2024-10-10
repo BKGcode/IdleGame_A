@@ -102,7 +102,8 @@ GameObject:
   - component: {fileID: 965861680782611978}
   - component: {fileID: 8030600852964158273}
   - component: {fileID: 7611212076134662670}
-  m_Layer: 0
+  - component: {fileID: -4253026673316439631}
+  m_Layer: 16
   m_Name: PFB_Biss_A
   m_TagString: Business
   m_Icon: {fileID: 0}
@@ -250,7 +251,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59285e587bd19f847a6bb4e34e85c4ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  businessType: {fileID: 11400000, guid: 2f56160470d87834ab435351ceecdba3, type: 2}
+  animator: {fileID: -4253026673316439631}
+  idleFX: {fileID: 0}
+  hiredFX: {fileID: 0}
+--- !u!95 &-4253026673316439631
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3678149159131381471}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f70abe33f691ebf4d92db594a361890a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &5783332628312130952
 GameObject:
   m_ObjectHideFlags: 0

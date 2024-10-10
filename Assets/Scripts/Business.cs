@@ -1,66 +1,77 @@
 using UnityEngine;
-using System;
 
-public class Business : MonoBehaviour, IAutomatable
+public class Business : MonoBehaviour
 {
-    [SerializeField] private BusinessType businessType; // Tipo de negocio
-    public BusinessType BusinessType => businessType; // Propiedad pública para acceder al tipo de negocio
+    private BusinessData businessData;
+    private bool isHired = false;
 
-    private float currentIncome;
-    private float currentIncomeInterval;
-    private int level = 1; // Nivel del negocio
-    private bool isAutomated = false;
-    private float efficiencyBonus = 1f;
+    // Referencias a componentes para FX y animaciones
+    [SerializeField] private Animator animator;
+    [SerializeField] private ParticleSystem idleFX;
+    [SerializeField] private ParticleSystem hiredFX;
 
-    public event Action<float> OnIncomeGenerated;
-
-    private void Awake()
+    public void Initialize(BusinessData data, bool hired)
     {
-        Initialize(businessType);
+        businessData = data;
+        SetHired(hired);
     }
 
-    public void Initialize(BusinessType type)
+    public void SetHired(bool hired)
     {
-        businessType = type;
-        currentIncome = businessType.baseIncome;
-        currentIncomeInterval = businessType.baseIncomeInterval;
-    }
+        isHired = hired;
 
-    public double GetHiringCost()
-    {
-        return businessType.hiringCost;
-    }
-
-    public void Automate()
-    {
-        isAutomated = true;
-        StartCoroutine(GenerateIncomeCoroutine());
-    }
-
-    private System.Collections.IEnumerator GenerateIncomeCoroutine()
-    {
-        while (isAutomated)
+        if (isHired)
         {
-            yield return new WaitForSeconds(currentIncomeInterval);
-            GenerateIncome();
+            // Activar animaciones o efectos de negocio contratado
+            if (idleFX != null)
+            {
+                idleFX.Stop();
+            }
+            if (hiredFX != null)
+            {
+                hiredFX.Play();
+            }
+            if (animator != null)
+            {
+                animator.SetBool("IsHired", true);
+            }
+
+            // Comenzar a generar ingresos u otras lógicas
+            StartGeneratingIncome();
+        }
+        else
+        {
+            // Mostrar efectos de idle para negocio no contratado
+            if (idleFX != null)
+            {
+                idleFX.Play();
+            }
+            if (animator != null)
+            {
+                animator.SetBool("IsHired", false);
+            }
         }
     }
 
-    public void GenerateIncome()
+    private void StartGeneratingIncome()
     {
-        float generatedIncome = currentIncome * efficiencyBonus;
-        OnIncomeGenerated?.Invoke(generatedIncome);
+        // Lógica para comenzar a generar ingresos
     }
 
-    public void Upgrade()
+    public BusinessData GetBusinessData()
     {
-        level++;
-        currentIncome = businessType.baseIncome * Mathf.Pow(1.1f, level - 1);
-        currentIncomeInterval = businessType.baseIncomeInterval * Mathf.Pow(0.95f, level - 1);
+        return businessData;
     }
 
-    public void ApplyEfficiencyBonus(float bonus)
+    public bool IsHired()
     {
-        efficiencyBonus = bonus;
+        return isHired;
+    }
+
+    public void AutomateWithManager(Manager manager)
+    {
+        // Lógica para automatizar el negocio con el manager
+        Debug.Log($"El manager {manager.GetManagerData().managerName} está automatizando el negocio {businessData.businessName}.");
+        // Implementa aquí la lógica de automatización
     }
 }

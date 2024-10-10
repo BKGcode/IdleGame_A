@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 386d5c133944da54eabe634091b3fd03, type: 3}
-  m_Name: Biss_A
+  m_Script: {fileID: 11500000, guid: 36a3d9f13c0833340a41726b80145e41, type: 3}
+  m_Name: Business_A
   m_EditorClassIdentifier: 
-  businessName: Business_A
-  baseIncome: 10
-  baseIncomeInterval: 5
+  businessName: Biss_A
+  baseIncome: 2
+  baseIncomeInterval: 1
   hiringCost: 10

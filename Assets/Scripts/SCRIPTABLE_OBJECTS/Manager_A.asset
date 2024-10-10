@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16b98bd8ad03395478372b29aa226467, type: 3}
+  m_Script: {fileID: 11500000, guid: a5e4d59348aa5a142b9049bae16541cb, type: 3}
   m_Name: Manager_A
   m_EditorClassIdentifier: 
   managerName: Manager_A
+  icon: {fileID: 0}
+  businessToAutomate: {fileID: 11400000, guid: 38eb02f8953be4f4299ef649cc13bda3, type: 2}
+  efficiencyBonus: 2
   hiringCost: 10
-  businessType: {fileID: 11400000, guid: 2f56160470d87834ab435351ceecdba3, type: 2}
-  bonusAmount: 0

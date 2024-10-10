@@ -3,7 +3,8 @@ using System;
 
 public class SimpleCurrency : MonoBehaviour
 {
-    [SerializeField] private string currencyName = "Coins";
+    public static SimpleCurrency Instance { get; private set; } // Singleton instance
+
     [SerializeField] private double initialAmount = 1000;
     private double currentAmount;
 
@@ -11,8 +12,17 @@ public class SimpleCurrency : MonoBehaviour
 
     private void Awake()
     {
-        currentAmount = initialAmount;
-        NotifyCurrencyChange();
+        // Patrón Singleton
+        if (Instance == null)
+        {
+            Instance = this;
+            currentAmount = initialAmount;
+            NotifyCurrencyChange();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void AddCurrency(double amount)
@@ -31,7 +41,7 @@ public class SimpleCurrency : MonoBehaviour
         }
         else
         {
-            Debug.Log("Not enough currency to complete the transaction.");
+            Debug.Log("No hay suficiente moneda para completar la transacción.");
             return false;
         }
     }

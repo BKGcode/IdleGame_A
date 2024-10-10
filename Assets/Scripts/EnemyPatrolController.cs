@@ -15,6 +15,7 @@ public class EnemyPatrolController : MonoBehaviour
 
     [Header("Movimiento")]
     [SerializeField] private float patrolSpeed = 3f;
+    [SerializeField] private float rotationSpeed = 5f;
 
     [Header("Destrucción")]
     [SerializeField] private GameObject destructionParticlesPrefab;
@@ -81,8 +82,10 @@ public class EnemyPatrolController : MonoBehaviour
                 patrolTimer = 0f;
             }
         }
-
-        MoveTowards(targetPoint, patrolSpeed);
+        else
+        {
+            MoveTowards(targetPoint, patrolSpeed);
+        }
     }
 
     private void ChasePlayer()
@@ -90,7 +93,6 @@ public class EnemyPatrolController : MonoBehaviour
         if (player != null)
         {
             MoveTowards(player.position, chaseSpeed);
-            OrientTowards(player.position);
         }
     }
 
@@ -140,15 +142,12 @@ public class EnemyPatrolController : MonoBehaviour
 
         Vector3 newPosition = transform.position + velocity * Time.fixedDeltaTime;
         rb.MovePosition(newPosition);
-    }
 
-    private void OrientTowards(Vector3 targetPosition)
-    {
-        Vector3 direction = (targetPosition - transform.position).normalized;
+        // Orientar al enemigo en la dirección del movimiento
         if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
-            rb.MoveRotation(targetRotation);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
     }
 

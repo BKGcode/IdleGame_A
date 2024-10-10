@@ -1,15 +1,14 @@
 using UnityEngine;
-using TMPro;
+using TMPro; // Importar el namespace de TextMeshPro
 
 public class SimpleCurrencyUI : MonoBehaviour
 {
-    [SerializeField] private SimpleCurrency simpleCurrency;
-    [SerializeField] private TextMeshProUGUI currencyText;
+    [SerializeField] private TextMeshProUGUI currencyText; // Cambiado a TextMeshProUGUI
 
     private void Start()
     {
-        UpdateCurrencyDisplay(simpleCurrency.GetCurrentAmount());
-        simpleCurrency.OnCurrencyChanged += UpdateCurrencyDisplay;
+        UpdateCurrencyDisplay(SimpleCurrency.Instance.GetCurrentAmount());
+        SimpleCurrency.Instance.OnCurrencyChanged += UpdateCurrencyDisplay;
     }
 
     private void UpdateCurrencyDisplay(double amount)
@@ -28,6 +27,6 @@ public class SimpleCurrencyUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        simpleCurrency.OnCurrencyChanged -= UpdateCurrencyDisplay;
+        SimpleCurrency.Instance.OnCurrencyChanged -= UpdateCurrencyDisplay;
     }
 }

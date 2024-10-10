@@ -27,8 +27,8 @@ TagManager:
   - HardFloor
   - WaterWall
   - groundLayer
-  - 
-  - 
+  - Interactable
+  - Player
   - 
   - 
   - 
