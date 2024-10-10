@@ -58,6 +58,8 @@ public class ManagerSpawner : MonoBehaviour
         Manager managerComponent = spawnedManager.GetComponent<Manager>();
         managerComponent.Initialize(managerData, false);
 
+        // El Manager ahora buscará periódicamente un negocio para automatizar una vez que sea contratado
+
 #if UNITY_EDITOR
         UnityEditor.SceneView.duringSceneGui += OnSceneGUI;
 #endif
@@ -77,15 +79,11 @@ public class ManagerSpawner : MonoBehaviour
     private void ShowPopup()
     {
         isPopupActive = true;
-
-        // Pausar el juego
         Time.timeScale = 0f;
 
-        // Instanciar el popup y configurarlo
         popupInstance = Instantiate(popupPrefab, uiCanvas.transform);
         PopupController popupController = popupInstance.GetComponent<PopupController>();
 
-        // Configurar los datos del popup utilizando el ManagerData
         popupController.SetPopupData(managerData.icon, managerData.managerName, managerData.hiringCost);
         popupController.OnHireButtonClicked += OnHireButtonClicked_Internal;
         popupController.OnCloseButtonClicked += ClosePopup;
@@ -108,15 +106,11 @@ public class ManagerSpawner : MonoBehaviour
     private void ShowWarningPopup(string message)
     {
         isPopupActive = true;
-
-        // Pausar el juego
         Time.timeScale = 0f;
 
-        // Instanciar el popup de advertencia
         popupInstance = Instantiate(warningPopupPrefab, uiCanvas.transform);
         WarningPopupController warningPopupController = popupInstance.GetComponent<WarningPopupController>();
 
-        // Configurar el mensaje de advertencia
         warningPopupController.SetWarningMessage(message);
         warningPopupController.OnCloseButtonClicked += ClosePopup;
     }
@@ -129,10 +123,8 @@ public class ManagerSpawner : MonoBehaviour
             popupInstance = null;
             isPopupActive = false;
 
-            // Reanudar el juego
             Time.timeScale = 1f;
 
-            // Iniciar cooldown
             if (cooldownCoroutine != null)
             {
                 StopCoroutine(cooldownCoroutine);
@@ -154,14 +146,13 @@ public class ManagerSpawner : MonoBehaviour
 
         isHired = true;
 
-        // Cambiar el estado del manager a contratado
         Manager managerComponent = spawnedManager.GetComponent<Manager>();
         managerComponent.SetHired(true);
 
-        // Registrar el manager contratado
+        // El Manager ahora comenzará a buscar un negocio para automatizar periódicamente
+
         BusinessManagerTracker.Instance.RegisterHiredManager(managerComponent);
 
-        // Mostrar FX y reproducir sonido
         if (hireFXPrefab != null)
         {
             Instantiate(hireFXPrefab, transform.position, Quaternion.identity);
@@ -172,7 +163,6 @@ public class ManagerSpawner : MonoBehaviour
             audioSource.PlayOneShot(hireSoundClip);
         }
 
-        // Destruir el spawner
         Destroy(gameObject);
     }
 

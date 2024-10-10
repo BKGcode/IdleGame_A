@@ -1195,6 +1195,7 @@ GameObject:
   - component: {fileID: 422636575}
   - component: {fileID: 422636577}
   - component: {fileID: 422636576}
+  - component: {fileID: 422636578}
   m_Layer: 0
   m_Name: --SYSTEMS--
   m_TagString: Untagged
@@ -1335,6 +1336,23 @@ MonoBehaviour:
     type: 3}
   hireSoundClip: {fileID: 8300000, guid: 643a77a849c783d4fbac7f97194bd894, type: 3}
   audioSource: {fileID: 422636576}
+--- !u!114 &422636578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422636574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c87ad9ce10b62349ac151616e999db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pools:
+  - tag: Projectile
+    prefab: {fileID: 6791290258166702501, guid: 640fcea0d6f616843a5b438c8dbe1d00,
+      type: 3}
+    size: 30
 --- !u!1 &438738828
 GameObject:
   m_ObjectHideFlags: 0
@@ -2012,7 +2030,7 @@ PrefabInstance:
     - target: {fileID: 8372457180280663209, guid: 4f931192c29f1e943bd228cdbae511f3,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4854,7 +4872,7 @@ PrefabInstance:
     - target: {fileID: 8372457180280663209, guid: 4f931192c29f1e943bd228cdbae511f3,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5063,7 +5081,7 @@ PrefabInstance:
     - target: {fileID: 8372457180280663209, guid: 4f931192c29f1e943bd228cdbae511f3,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8096,11 +8114,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PFB_Spawner_Manager_A
       objectReference: {fileID: 0}
-    - target: {fileID: 9122225403957340204, guid: ee41c28d043dcb141870178f2e3cf0f4,
-        type: 3}
-      propertyPath: uiCanvas
-      value: 
-      objectReference: {fileID: 1900404021}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8243,11 +8256,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PFB_Spawner_Business_A
       objectReference: {fileID: 0}
-    - target: {fileID: 5898467622072721129, guid: 69c6273cee22f944f9dade29d0c6a624,
-        type: 3}
-      propertyPath: uiCanvas
-      value: 
-      objectReference: {fileID: 1900404021}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8744,7 +8752,7 @@ PrefabInstance:
     - target: {fileID: 8372457180280663209, guid: 4f931192c29f1e943bd228cdbae511f3,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

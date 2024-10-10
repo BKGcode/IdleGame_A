@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 public class Manager : MonoBehaviour
 {
@@ -7,11 +8,12 @@ public class Manager : MonoBehaviour
     private bool isHired = false;
     private Business targetBusiness;
 
-    // Referencias a componentes para FX y animaciones
     [SerializeField] private Animator animator;
     [SerializeField] private ParticleSystem idleFX;
     [SerializeField] private ParticleSystem hiredFX;
     [SerializeField] private NavMeshAgent navMeshAgent;
+
+    private Coroutine findBusinessCoroutine;
 
     public void Initialize(ManagerData data, bool hired)
     {
@@ -25,57 +27,67 @@ public class Manager : MonoBehaviour
 
         if (isHired)
         {
-            // Activar animaciones o efectos de manager contratado
-            if (idleFX != null)
-            {
-                idleFX.Stop();
-            }
-            if (hiredFX != null)
-            {
-                hiredFX.Play();
-            }
-            if (animator != null)
-            {
-                animator.SetBool("IsHired", true);
-            }
+            if (idleFX != null) idleFX.Stop();
+            if (hiredFX != null) hiredFX.Play();
+            if (animator != null) animator.SetBool("IsHired", true);
 
-            // Comenzar a automatizar el negocio
             AutomateBusiness();
         }
         else
         {
-            // Mostrar efectos de idle para manager no contratado
-            if (idleFX != null)
+            if (idleFX != null) idleFX.Play();
+            if (animator != null) animator.SetBool("IsHired", false);
+            
+            if (findBusinessCoroutine != null)
             {
-                idleFX.Play();
-            }
-            if (animator != null)
-            {
-                animator.SetBool("IsHired", false);
+                StopCoroutine(findBusinessCoroutine);
+                findBusinessCoroutine = null;
             }
         }
     }
 
     private void AutomateBusiness()
     {
-        // Buscar el negocio más cercano que el manager puede automatizar
         targetBusiness = FindNearestBusinessToAutomate();
 
         if (targetBusiness != null)
         {
-            // Moverse hacia el negocio
-            if (navMeshAgent != null)
-            {
-                navMeshAgent.SetDestination(targetBusiness.transform.position);
-            }
-            else
-            {
-                Debug.LogError("NavMeshAgent no está asignado en el Manager.");
-            }
+            MoveToTargetBusiness();
         }
         else
         {
-            Debug.LogError("No se encontró un negocio para automatizar.");
+            Debug.Log("No se encontró un negocio para automatizar. Buscando periódicamente...");
+            if (findBusinessCoroutine == null)
+            {
+                findBusinessCoroutine = StartCoroutine(FindBusinessPeriodically());
+            }
+        }
+    }
+
+    private IEnumerator FindBusinessPeriodically()
+    {
+        while (targetBusiness == null)
+        {
+            yield return new WaitForSeconds(1f);
+            targetBusiness = FindNearestBusinessToAutomate();
+            if (targetBusiness != null)
+            {
+                Debug.Log("Se encontró un negocio para automatizar.");
+                MoveToTargetBusiness();
+                break;
+            }
+        }
+    }
+
+    private void MoveToTargetBusiness()
+    {
+        if (navMeshAgent != null)
+        {
+            navMeshAgent.SetDestination(targetBusiness.transform.position);
+        }
+        else
+        {
+            Debug.LogError("NavMeshAgent no está asignado en el Manager.");
         }
     }
 
@@ -105,14 +117,16 @@ public class Manager : MonoBehaviour
     {
         if (isHired && targetBusiness != null && navMeshAgent != null)
         {
-            // Verificar si ha llegado al destino
             if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
             {
-                // Automatizar el negocio
                 targetBusiness.AutomateWithManager(this);
-                // Detener el movimiento
                 navMeshAgent.isStopped = true;
-                // Puedes añadir animaciones o efectos adicionales aquí
+                
+                if (findBusinessCoroutine != null)
+                {
+                    StopCoroutine(findBusinessCoroutine);
+                    findBusinessCoroutine = null;
+                }
             }
         }
     }

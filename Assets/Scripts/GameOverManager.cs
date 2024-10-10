@@ -2,15 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Gestiona la pantalla de Game Over, incluyendo la visualización y los botones para reiniciar o salir.
-/// </summary>
 public class GameOverManager : MonoBehaviour
 {
-    [SerializeField] private GameObject gameOverPanel; // Panel de Game Over
-    [SerializeField] private Button mainMenuButton; // Botón para volver al Main Menu
-    [SerializeField] private Button exitButton; // Botón para salir del juego
-    [SerializeField] private string mainMenuSceneName = "MainMenu"; // Nombre de la escena del Main Menu
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Button exitButton;
+    [SerializeField] private Button restartButton;
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string gameSceneName = "GameScene";
 
     private void Awake()
     {
@@ -22,47 +21,102 @@ public class GameOverManager : MonoBehaviour
 
         if (exitButton != null)
             exitButton.onClick.AddListener(ExitGame);
+
+        if (restartButton != null)
+            restartButton.onClick.AddListener(RestartGame);
     }
 
-    /// <summary>
-    /// Muestra el panel de Game Over.
-    /// </summary>
     public void ShowGameOver()
     {
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
-            Time.timeScale = 0f; // Pausar el juego
+            Time.timeScale = 0f;
         }
     }
 
-    /// <summary>
-    /// Vuelve al Main Menu.
-    /// </summary>
     private void ReturnToMainMenu()
     {
-        Time.timeScale = 1f; // Reanudar el juego
-
-        // Destruir al Player antes de cargar el menú principal.
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player != null)
-        {
-            Destroy(player);
-        }
-
-        SceneManager.LoadScene(mainMenuSceneName); // Cargar la escena especificada
+        CleanupAndReset();
+        SceneManager.LoadScene(mainMenuSceneName);
     }
 
-    /// <summary>
-    /// Sale del juego.
-    /// </summary>
     private void ExitGame()
     {
         Application.Quit();
 
-        // En el Editor de Unity, para probar el funcionamiento
         #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
         #endif
+    }
+
+    private void RestartGame()
+    {
+        CleanupAndReset();
+        SceneManager.LoadScene(gameSceneName);
+    }
+
+    private void CleanupAndReset()
+    {
+        Time.timeScale = 1f;
+
+        // Destruir todos los objetos marcados con DontDestroyOnLoad
+        GameObject[] persistentObjects = GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject obj in persistentObjects)
+        {
+            if (obj.scene.name == "DontDestroyOnLoad")
+            {
+                Destroy(obj);
+            }
+        }
+
+        // Resetear sistemas específicos
+        ResetSimpleCurrency();
+        ResetTimeSystem();
+        ResetBusinessesAndManagers();
+        ResetObjectPool();
+
+        // Aquí puedes añadir más resets para otros sistemas como vidas, armas, etc.
+    }
+
+    private void ResetSimpleCurrency()
+    {
+        if (SimpleCurrency.Instance != null)
+        {
+            Destroy(SimpleCurrency.Instance.gameObject);
+        }
+    }
+
+    private void ResetTimeSystem()
+    {
+        TimeSystem timeSystem = FindObjectOfType<TimeSystem>();
+        if (timeSystem != null)
+        {
+            timeSystem.ResetTimer();
+        }
+    }
+
+    private void ResetBusinessesAndManagers()
+    {
+        Business[] businesses = FindObjectsOfType<Business>();
+        foreach (Business business in businesses)
+        {
+            business.SetHired(false);
+        }
+
+        Manager[] managers = FindObjectsOfType<Manager>();
+        foreach (Manager manager in managers)
+        {
+            manager.SetHired(false);
+        }
+    }
+
+    private void ResetObjectPool()
+    {
+        ObjectPool objectPool = FindObjectOfType<ObjectPool>();
+        if (objectPool != null)
+        {
+            objectPool.ResetPool();
+        }
     }
 }

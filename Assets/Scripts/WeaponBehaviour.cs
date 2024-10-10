@@ -10,6 +10,9 @@ public class WeaponBehaviour : MonoBehaviour
     private int currentTotalAmmo;
     private float lastFireTime;
     private bool isReloading = false;
+    
+    // Referencia al ObjectPool
+    private ObjectPool objectPool;
 
     private void Start()
     {
@@ -17,6 +20,13 @@ public class WeaponBehaviour : MonoBehaviour
         {
             currentAmmo = weaponData.magazineSize;
             currentTotalAmmo = weaponData.totalAmmo;
+        }
+        
+        // Obtener la referencia al ObjectPool
+        objectPool = FindObjectOfType<ObjectPool>();
+        if (objectPool == null)
+        {
+            Debug.LogError("No se encontró ObjectPool en la escena. Asegúrate de que existe un ObjectPool en la escena.");
         }
     }
 
@@ -32,15 +42,22 @@ public class WeaponBehaviour : MonoBehaviour
             return;
         }
 
-        if (weaponData.projectilePrefab != null && firePoint != null)
+        if (weaponData.projectilePrefab != null && firePoint != null && objectPool != null)
         {
-            GameObject projectileObject = Instantiate(weaponData.projectilePrefab, firePoint.position, firePoint.rotation);
-            projectileObject.tag = "Projectile";
-            
-            ProjectileBehaviour projectile = projectileObject.GetComponent<ProjectileBehaviour>();
-            if (projectile != null)
+            GameObject projectileObject = objectPool.SpawnFromPool("Projectile", firePoint.position, firePoint.rotation);
+            if (projectileObject != null)
             {
-                projectile.SetSpeed(weaponData.projectileSpeed);
+                projectileObject.tag = "Projectile";
+                
+                ProjectileBehaviour projectile = projectileObject.GetComponent<ProjectileBehaviour>();
+                if (projectile != null)
+                {
+                    projectile.SetSpeed(weaponData.projectileSpeed);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("No se pudo obtener un proyectil del ObjectPool.");
             }
         }
 

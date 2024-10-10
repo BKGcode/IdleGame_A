@@ -77,15 +77,11 @@ public class BusinessSpawner : MonoBehaviour
     private void ShowPopup()
     {
         isPopupActive = true;
-
-        // Pausar el juego
         Time.timeScale = 0f;
 
-        // Instanciar el popup y configurarlo
         popupInstance = Instantiate(popupPrefab, uiCanvas.transform);
         PopupController popupController = popupInstance.GetComponent<PopupController>();
 
-        // Configurar los datos del popup utilizando el BusinessData
         popupController.SetPopupData(businessData.icon, businessData.businessName, businessData.hiringCost);
         popupController.OnHireButtonClicked += OnHireButtonClicked_Internal;
         popupController.OnCloseButtonClicked += ClosePopup;
@@ -108,15 +104,11 @@ public class BusinessSpawner : MonoBehaviour
     private void ShowWarningPopup(string message)
     {
         isPopupActive = true;
-
-        // Pausar el juego
         Time.timeScale = 0f;
 
-        // Instanciar el popup de advertencia
         popupInstance = Instantiate(warningPopupPrefab, uiCanvas.transform);
         WarningPopupController warningPopupController = popupInstance.GetComponent<WarningPopupController>();
 
-        // Configurar el mensaje de advertencia
         warningPopupController.SetWarningMessage(message);
         warningPopupController.OnCloseButtonClicked += ClosePopup;
     }
@@ -129,10 +121,8 @@ public class BusinessSpawner : MonoBehaviour
             popupInstance = null;
             isPopupActive = false;
 
-            // Reanudar el juego
             Time.timeScale = 1f;
 
-            // Iniciar cooldown
             if (cooldownCoroutine != null)
             {
                 StopCoroutine(cooldownCoroutine);
@@ -154,14 +144,11 @@ public class BusinessSpawner : MonoBehaviour
 
         isHired = true;
 
-        // Cambiar el estado del negocio a contratado
         Business businessComponent = spawnedBusiness.GetComponent<Business>();
         businessComponent.SetHired(true);
 
-        // Registrar el negocio contratado
         BusinessManagerTracker.Instance.RegisterHiredBusiness(businessComponent);
 
-        // Mostrar FX y reproducir sonido
         if (hireFXPrefab != null)
         {
             Instantiate(hireFXPrefab, transform.position, Quaternion.identity);
@@ -172,7 +159,6 @@ public class BusinessSpawner : MonoBehaviour
             audioSource.PlayOneShot(hireSoundClip);
         }
 
-        // Destruir el spawner
         Destroy(gameObject);
     }
 

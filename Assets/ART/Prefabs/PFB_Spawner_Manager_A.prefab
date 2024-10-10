@@ -48,19 +48,11 @@ MonoBehaviour:
   managerPrefab: {fileID: 6562101335494053883, guid: b25ca50676d5f4442860b8669f0b3c64,
     type: 3}
   managerData: {fileID: 11400000, guid: e454b839853cc2249b5bb13d9f602afb, type: 2}
-  popupPrefab: {fileID: 8799582795230871523, guid: 8277141c61bc6cb4ea1e649adf8d387b,
-    type: 3}
-  warningPopupPrefab: {fileID: 8408080777150555713, guid: b056001d1f9f3154abf320d8432da734,
-    type: 3}
-  uiCanvas: {fileID: 0}
-  detectionRadius: 5
+  detectionRadius: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 1024
   popupCooldown: 2
-  hireFXPrefab: {fileID: 0}
-  hireSoundClip: {fileID: 0}
-  audioSource: {fileID: 4540172518645251303}
 --- !u!82 &4540172518645251303
 AudioSource:
   m_ObjectHideFlags: 0

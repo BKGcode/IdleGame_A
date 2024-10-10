@@ -7,9 +7,11 @@ public class ProjectileBehaviour : MonoBehaviour
     public float lifetime = 2f;
     public float damage = 1f;
 
-    private void Start()
+    private float currentLifetime;
+
+    private void OnEnable()
     {
-        Destroy(gameObject, lifetime);
+        currentLifetime = 0f;
         
         // Asegurarse de que el collider esté configurado como trigger
         Collider collider = GetComponent<Collider>();
@@ -22,6 +24,12 @@ public class ProjectileBehaviour : MonoBehaviour
     private void Update()
     {
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
+
+        currentLifetime += Time.deltaTime;
+        if (currentLifetime >= lifetime)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -33,7 +41,7 @@ public class ProjectileBehaviour : MonoBehaviour
             {
                 enemy.TakeDamage(damage);
             }
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 
