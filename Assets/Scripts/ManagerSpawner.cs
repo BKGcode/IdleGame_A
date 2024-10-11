@@ -58,8 +58,6 @@ public class ManagerSpawner : MonoBehaviour
         Manager managerComponent = spawnedManager.GetComponent<Manager>();
         managerComponent.Initialize(managerData, false);
 
-        // El Manager ahora buscará periódicamente un negocio para automatizar una vez que sea contratado
-
 #if UNITY_EDITOR
         UnityEditor.SceneView.duringSceneGui += OnSceneGUI;
 #endif
@@ -91,6 +89,18 @@ public class ManagerSpawner : MonoBehaviour
 
     private void OnHireButtonClicked_Internal()
     {
+        if (SimpleCurrency.Instance == null)
+        {
+            Debug.LogError("SimpleCurrency.Instance es null en OnHireButtonClicked_Internal");
+            return;
+        }
+
+        if (managerData == null)
+        {
+            Debug.LogError("managerData es null en OnHireButtonClicked_Internal");
+            return;
+        }
+
         if (SimpleCurrency.Instance.SpendCurrency(managerData.hiringCost))
         {
             ClosePopup();
@@ -142,14 +152,34 @@ public class ManagerSpawner : MonoBehaviour
 
     private void OnHireManager()
     {
-        if (isHired) return;
+        if (isHired)
+        {
+            Debug.LogWarning("Intento de contratar un manager ya contratado");
+            return;
+        }
 
         isHired = true;
 
+        if (spawnedManager == null)
+        {
+            Debug.LogError("spawnedManager es null en OnHireManager");
+            return;
+        }
+
         Manager managerComponent = spawnedManager.GetComponent<Manager>();
+        if (managerComponent == null)
+        {
+            Debug.LogError("No se pudo obtener el componente Manager del spawnedManager");
+            return;
+        }
+
         managerComponent.SetHired(true);
 
-        // El Manager ahora comenzará a buscar un negocio para automatizar periódicamente
+        if (BusinessManagerTracker.Instance == null)
+        {
+            Debug.LogError("BusinessManagerTracker.Instance es null en OnHireManager");
+            return;
+        }
 
         BusinessManagerTracker.Instance.RegisterHiredManager(managerComponent);
 

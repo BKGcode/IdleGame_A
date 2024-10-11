@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Business_A
   m_EditorClassIdentifier: 
   businessName: Biss_A
-  baseIncome: 2
-  baseIncomeInterval: 1
+  icon: {fileID: 21300000, guid: 9079162d3f5e946f88770d469ae4cd5b, type: 3}
+  baseIncome: 1
+  baseIncomeInterval: 3
   hiringCost: 10

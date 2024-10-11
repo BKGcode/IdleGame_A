@@ -339,6 +339,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0dd362c102060644a373025205ea9a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  managerData: {fileID: 11400000, guid: e454b839853cc2249b5bb13d9f602afb, type: 2}
   animator: {fileID: 9178557159189712441}
   idleFX: {fileID: 0}
   hiredFX: {fileID: 0}

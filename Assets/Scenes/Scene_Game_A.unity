@@ -862,7 +862,9 @@ MonoBehaviour:
   gameOverPanel: {fileID: 706161782}
   mainMenuButton: {fileID: 1376512202}
   exitButton: {fileID: 1206203736}
+  restartButton: {fileID: 0}
   mainMenuSceneName: Scene_MainMenu_A
+  gameSceneName: GameScene
 --- !u!114 &286640798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1535,6 +1537,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currencyText: {fileID: 1794830491}
+  incomeEffectPrefab: {fileID: 9140742482834812210, guid: 19684f3c67b60864cb47fe06f2a28e76,
+    type: 3}
+  incomeEffectParent: {fileID: 1794830490}
+  startColor: {r: 0, g: 1, b: 0, a: 1}
+  endColor: {r: 0, g: 0.46226418, b: 0, a: 0}
+  movementSpeed: 50
+  movementDistance: 100
+  alphaCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &547773838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7359,8 +7392,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 186, y: 0}
-  m_SizeDelta: {x: 90, y: 100}
+  m_AnchoredPosition: {x: 264.53, y: 0}
+  m_SizeDelta: {x: 168.53, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1794830491
 MonoBehaviour:

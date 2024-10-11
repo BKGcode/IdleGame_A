@@ -1,14 +1,24 @@
 using UnityEngine;
+using System.Collections;
 
 public class Business : MonoBehaviour
 {
-    private BusinessData businessData;
+    [SerializeField] private BusinessData businessData;
     private bool isHired = false;
+    private bool isAutomated = false;
+    private double currentIncome;
+    private Coroutine incomeGenerationCoroutine;
+    private float efficiencyBonus = 1f;
 
-    // Referencias a componentes para FX y animaciones
     [SerializeField] private Animator animator;
     [SerializeField] private ParticleSystem idleFX;
     [SerializeField] private ParticleSystem hiredFX;
+
+    public delegate void IncomeGeneratedHandler(double amount, string businessName);
+    public static event IncomeGeneratedHandler OnIncomeGenerated;
+
+    public delegate void BusinessAutomationChangedHandler(Business business, bool isAutomated);
+    public static event BusinessAutomationChangedHandler OnBusinessAutomationChanged;
 
     public void Initialize(BusinessData data, bool hired)
     {
@@ -19,59 +29,106 @@ public class Business : MonoBehaviour
     public void SetHired(bool hired)
     {
         isHired = hired;
-
+        Debug.Log($"Negocio {businessData.businessName} contratado: {isHired}");
         if (isHired)
         {
-            // Activar animaciones o efectos de negocio contratado
-            if (idleFX != null)
-            {
-                idleFX.Stop();
-            }
-            if (hiredFX != null)
-            {
-                hiredFX.Play();
-            }
-            if (animator != null)
-            {
-                animator.SetBool("IsHired", true);
-            }
-
-            // Comenzar a generar ingresos u otras lógicas
-            StartGeneratingIncome();
+            if (idleFX != null) idleFX.Stop();
+            if (hiredFX != null) hiredFX.Play();
+            if (animator != null) animator.SetBool("IsHired", true);
         }
         else
         {
-            // Mostrar efectos de idle para negocio no contratado
-            if (idleFX != null)
-            {
-                idleFX.Play();
-            }
-            if (animator != null)
-            {
-                animator.SetBool("IsHired", false);
-            }
+            if (idleFX != null) idleFX.Play();
+            if (hiredFX != null) hiredFX.Stop();
+            if (animator != null) animator.SetBool("IsHired", false);
+            StopGeneratingIncome();
         }
-    }
-
-    private void StartGeneratingIncome()
-    {
-        // Lógica para comenzar a generar ingresos
-    }
-
-    public BusinessData GetBusinessData()
-    {
-        return businessData;
-    }
-
-    public bool IsHired()
-    {
-        return isHired;
+        DebugStatus();
     }
 
     public void AutomateWithManager(Manager manager)
     {
-        // Lógica para automatizar el negocio con el manager
-        Debug.Log($"El manager {manager.GetManagerData().managerName} está automatizando el negocio {businessData.businessName}.");
-        // Implementa aquí la lógica de automatización
+        if (!isHired) 
+        {
+            Debug.LogWarning($"Intento de automatizar {businessData.businessName} pero no está contratado.");
+            return;
+        }
+        isAutomated = true;
+        efficiencyBonus = 1f + manager.GetManagerData().efficiencyBonus;
+        Debug.Log($"El manager {manager.GetManagerData().managerName} está automatizando el negocio {businessData.businessName}. Nuevo efficiency bonus: {efficiencyBonus}");
+        StartGeneratingIncome();
+        OnBusinessAutomationChanged?.Invoke(this, true);
+        DebugStatus();
+    }
+
+    private void StartGeneratingIncome()
+    {
+        Debug.Log($"Iniciando generación de ingresos para {businessData.businessName}");
+        if (incomeGenerationCoroutine != null)
+        {
+            StopCoroutine(incomeGenerationCoroutine);
+        }
+        incomeGenerationCoroutine = StartCoroutine(GenerateIncomeRoutine());
+    }
+
+    private void StopGeneratingIncome()
+    {
+        if (incomeGenerationCoroutine != null)
+        {
+            StopCoroutine(incomeGenerationCoroutine);
+            incomeGenerationCoroutine = null;
+        }
+        isAutomated = false;
+        OnBusinessAutomationChanged?.Invoke(this, false);
+        Debug.Log($"Deteniendo generación de ingresos para {businessData.businessName}");
+    }
+
+    private IEnumerator GenerateIncomeRoutine()
+    {
+        Debug.Log($"Iniciando rutina de generación de ingresos para {businessData.businessName}");
+        while (isAutomated && isHired)
+        {
+            Debug.Log($"Esperando {businessData.baseIncomeInterval} segundos para generar ingreso de {businessData.businessName}");
+            yield return new WaitForSeconds(businessData.baseIncomeInterval);
+            GenerateIncome();
+        }
+    }
+
+    private void GenerateIncome()
+    {
+        if (!isAutomated || !isHired) 
+        {
+            Debug.LogWarning($"Intento de generar ingreso para {businessData.businessName} pero no está automatizado o contratado.");
+            return;
+        }
+        
+        currentIncome = businessData.baseIncome * efficiencyBonus;
+        if (SimpleCurrency.Instance != null)
+        {
+            SimpleCurrency.Instance.AddCurrency(currentIncome);
+            Debug.Log($"Generando ingreso para {businessData.businessName}: {currentIncome}");
+            OnIncomeGenerated?.Invoke(currentIncome, businessData.businessName);
+        }
+        else
+        {
+            Debug.LogError("SimpleCurrency.Instance es null. No se pudo añadir moneda.");
+        }
+    }
+
+    public void RemoveManager()
+    {
+        StopGeneratingIncome();
+        efficiencyBonus = 1f;
+        Debug.Log($"Manager removido del negocio {businessData.businessName}. Generación de ingresos detenida.");
+    }
+
+    public BusinessData GetBusinessData() => businessData;
+    public bool IsHired() => isHired;
+    public bool IsAutomated() => isAutomated;
+    public float GetEfficiencyBonus() => efficiencyBonus;
+
+    public void DebugStatus()
+    {
+        Debug.Log($"Estado del negocio {businessData.businessName}: Contratado: {isHired}, Automatizado: {isAutomated}, Eficiencia: {efficiencyBonus}, Intervalo de ingreso: {businessData.baseIncomeInterval}");
     }
 }

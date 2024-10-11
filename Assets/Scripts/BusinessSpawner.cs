@@ -89,6 +89,18 @@ public class BusinessSpawner : MonoBehaviour
 
     private void OnHireButtonClicked_Internal()
     {
+        if (SimpleCurrency.Instance == null)
+        {
+            Debug.LogError("SimpleCurrency.Instance es null en OnHireButtonClicked_Internal");
+            return;
+        }
+
+        if (businessData == null)
+        {
+            Debug.LogError("businessData es null en OnHireButtonClicked_Internal");
+            return;
+        }
+
         if (SimpleCurrency.Instance.SpendCurrency(businessData.hiringCost))
         {
             ClosePopup();
@@ -140,12 +152,34 @@ public class BusinessSpawner : MonoBehaviour
 
     private void OnHireBusiness()
     {
-        if (isHired) return;
+        if (isHired)
+        {
+            Debug.LogWarning("Intento de contratar un negocio ya contratado");
+            return;
+        }
 
         isHired = true;
 
+        if (spawnedBusiness == null)
+        {
+            Debug.LogError("spawnedBusiness es null en OnHireBusiness");
+            return;
+        }
+
         Business businessComponent = spawnedBusiness.GetComponent<Business>();
+        if (businessComponent == null)
+        {
+            Debug.LogError("No se pudo obtener el componente Business del spawnedBusiness");
+            return;
+        }
+
         businessComponent.SetHired(true);
+
+        if (BusinessManagerTracker.Instance == null)
+        {
+            Debug.LogError("BusinessManagerTracker.Instance es null en OnHireBusiness");
+            return;
+        }
 
         BusinessManagerTracker.Instance.RegisterHiredBusiness(businessComponent);
 

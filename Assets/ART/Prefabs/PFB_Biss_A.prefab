@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59285e587bd19f847a6bb4e34e85c4ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  businessData: {fileID: 11400000, guid: 38eb02f8953be4f4299ef649cc13bda3, type: 2}
   animator: {fileID: -4253026673316439631}
   idleFX: {fileID: 0}
   hiredFX: {fileID: 0}
