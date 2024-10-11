@@ -69,7 +69,7 @@ public class Manager : MonoBehaviour
 
         foreach (Business business in allBusinesses)
         {
-            if (business.GetBusinessData() == managerData.businessToAutomate && business.IsHired() && !business.IsAutomated())
+            if (business.GetBusinessData() == managerData.businessToManage && business.IsHired() && !business.IsAutomated())
             {
                 float distance = Vector3.Distance(transform.position, business.transform.position);
                 if (distance < shortestDistance)

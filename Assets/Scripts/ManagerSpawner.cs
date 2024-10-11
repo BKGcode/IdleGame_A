@@ -58,6 +58,8 @@ public class ManagerSpawner : MonoBehaviour
         Manager managerComponent = spawnedManager.GetComponent<Manager>();
         managerComponent.Initialize(managerData, false);
 
+        Debug.Log($"ManagerSpawner iniciado para {managerData.managerName}");
+
 #if UNITY_EDITOR
         UnityEditor.SceneView.duringSceneGui += OnSceneGUI;
 #endif
@@ -82,16 +84,18 @@ public class ManagerSpawner : MonoBehaviour
         popupInstance = Instantiate(popupPrefab, uiCanvas.transform);
         PopupController popupController = popupInstance.GetComponent<PopupController>();
 
-        popupController.SetPopupData(managerData.icon, managerData.managerName, managerData.hiringCost);
+        popupController.SetPopupData(managerData.managerSprite, managerData.managerName, managerData.baseCost);
         popupController.OnHireButtonClicked += OnHireButtonClicked_Internal;
         popupController.OnCloseButtonClicked += ClosePopup;
+
+        Debug.Log($"Mostrando popup para contratar {managerData.managerName}");
     }
 
     private void OnHireButtonClicked_Internal()
     {
-        if (SimpleCurrency.Instance == null)
+        if (CurrencyManager.Instance == null)
         {
-            Debug.LogError("SimpleCurrency.Instance es null en OnHireButtonClicked_Internal");
+            Debug.LogError("CurrencyManager.Instance es null en OnHireButtonClicked_Internal");
             return;
         }
 
@@ -101,13 +105,18 @@ public class ManagerSpawner : MonoBehaviour
             return;
         }
 
-        if (SimpleCurrency.Instance.SpendCurrency(managerData.hiringCost))
+        double currentCurrency = CurrencyManager.Instance.GetCurrentCurrency();
+        Debug.Log($"Intentando contratar {managerData.managerName}. Costo: {managerData.baseCost}, Currency actual: {currentCurrency}");
+
+        if (CurrencyManager.Instance.SpendCurrency(managerData.baseCost))
         {
+            Debug.Log($"Contratación exitosa de {managerData.managerName}. Nuevo saldo: {CurrencyManager.Instance.GetCurrentCurrency()}");
             ClosePopup();
             OnHireManager();
         }
         else
         {
+            Debug.Log($"No hay suficiente currency para contratar {managerData.managerName}.");
             ClosePopup();
             ShowWarningPopup("No tienes suficientes Coins para contratar este manager.");
         }
@@ -123,6 +132,8 @@ public class ManagerSpawner : MonoBehaviour
 
         warningPopupController.SetWarningMessage(message);
         warningPopupController.OnCloseButtonClicked += ClosePopup;
+
+        Debug.Log($"Mostrando advertencia: {message}");
     }
 
     private void ClosePopup()
@@ -140,6 +151,8 @@ public class ManagerSpawner : MonoBehaviour
                 StopCoroutine(cooldownCoroutine);
             }
             cooldownCoroutine = StartCoroutine(PopupCooldownCoroutine());
+
+            Debug.Log("Popup cerrado");
         }
     }
 
@@ -183,6 +196,9 @@ public class ManagerSpawner : MonoBehaviour
 
         BusinessManagerTracker.Instance.RegisterHiredManager(managerComponent);
 
+        // Automatizar los negocios correspondientes
+        AutomateBusinesses(managerComponent);
+
         if (hireFXPrefab != null)
         {
             Instantiate(hireFXPrefab, transform.position, Quaternion.identity);
@@ -193,7 +209,36 @@ public class ManagerSpawner : MonoBehaviour
             audioSource.PlayOneShot(hireSoundClip);
         }
 
+        Debug.Log($"Manager {managerData.managerName} contratado exitosamente");
+
         Destroy(gameObject);
+    }
+
+    private void AutomateBusinesses(Manager manager)
+    {
+        BusinessData businessToManage = manager.GetManagerData().businessToManage;
+        if (businessToManage == null)
+        {
+            Debug.LogWarning($"El manager {manager.GetManagerData().managerName} no tiene un negocio específico para administrar.");
+            return;
+        }
+
+        Business[] allBusinesses = FindObjectsOfType<Business>();
+        bool businessAutomated = false;
+        foreach (Business business in allBusinesses)
+        {
+            if (business.GetBusinessData() == businessToManage)
+            {
+                business.AutomateWithManager(manager);
+                Debug.Log($"Negocio {business.GetBusinessData().businessName} automatizado por {manager.GetManagerData().managerName}");
+                businessAutomated = true;
+            }
+        }
+
+        if (!businessAutomated)
+        {
+            Debug.LogWarning($"No se encontró ningún negocio '{businessToManage.businessName}' para que el manager {manager.GetManagerData().managerName} automatice.");
+        }
     }
 
     private void OnDestroy()

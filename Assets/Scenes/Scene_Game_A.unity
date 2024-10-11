@@ -862,7 +862,7 @@ MonoBehaviour:
   gameOverPanel: {fileID: 706161782}
   mainMenuButton: {fileID: 1376512202}
   exitButton: {fileID: 1206203736}
-  restartButton: {fileID: 0}
+  restartButton: {fileID: 375279785}
   mainMenuSceneName: Scene_MainMenu_A
   gameSceneName: GameScene
 --- !u!114 &286640798
@@ -997,7 +997,7 @@ GameObject:
   m_Component:
   - component: {fileID: 306125754}
   m_Layer: 5
-  m_Name: CNT_Points
+  m_Name: CNT_Currency
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1113,6 +1113,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 961739753}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &375279785 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7399027472501375803, guid: a1762c4d3a1540343a55727123f1a05d,
+    type: 3}
+  m_PrefabInstance: {fileID: 6308157988570394427}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &403464339
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1195,9 +1207,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 422636575}
-  - component: {fileID: 422636577}
   - component: {fileID: 422636576}
+  - component: {fileID: 422636577}
   - component: {fileID: 422636578}
+  - component: {fileID: 422636579}
   m_Layer: 0
   m_Name: --SYSTEMS--
   m_TagString: Untagged
@@ -1355,6 +1368,20 @@ MonoBehaviour:
     prefab: {fileID: 6791290258166702501, guid: 640fcea0d6f616843a5b438c8dbe1d00,
       type: 3}
     size: 30
+--- !u!114 &422636579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422636574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1902febe1666f8846b89622c4854d592, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currencyText: {fileID: 1794830491}
+  initialCurrency: 100
 --- !u!1 &438738828
 GameObject:
   m_ObjectHideFlags: 0
@@ -1500,8 +1527,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 547773836}
-  - component: {fileID: 547773838}
-  - component: {fileID: 547773837}
   m_Layer: 0
   m_Name: --BUSINESS--
   m_TagString: Untagged
@@ -1524,63 +1549,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &547773837
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 547773835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72ccd346ca21efe4dac01d2242c81368, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currencyText: {fileID: 1794830491}
-  incomeEffectPrefab: {fileID: 9140742482834812210, guid: 19684f3c67b60864cb47fe06f2a28e76,
-    type: 3}
-  incomeEffectParent: {fileID: 1794830490}
-  startColor: {r: 0, g: 1, b: 0, a: 1}
-  endColor: {r: 0, g: 0.46226418, b: 0, a: 0}
-  movementSpeed: 50
-  movementDistance: 100
-  alphaCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &547773838
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 547773835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25778243687166a4bab7720990e06eab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  initialAmount: 100
 --- !u!1001 &555325436
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7370,7 +7338,7 @@ GameObject:
   - component: {fileID: 1794830492}
   - component: {fileID: 1794830491}
   m_Layer: 5
-  m_Name: TXT_CounterPoints
+  m_Name: TXT_CounterCurrency
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

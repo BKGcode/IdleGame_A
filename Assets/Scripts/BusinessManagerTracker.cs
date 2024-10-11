@@ -3,7 +3,23 @@ using System.Collections.Generic;
 
 public class BusinessManagerTracker : MonoBehaviour
 {
-    public static BusinessManagerTracker Instance { get; private set; }
+    private static BusinessManagerTracker _instance;
+    public static BusinessManagerTracker Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<BusinessManagerTracker>();
+                if (_instance == null)
+                {
+                    GameObject go = new GameObject("BusinessManagerTracker");
+                    _instance = go.AddComponent<BusinessManagerTracker>();
+                }
+            }
+            return _instance;
+        }
+    }
 
     [Header("Negocios Contratados")]
     [SerializeField] private List<Business> hiredBusinesses = new List<Business>();
@@ -13,12 +29,12 @@ public class BusinessManagerTracker : MonoBehaviour
 
     private void Awake()
     {
-        // Patrón Singleton
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (_instance != this)
         {
             Destroy(gameObject);
         }

@@ -71,7 +71,7 @@ public class GameOverManager : MonoBehaviour
         }
 
         // Resetear sistemas específicos
-        ResetSimpleCurrency();
+        ResetCurrencyManager();
         ResetTimeSystem();
         ResetBusinessesAndManagers();
         ResetObjectPool();
@@ -79,11 +79,15 @@ public class GameOverManager : MonoBehaviour
         // Aquí puedes añadir más resets para otros sistemas como vidas, armas, etc.
     }
 
-    private void ResetSimpleCurrency()
+    private void ResetCurrencyManager()
     {
-        if (SimpleCurrency.Instance != null)
+        if (CurrencyManager.Instance != null)
         {
-            Destroy(SimpleCurrency.Instance.gameObject);
+            CurrencyManager.Instance.ResetCurrency();
+        }
+        else
+        {
+            Debug.LogWarning("CurrencyManager.Instance no encontrado al intentar resetear la moneda.");
         }
     }
 
@@ -93,6 +97,10 @@ public class GameOverManager : MonoBehaviour
         if (timeSystem != null)
         {
             timeSystem.ResetTimer();
+        }
+        else
+        {
+            Debug.LogWarning("TimeSystem no encontrado al intentar resetear el tiempo.");
         }
     }
 
@@ -117,6 +125,10 @@ public class GameOverManager : MonoBehaviour
         if (objectPool != null)
         {
             objectPool.ResetPool();
+        }
+        else
+        {
+            Debug.LogWarning("ObjectPool no encontrado al intentar resetear el pool de objetos.");
         }
     }
 }

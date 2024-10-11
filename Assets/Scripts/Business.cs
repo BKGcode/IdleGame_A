@@ -35,6 +35,11 @@ public class Business : MonoBehaviour
             if (idleFX != null) idleFX.Stop();
             if (hiredFX != null) hiredFX.Play();
             if (animator != null) animator.SetBool("IsHired", true);
+            CurrencyManager.Instance.RegisterBusiness(this);
+            if (isAutomated)
+            {
+                StartGeneratingIncome();
+            }
         }
         else
         {
@@ -42,6 +47,7 @@ public class Business : MonoBehaviour
             if (hiredFX != null) hiredFX.Stop();
             if (animator != null) animator.SetBool("IsHired", false);
             StopGeneratingIncome();
+            CurrencyManager.Instance.UnregisterBusiness(this);
         }
         DebugStatus();
     }
@@ -103,16 +109,8 @@ public class Business : MonoBehaviour
         }
         
         currentIncome = businessData.baseIncome * efficiencyBonus;
-        if (SimpleCurrency.Instance != null)
-        {
-            SimpleCurrency.Instance.AddCurrency(currentIncome);
-            Debug.Log($"Generando ingreso para {businessData.businessName}: {currentIncome}");
-            OnIncomeGenerated?.Invoke(currentIncome, businessData.businessName);
-        }
-        else
-        {
-            Debug.LogError("SimpleCurrency.Instance es null. No se pudo añadir moneda.");
-        }
+        OnIncomeGenerated?.Invoke(currentIncome, businessData.businessName);
+        Debug.Log($"Generando ingreso para {businessData.businessName}: {currentIncome}");
     }
 
     public void RemoveManager()

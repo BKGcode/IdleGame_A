@@ -58,6 +58,8 @@ public class BusinessSpawner : MonoBehaviour
         Business businessComponent = spawnedBusiness.GetComponent<Business>();
         businessComponent.Initialize(businessData, false);
 
+        Debug.Log($"BusinessSpawner iniciado para {businessData.businessName}");
+
 #if UNITY_EDITOR
         UnityEditor.SceneView.duringSceneGui += OnSceneGUI;
 #endif
@@ -85,13 +87,15 @@ public class BusinessSpawner : MonoBehaviour
         popupController.SetPopupData(businessData.icon, businessData.businessName, businessData.hiringCost);
         popupController.OnHireButtonClicked += OnHireButtonClicked_Internal;
         popupController.OnCloseButtonClicked += ClosePopup;
+
+        Debug.Log($"Mostrando popup para contratar {businessData.businessName}");
     }
 
     private void OnHireButtonClicked_Internal()
     {
-        if (SimpleCurrency.Instance == null)
+        if (CurrencyManager.Instance == null)
         {
-            Debug.LogError("SimpleCurrency.Instance es null en OnHireButtonClicked_Internal");
+            Debug.LogError("CurrencyManager.Instance es null en OnHireButtonClicked_Internal");
             return;
         }
 
@@ -101,13 +105,18 @@ public class BusinessSpawner : MonoBehaviour
             return;
         }
 
-        if (SimpleCurrency.Instance.SpendCurrency(businessData.hiringCost))
+        double currentCurrency = CurrencyManager.Instance.GetCurrentCurrency();
+        Debug.Log($"Intentando contratar {businessData.businessName}. Costo: {businessData.hiringCost}, Currency actual: {currentCurrency}");
+
+        if (CurrencyManager.Instance.SpendCurrency(businessData.hiringCost))
         {
+            Debug.Log($"Contratación exitosa de {businessData.businessName}. Nuevo saldo: {CurrencyManager.Instance.GetCurrentCurrency()}");
             ClosePopup();
             OnHireBusiness();
         }
         else
         {
+            Debug.Log($"No hay suficiente currency para contratar {businessData.businessName}.");
             ClosePopup();
             ShowWarningPopup("No tienes suficientes Coins para contratar este negocio.");
         }
@@ -123,6 +132,8 @@ public class BusinessSpawner : MonoBehaviour
 
         warningPopupController.SetWarningMessage(message);
         warningPopupController.OnCloseButtonClicked += ClosePopup;
+
+        Debug.Log($"Mostrando advertencia: {message}");
     }
 
     private void ClosePopup()
@@ -140,6 +151,8 @@ public class BusinessSpawner : MonoBehaviour
                 StopCoroutine(cooldownCoroutine);
             }
             cooldownCoroutine = StartCoroutine(PopupCooldownCoroutine());
+
+            Debug.Log("Popup cerrado");
         }
     }
 
@@ -192,6 +205,8 @@ public class BusinessSpawner : MonoBehaviour
         {
             audioSource.PlayOneShot(hireSoundClip);
         }
+
+        Debug.Log($"Negocio {businessData.businessName} contratado exitosamente");
 
         Destroy(gameObject);
     }
