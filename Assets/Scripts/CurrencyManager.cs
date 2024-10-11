@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 
 public class CurrencyManager : MonoBehaviour
@@ -8,6 +9,12 @@ public class CurrencyManager : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI currencyText;
     [SerializeField] private double initialCurrency = 1000;
+
+    [Header("Floating Text Settings")]
+    [SerializeField] private GameObject floatingTextPrefab;
+    [SerializeField] private float floatingTextDuration = 1f;
+    [SerializeField] private float floatingTextDistance = 50f;
+    [SerializeField] private Color incomeColor = Color.green;
 
     private double currentCurrency;
     private List<Business> activeBusinesses = new List<Business>();
@@ -47,7 +54,6 @@ public class CurrencyManager : MonoBehaviour
         currentCurrency += amount;
         UpdateCurrencyDisplay();
         OnCurrencyChanged?.Invoke(currentCurrency);
-        Debug.Log($"Moneda añadida: {amount}. Nueva cantidad total: {currentCurrency}");
     }
 
     public bool SpendCurrency(double amount)
@@ -57,10 +63,8 @@ public class CurrencyManager : MonoBehaviour
             currentCurrency -= amount;
             UpdateCurrencyDisplay();
             OnCurrencyChanged?.Invoke(currentCurrency);
-            Debug.Log($"Moneda gastada: {amount}. Nueva cantidad total: {currentCurrency}");
             return true;
         }
-        Debug.Log($"No se pudo gastar {amount}. Moneda actual: {currentCurrency}");
         return false;
     }
 
@@ -68,12 +72,7 @@ public class CurrencyManager : MonoBehaviour
     {
         if (currencyText != null)
         {
-            currencyText.text = $"${currentCurrency:N0}";
-            Debug.Log($"Actualizando display de moneda: {currencyText.text}");
-        }
-        else
-        {
-            Debug.LogError("CurrencyText no está asignado en CurrencyManager");
+            currencyText.text = currentCurrency.ToString("N0");
         }
     }
 
@@ -82,20 +81,60 @@ public class CurrencyManager : MonoBehaviour
         if (!activeBusinesses.Contains(business))
         {
             activeBusinesses.Add(business);
-            Debug.Log($"Negocio registrado: {business.GetBusinessData().businessName}");
         }
     }
 
     public void UnregisterBusiness(Business business)
     {
         activeBusinesses.Remove(business);
-        Debug.Log($"Negocio desregistrado: {business.GetBusinessData().businessName}");
     }
 
     private void AddBusinessIncome(double amount, string businessName)
     {
         AddCurrency(amount);
-        Debug.Log($"Ingreso generado por {businessName}: {amount}");
+        SpawnFloatingText(amount);
+    }
+
+    private void SpawnFloatingText(double amount)
+    {
+        if (floatingTextPrefab != null && currencyText != null)
+        {
+            GameObject floatingTextObj = Instantiate(floatingTextPrefab, currencyText.transform.position, Quaternion.identity, currencyText.transform);
+            TextMeshProUGUI floatingText = floatingTextObj.GetComponent<TextMeshProUGUI>();
+            
+            if (floatingText != null)
+            {
+                floatingText.text = "+" + amount.ToString("N0");
+                floatingText.color = incomeColor;
+
+                StartCoroutine(AnimateFloatingText(floatingTextObj.transform, floatingText));
+            }
+        }
+    }
+
+    private IEnumerator AnimateFloatingText(Transform textTransform, TextMeshProUGUI textComponent)
+    {
+        Vector3 startPosition = textTransform.localPosition;
+        Vector3 endPosition = startPosition + Vector3.up * floatingTextDistance;
+        float elapsedTime = 0f;
+        Color startColor = textComponent.color;
+
+        while (elapsedTime < floatingTextDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / floatingTextDuration;
+
+            textTransform.localPosition = Vector3.Lerp(startPosition, endPosition, t);
+            
+            float alpha = Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, t));
+            textComponent.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+
+            yield return null;
+        }
+
+        textComponent.color = new Color(startColor.r, startColor.g, startColor.b, 0f);
+
+        Destroy(textTransform.gameObject);
     }
 
     public double GetCurrentCurrency()
@@ -108,6 +147,5 @@ public class CurrencyManager : MonoBehaviour
         currentCurrency = initialCurrency;
         UpdateCurrencyDisplay();
         OnCurrencyChanged?.Invoke(currentCurrency);
-        Debug.Log($"Moneda reseteada a: {currentCurrency}");
     }
 }

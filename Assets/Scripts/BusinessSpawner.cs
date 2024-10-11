@@ -2,35 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class BusinessSpawner : MonoBehaviour
+public class BusinessSpawner : Spawner
 {
-    [Header("Business Prefab and Data")]
-    [SerializeField] private GameObject businessPrefab;
+    [Header("Business Specific Settings")]
     [SerializeField] private BusinessData businessData;
 
-    [Header("UI Settings")]
-    private GameObject popupPrefab;
-    private GameObject warningPopupPrefab;
-    private Canvas uiCanvas;
-
-    [Header("Proximity Settings")]
-    [SerializeField] private float detectionRadius = 5f;
-    [SerializeField] private LayerMask playerLayer;
-    [SerializeField] private float popupCooldown = 2f;
-
-    [Header("FX and Sound")]
-    private GameObject hireFXPrefab;
-    private AudioClip hireSoundClip;
-    private AudioSource audioSource;
-
-    private bool isHired = false;
-    private GameObject spawnedBusiness;
-    private GameObject popupInstance;
-    private bool isPopupActive = false;
-    private bool isInCooldown = false;
-    private Coroutine cooldownCoroutine;
-
-    private void Start()
+    protected override void InitializeReferences()
     {
         // Obtener referencias del GameManager
         if (GameManager.Instance != null)
@@ -53,55 +30,34 @@ public class BusinessSpawner : MonoBehaviour
             Debug.LogError("Asignar las referencias necesarias en el GameManager.");
         }
 
+        spawnableData = businessData;
+    }
+
+    protected override void SpawnObject()
+    {
         // Instanciar el negocio en estado "no contratado"
-        spawnedBusiness = Instantiate(businessPrefab, transform.position, Quaternion.identity);
-        Business businessComponent = spawnedBusiness.GetComponent<Business>();
+        spawnedObject = Instantiate(spawnablePrefab, transform.position, Quaternion.identity);
+        Business businessComponent = spawnedObject.GetComponent<Business>();
         businessComponent.Initialize(businessData, false);
 
         Debug.Log($"BusinessSpawner iniciado para {businessData.businessName}");
-
-#if UNITY_EDITOR
-        UnityEditor.SceneView.duringSceneGui += OnSceneGUI;
-#endif
     }
 
-    private void Update()
+    protected override void SetPopupData(PopupController popupController)
     {
-        if (isPopupActive || isInCooldown || isHired) return;
-
-        Collider[] hits = Physics.OverlapSphere(transform.position, detectionRadius, playerLayer);
-        if (hits.Length > 0)
-        {
-            ShowPopup();
-        }
-    }
-
-    private void ShowPopup()
-    {
-        isPopupActive = true;
-        Time.timeScale = 0f;
-
-        popupInstance = Instantiate(popupPrefab, uiCanvas.transform);
-        PopupController popupController = popupInstance.GetComponent<PopupController>();
-
         popupController.SetPopupData(businessData.icon, businessData.businessName, businessData.hiringCost);
-        popupController.OnHireButtonClicked += OnHireButtonClicked_Internal;
-        popupController.OnCloseButtonClicked += ClosePopup;
-
-        Debug.Log($"Mostrando popup para contratar {businessData.businessName}");
     }
 
-    private void OnHireButtonClicked_Internal()
+    protected override double GetHiringCost()
+    {
+        return businessData.hiringCost;
+    }
+
+    protected override void OnHireButtonClicked()
     {
         if (CurrencyManager.Instance == null)
         {
-            Debug.LogError("CurrencyManager.Instance es null en OnHireButtonClicked_Internal");
-            return;
-        }
-
-        if (businessData == null)
-        {
-            Debug.LogError("businessData es null en OnHireButtonClicked_Internal");
+            Debug.LogError("CurrencyManager.Instance es null en OnHireButtonClicked");
             return;
         }
 
@@ -112,7 +68,7 @@ public class BusinessSpawner : MonoBehaviour
         {
             Debug.Log($"Contratación exitosa de {businessData.businessName}. Nuevo saldo: {CurrencyManager.Instance.GetCurrentCurrency()}");
             ClosePopup();
-            OnHireBusiness();
+            OnHireObject();
         }
         else
         {
@@ -122,48 +78,7 @@ public class BusinessSpawner : MonoBehaviour
         }
     }
 
-    private void ShowWarningPopup(string message)
-    {
-        isPopupActive = true;
-        Time.timeScale = 0f;
-
-        popupInstance = Instantiate(warningPopupPrefab, uiCanvas.transform);
-        WarningPopupController warningPopupController = popupInstance.GetComponent<WarningPopupController>();
-
-        warningPopupController.SetWarningMessage(message);
-        warningPopupController.OnCloseButtonClicked += ClosePopup;
-
-        Debug.Log($"Mostrando advertencia: {message}");
-    }
-
-    private void ClosePopup()
-    {
-        if (popupInstance != null)
-        {
-            Destroy(popupInstance);
-            popupInstance = null;
-            isPopupActive = false;
-
-            Time.timeScale = 1f;
-
-            if (cooldownCoroutine != null)
-            {
-                StopCoroutine(cooldownCoroutine);
-            }
-            cooldownCoroutine = StartCoroutine(PopupCooldownCoroutine());
-
-            Debug.Log("Popup cerrado");
-        }
-    }
-
-    private IEnumerator PopupCooldownCoroutine()
-    {
-        isInCooldown = true;
-        yield return new WaitForSeconds(popupCooldown);
-        isInCooldown = false;
-    }
-
-    private void OnHireBusiness()
+    protected override void OnHireObject()
     {
         if (isHired)
         {
@@ -173,16 +88,16 @@ public class BusinessSpawner : MonoBehaviour
 
         isHired = true;
 
-        if (spawnedBusiness == null)
+        if (spawnedObject == null)
         {
-            Debug.LogError("spawnedBusiness es null en OnHireBusiness");
+            Debug.LogError("spawnedObject es null en OnHireObject");
             return;
         }
 
-        Business businessComponent = spawnedBusiness.GetComponent<Business>();
+        Business businessComponent = spawnedObject.GetComponent<Business>();
         if (businessComponent == null)
         {
-            Debug.LogError("No se pudo obtener el componente Business del spawnedBusiness");
+            Debug.LogError("No se pudo obtener el componente Business del spawnedObject");
             return;
         }
 
@@ -190,29 +105,28 @@ public class BusinessSpawner : MonoBehaviour
 
         if (BusinessManagerTracker.Instance == null)
         {
-            Debug.LogError("BusinessManagerTracker.Instance es null en OnHireBusiness");
+            Debug.LogError("BusinessManagerTracker.Instance es null en OnHireObject");
             return;
         }
 
         BusinessManagerTracker.Instance.RegisterHiredBusiness(businessComponent);
 
-        if (hireFXPrefab != null)
-        {
-            Instantiate(hireFXPrefab, transform.position, Quaternion.identity);
-        }
-
-        if (audioSource != null && hireSoundClip != null)
-        {
-            audioSource.PlayOneShot(hireSoundClip);
-        }
+        PlayHireFXAndSound();
 
         Debug.Log($"Negocio {businessData.businessName} contratado exitosamente");
 
         Destroy(gameObject);
     }
 
-    private void OnDestroy()
+    protected override void Update()
     {
+        base.Update();
+        // Aquí puedes añadir lógica adicional específica de BusinessSpawner si es necesario
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
 #if UNITY_EDITOR
         UnityEditor.SceneView.duringSceneGui -= OnSceneGUI;
 #endif

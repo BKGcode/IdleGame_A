@@ -45,14 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f596b948432e44b4d98def4bd1990291, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  managerPrefab: {fileID: 6562101335494053883, guid: b25ca50676d5f4442860b8669f0b3c64,
+  spawnablePrefab: {fileID: 6562101335494053883, guid: b25ca50676d5f4442860b8669f0b3c64,
     type: 3}
-  managerData: {fileID: 11400000, guid: e454b839853cc2249b5bb13d9f602afb, type: 2}
-  detectionRadius: 2
+  spawnableData: {fileID: 11400000, guid: e454b839853cc2249b5bb13d9f602afb, type: 2}
+  detectionRadius: 1
   playerLayer:
     serializedVersion: 2
     m_Bits: 1024
   popupCooldown: 2
+  managerData: {fileID: 11400000, guid: e454b839853cc2249b5bb13d9f602afb, type: 2}
 --- !u!82 &4540172518645251303
 AudioSource:
   m_ObjectHideFlags: 0

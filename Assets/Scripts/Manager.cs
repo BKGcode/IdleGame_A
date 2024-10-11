@@ -7,12 +7,9 @@ public class Manager : MonoBehaviour
     [SerializeField] private ManagerData managerData;
     private bool isHired = false;
     private Business targetBusiness;
-
-    [SerializeField] private Animator animator;
-    [SerializeField] private ParticleSystem idleFX;
-    [SerializeField] private ParticleSystem hiredFX;
+    
     [SerializeField] private NavMeshAgent navMeshAgent;
-
+    
     private Coroutine findBusinessCoroutine;
 
     public void Initialize(ManagerData data, bool hired)
@@ -24,63 +21,49 @@ public class Manager : MonoBehaviour
     public void SetHired(bool hired)
     {
         isHired = hired;
-        Debug.Log($"Manager {managerData.managerName} contratado: {isHired}");
-
         if (isHired)
         {
-            if (idleFX != null) idleFX.Stop();
-            if (hiredFX != null) hiredFX.Play();
-            if (animator != null) animator.SetBool("IsHired", true);
-            AutomateBusiness();
+            StartCoroutine(FindBusinessPeriodically());
         }
         else
         {
-            if (idleFX != null) idleFX.Play();
-            if (hiredFX != null) hiredFX.Stop();
-            if (animator != null) animator.SetBool("IsHired", false);
-            RemoveFromBusiness();
+            StopFindingBusiness();
         }
     }
 
-    private void AutomateBusiness()
+    private IEnumerator FindBusinessPeriodically()
     {
-        targetBusiness = FindNearestBusinessToAutomate();
-
-        if (targetBusiness != null)
+        while (isHired && targetBusiness == null)
         {
-            Debug.Log($"Manager {managerData.managerName} encontró un negocio para automatizar: {targetBusiness.GetBusinessData().businessName}");
-            MoveToTargetBusiness();
-        }
-        else
-        {
-            Debug.Log($"Manager {managerData.managerName} no encontró un negocio para automatizar. Buscando periódicamente...");
-            if (findBusinessCoroutine == null)
+            yield return new WaitForSeconds(1f);
+            targetBusiness = FindBusinessToAutomate();
+            if (targetBusiness != null)
             {
-                findBusinessCoroutine = StartCoroutine(FindBusinessPeriodically());
+                MoveToTargetBusiness();
             }
         }
     }
 
-    private Business FindNearestBusinessToAutomate()
+    private void StopFindingBusiness()
+    {
+        if (findBusinessCoroutine != null)
+        {
+            StopCoroutine(findBusinessCoroutine);
+            findBusinessCoroutine = null;
+        }
+    }
+
+    private Business FindBusinessToAutomate()
     {
         Business[] allBusinesses = FindObjectsOfType<Business>();
-        Business nearestBusiness = null;
-        float shortestDistance = Mathf.Infinity;
-
         foreach (Business business in allBusinesses)
         {
-            if (business.GetBusinessData() == managerData.businessToManage && business.IsHired() && !business.IsAutomated())
+            if (business.GetBusinessData() == managerData.businessToAutomate && !business.IsAutomated())
             {
-                float distance = Vector3.Distance(transform.position, business.transform.position);
-                if (distance < shortestDistance)
-                {
-                    shortestDistance = distance;
-                    nearestBusiness = business;
-                }
+                return business;
             }
         }
-
-        return nearestBusiness;
+        return null;
     }
 
     private void MoveToTargetBusiness()
@@ -88,7 +71,10 @@ public class Manager : MonoBehaviour
         if (navMeshAgent != null && targetBusiness != null)
         {
             navMeshAgent.SetDestination(targetBusiness.transform.position);
-            Debug.Log($"Manager {managerData.managerName} se dirige hacia {targetBusiness.GetBusinessData().businessName}");
+        }
+        else
+        {
+            Debug.LogWarning("NavMeshAgent o targetBusiness es null en MoveToTargetBusiness");
         }
     }
 
@@ -98,41 +84,24 @@ public class Manager : MonoBehaviour
         {
             if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
             {
-                Debug.Log($"Manager {managerData.managerName} llegó al negocio {targetBusiness.GetBusinessData().businessName}. Automatizando...");
-                targetBusiness.AutomateWithManager(this);
-                navMeshAgent.isStopped = true;
-                
-                if (findBusinessCoroutine != null)
-                {
-                    StopCoroutine(findBusinessCoroutine);
-                    findBusinessCoroutine = null;
-                }
+                AutomateBusiness();
             }
         }
     }
 
-    private IEnumerator FindBusinessPeriodically()
-    {
-        while (targetBusiness == null)
-        {
-            yield return new WaitForSeconds(1f);
-            targetBusiness = FindNearestBusinessToAutomate();
-            if (targetBusiness != null)
-            {
-                Debug.Log($"Manager {managerData.managerName} encontró un negocio para automatizar: {targetBusiness.GetBusinessData().businessName}");
-                MoveToTargetBusiness();
-                break;
-            }
-        }
-    }
-
-    public void RemoveFromBusiness()
+    private void AutomateBusiness()
     {
         if (targetBusiness != null)
         {
-            targetBusiness.RemoveManager();
+            targetBusiness.AutomateWithManager(this);
+            navMeshAgent.isStopped = true;
+            Debug.Log($"Manager ha automatizado el negocio: {targetBusiness.GetBusinessData().businessName}");
             targetBusiness = null;
-            Debug.Log($"Manager {managerData.managerName} removido del negocio");
+            StartCoroutine(FindBusinessPeriodically());
+        }
+        else
+        {
+            Debug.LogWarning("Intento de automatizar un negocio null");
         }
     }
 
@@ -140,4 +109,20 @@ public class Manager : MonoBehaviour
     {
         return managerData;
     }
+
+    private void OnDisable()
+    {
+        StopFindingBusiness();
+    }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if (targetBusiness != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(transform.position, targetBusiness.transform.position);
+        }
+    }
+#endif
 }

@@ -13,13 +13,6 @@ MonoBehaviour:
   m_Name: Manager_A
   m_EditorClassIdentifier: 
   managerName: Manager_A
-  efficiencyBonus: 2
-  businessToManage: {fileID: 11400000, guid: 38eb02f8953be4f4299ef649cc13bda3, type: 2}
-  managerSprite: {fileID: 21300000, guid: 1ebe9d3ac5ce74f3589c006da297bdc7, type: 3}
-  baseCost: 10
-  costMultiplier: 1
-  description: 
-  upgradeCosts:
-  - 1
-  upgradeEfficiencyBonuses:
-  - 1
+  managerIcon: {fileID: 21300000, guid: 1ebe9d3ac5ce74f3589c006da297bdc7, type: 3}
+  hiringCost: 10
+  businessToAutomate: {fileID: 11400000, guid: 38eb02f8953be4f4299ef649cc13bda3, type: 2}

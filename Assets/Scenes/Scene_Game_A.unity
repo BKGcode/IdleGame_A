@@ -1210,7 +1210,6 @@ GameObject:
   - component: {fileID: 422636576}
   - component: {fileID: 422636577}
   - component: {fileID: 422636578}
-  - component: {fileID: 422636579}
   m_Layer: 0
   m_Name: --SYSTEMS--
   m_TagString: Untagged
@@ -1368,20 +1367,6 @@ MonoBehaviour:
     prefab: {fileID: 6791290258166702501, guid: 640fcea0d6f616843a5b438c8dbe1d00,
       type: 3}
     size: 30
---- !u!114 &422636579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 422636574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1902febe1666f8846b89622c4854d592, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currencyText: {fileID: 1794830491}
-  initialCurrency: 100
 --- !u!1 &438738828
 GameObject:
   m_ObjectHideFlags: 0
@@ -1527,6 +1512,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 547773836}
+  - component: {fileID: 547773837}
   m_Layer: 0
   m_Name: --BUSINESS--
   m_TagString: Untagged
@@ -1549,6 +1535,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &547773837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547773835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1902febe1666f8846b89622c4854d592, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currencyText: {fileID: 1794830491}
+  initialCurrency: 100
+  floatingTextPrefab: {fileID: 9140742482834812210, guid: 19684f3c67b60864cb47fe06f2a28e76,
+    type: 3}
+  floatingTextDuration: 1
+  floatingTextDistance: 50
+  incomeColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1001 &555325436
 PrefabInstance:
   m_ObjectHideFlags: 0
