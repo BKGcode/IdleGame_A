@@ -1,30 +1,23 @@
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyPatrolController : MonoBehaviour
 {
-    [Header("Patrulla")]
-    [SerializeField] private float patrolRadius = 10f;
-    [SerializeField] private float minPatrolWaitTime = 1f;
-    [SerializeField] private float maxPatrolWaitTime = 3f;
-
-    [Header("Persecución")]
-    [SerializeField] private float detectionRadius = 5f;
-    [SerializeField] private float chaseProbability = 5f;
-    [SerializeField] private float chaseSpeed = 7f;
-
-    [Header("Movimiento")]
-    [SerializeField] private float patrolSpeed = 3f;
-    [SerializeField] private float rotationSpeed = 5f;
+    [Header("Enemy Type")]
+    public EnemyTypeSO enemyType;
 
     [Header("Destrucción")]
-    [SerializeField] private GameObject destructionParticlesPrefab;
-    [SerializeField] private AudioClip destructionSound;
-    [SerializeField] private double currencyReward = 10.0;
+    public GameObject destructionParticlesPrefab;
+    public AudioClip destructionSound;
+    public double currencyReward;
 
     [Header("Salud")]
-    [SerializeField] private float maxHealth = 3f;
+    public float maxHealth;
     private float currentHealth;
+
+    [Header("Referencias de UI")]
+    public TextMeshProUGUI floatingTextPrefab; // Cambiado a TextMeshProUGUI
 
     private Rigidbody rb;
     private Vector3 patrolCenter;
@@ -50,6 +43,19 @@ public class EnemyPatrolController : MonoBehaviour
         else
         {
             Debug.LogWarning("No se encontró ningún GameObject con la etiqueta 'Player'.");
+        }
+
+        // Inicializar valores desde enemyType
+        if (enemyType != null)
+        {
+            maxHealth = enemyType.maxHealth;
+            currencyReward = enemyType.currencyReward;
+            destructionParticlesPrefab = enemyType.destructionParticlesPrefab;
+            destructionSound = enemyType.destructionSound;
+        }
+        else
+        {
+            Debug.LogError("EnemyTypeSO no está asignado en EnemyPatrolController.");
         }
 
         currentHealth = maxHealth;
@@ -85,7 +91,9 @@ public class EnemyPatrolController : MonoBehaviour
         }
         else
         {
-            MoveTowards(targetPoint, patrolSpeed);
+            MoveTowards(targetPoint, enemyType.patrolSpeed);
+            Vector3 movementDirection = (targetPoint - transform.position).normalized;
+            OrientTowards(movementDirection);
         }
     }
 
@@ -93,7 +101,10 @@ public class EnemyPatrolController : MonoBehaviour
     {
         if (player != null)
         {
-            MoveTowards(player.position, chaseSpeed);
+            MoveTowards(player.position, enemyType.chaseSpeed);
+
+            Vector3 direction = (player.position - transform.position).normalized;
+            OrientTowards(direction);
         }
     }
 
@@ -102,10 +113,10 @@ public class EnemyPatrolController : MonoBehaviour
         if (player == null) return;
 
         float distanciaAlJugador = Vector3.Distance(transform.position, player.position);
-        if (distanciaAlJugador <= detectionRadius)
+        if (distanciaAlJugador <= enemyType.detectionRadius)
         {
             int randomChance = Random.Range(0, 11);
-            if (randomChance <= chaseProbability)
+            if (randomChance <= enemyType.chaseProbability)
             {
                 isChasing = true;
                 isPatrolling = false;
@@ -124,7 +135,7 @@ public class EnemyPatrolController : MonoBehaviour
 
     private void SetRandomTargetPoint()
     {
-        Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
+        Vector3 randomDirection = Random.insideUnitSphere * enemyType.patrolRadius;
         randomDirection += patrolCenter;
         randomDirection.y = transform.position.y;
 
@@ -133,7 +144,7 @@ public class EnemyPatrolController : MonoBehaviour
 
     private float GetRandomPatrolWaitTime()
     {
-        return Random.Range(minPatrolWaitTime, maxPatrolWaitTime);
+        return Random.Range(enemyType.minPatrolWaitTime, enemyType.maxPatrolWaitTime);
     }
 
     private void MoveTowards(Vector3 destination, float speed)
@@ -143,12 +154,14 @@ public class EnemyPatrolController : MonoBehaviour
 
         Vector3 newPosition = transform.position + velocity * Time.fixedDeltaTime;
         rb.MovePosition(newPosition);
+    }
 
-        // Orientar al enemigo en la dirección del movimiento
+    private void OrientTowards(Vector3 direction)
+    {
         if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, enemyType.rotationSpeed * Time.fixedDeltaTime));
         }
     }
 
@@ -181,25 +194,50 @@ public class EnemyPatrolController : MonoBehaviour
             AudioSource.PlayClipAtPoint(destructionSound, transform.position);
         }
 
-        // Añadir la recompensa de moneda al CurrencyManager y mostrar el texto flotante
+        // Añadir la recompensa de moneda y mostrar el texto flotante
         if (CurrencyManager.Instance != null)
         {
-            CurrencyManager.Instance.AddCurrencyWithFloatingText(currencyReward);
+            CurrencyManager.Instance.AddCurrency(currencyReward);
+            ShowFloatingText(currencyReward);
         }
         else
         {
-            Debug.LogWarning("CurrencyManager.Instance is null. Cannot add currency or show floating text.");
+            Debug.LogWarning("CurrencyManager.Instance está vacío. No se puede añadir moneda ni mostrar texto flotante.");
+        }
+
+        // Actualizar el contador de enemigos destruidos
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.IncrementEnemyDestroyedCount(enemyType);
+        }
+        else
+        {
+            Debug.LogWarning("GameManager.Instance está vacío. No se puede incrementar el contador de enemigos destruidos.");
         }
 
         Destroy(gameObject);
     }
 
+    private void ShowFloatingText(double amount)
+    {
+        if (floatingTextPrefab != null)
+        {
+            Vector3 spawnPosition = transform.position + Vector3.up;
+            TextMeshProUGUI floatingText = Instantiate(floatingTextPrefab, spawnPosition, Quaternion.identity);
+            floatingText.text = "+" + amount.ToString();
+            // Puedes agregar animaciones o efectos adicionales aquí
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, patrolRadius);
+        if (enemyType != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, enemyType.patrolRadius);
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, enemyType.detectionRadius);
+        }
     }
 }

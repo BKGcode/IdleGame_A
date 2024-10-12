@@ -34,12 +34,15 @@ public class Business : MonoBehaviour
 
     public void SetHired(bool hired)
     {
+        if (isHired == hired) return; // Evitar cambios innecesarios
+
         isHired = hired;
         UpdateVisuals();
-        
+
         if (isHired)
         {
             RegisterWithCurrencyManager();
+            BusinessManagerTracker.Instance.RegisterHiredBusiness(this);
             if (isAutomated)
             {
                 StartGeneratingIncome();
@@ -49,6 +52,7 @@ public class Business : MonoBehaviour
         {
             StopGeneratingIncome();
             UnregisterFromCurrencyManager();
+            BusinessManagerTracker.Instance.UnregisterHiredBusiness(this);
         }
 
         Debug.Log($"Estado de contratación cambiado para {businessData.businessName}: {isHired}");
@@ -142,7 +146,7 @@ public class Business : MonoBehaviour
     private void GenerateIncome()
     {
         if (!isAutomated || !isHired) return;
-        
+
         currentIncome = businessData.baseIncome;
         OnIncomeGenerated?.Invoke(currentIncome, businessData.businessName);
         Debug.Log($"{businessData.businessName} generó {currentIncome} de ingresos");
@@ -155,6 +159,11 @@ public class Business : MonoBehaviour
     private void OnDisable()
     {
         StopGeneratingIncome();
+        if (isHired)
+        {
+            UnregisterFromCurrencyManager();
+            BusinessManagerTracker.Instance.UnregisterHiredBusiness(this);
+        }
     }
 
 #if UNITY_EDITOR

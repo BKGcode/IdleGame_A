@@ -11,8 +11,8 @@ public class EnemySpawner : MonoBehaviour
     public int enemiesInFirstWave = 5;
     public float additionalEnemiesPercentage = 20f;
 
-    [Header("Enemy Prefabs")]
-    public List<GameObject> enemyPrefabs;
+    [Header("Enemy Types")]
+    public List<EnemyTypeSO> enemyTypes;
 
     [Header("Debug Visualization")]
     public bool showSpawnArea = true;
@@ -59,8 +59,19 @@ public class EnemySpawner : MonoBehaviour
         Vector2 spawnPoint = Random.insideUnitCircle * spawnRadius;
         Vector3 spawnPosition = transform.position + new Vector3(spawnPoint.x, 0, spawnPoint.y);
 
-        GameObject enemyToSpawn = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
-        Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
+        EnemyTypeSO enemyTypeToSpawn = enemyTypes[Random.Range(0, enemyTypes.Count)];
+        GameObject spawnedEnemy = Instantiate(enemyTypeToSpawn.enemyPrefab, spawnPosition, Quaternion.identity);
+        
+        // Asignar el tipo de enemigo al controlador
+        EnemyPatrolController controller = spawnedEnemy.GetComponent<EnemyPatrolController>();
+        if (controller != null)
+        {
+            controller.enemyType = enemyTypeToSpawn; // Ahora accesible
+        }
+        else
+        {
+            Debug.LogWarning("El prefab del enemigo no tiene un EnemyPatrolController adjunto.");
+        }
     }
 
     private int CalculateEnemiesForWave()
@@ -88,7 +99,7 @@ public class EnemySpawner : MonoBehaviour
         if (showSpawnArea)
         {
             Gizmos.color = spawnAreaColor;
-            Gizmos.DrawSphere(transform.position, spawnRadius);
+            Gizmos.DrawWireSphere(transform.position, spawnRadius);
         }
 
         if (showSpawnPoints)

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172b12c7bc9001247bbb2d7ad330e721, type: 3}
+  m_Name: Enemy_A
+  m_EditorClassIdentifier: 
+  enemyName: Enemy_A
+  enemyPrefab: {fileID: 97431682438290556, guid: 643a9421a07d5dc419a62da5e854b415,
+    type: 3}
+  enemySprite: {fileID: 21300000, guid: b76446236559e4a7ebfbdc6519fa9d07, type: 3}
+  patrolRadius: 20
+  minPatrolWaitTime: 2
+  maxPatrolWaitTime: 4
+  detectionRadius: 10
+  chaseProbability: 8
+  chaseSpeed: 15
+  patrolSpeed: 3
+  rotationSpeed: 10
+  maxHealth: 1
+  damage: 1
+  currencyReward: 10
+  destructionParticlesPrefab: {fileID: 217993222680584950, guid: f970de182f6e61a4cbfe879f6b82b89d,
+    type: 3}
+  destructionSound: {fileID: 8300000, guid: 8902aec83022a714d9cb0a042d0abb3e, type: 3}

@@ -33,26 +33,48 @@ public class BusinessManagerTracker : MonoBehaviour
         {
             _instance = this;
             DontDestroyOnLoad(gameObject);
+            Debug.Log("BusinessManagerTracker instance created and set to DontDestroyOnLoad.");
         }
         else if (_instance != this)
         {
+            Debug.LogWarning("Multiple instances of BusinessManagerTracker detected. Destroying the new instance.");
             Destroy(gameObject);
         }
     }
 
     public void RegisterHiredBusiness(Business business)
     {
-        if (!hiredBusinesses.Contains(business))
+        if (business != null && !hiredBusinesses.Contains(business))
         {
             hiredBusinesses.Add(business);
+            Debug.Log($"Business registrado: {business.GetBusinessData().businessName}");
+        }
+    }
+
+    public void UnregisterHiredBusiness(Business business)
+    {
+        if (business != null && hiredBusinesses.Contains(business))
+        {
+            hiredBusinesses.Remove(business);
+            Debug.Log($"Business desregistrado: {business.GetBusinessData().businessName}");
         }
     }
 
     public void RegisterHiredManager(Manager manager)
     {
-        if (!hiredManagers.Contains(manager))
+        if (manager != null && !hiredManagers.Contains(manager))
         {
             hiredManagers.Add(manager);
+            Debug.Log($"Manager registrado: {manager.GetManagerData().managerName}");
+        }
+    }
+
+    public void UnregisterHiredManager(Manager manager)
+    {
+        if (manager != null && hiredManagers.Contains(manager))
+        {
+            hiredManagers.Remove(manager);
+            Debug.Log($"Manager desregistrado: {manager.GetManagerData().managerName}");
         }
     }
 

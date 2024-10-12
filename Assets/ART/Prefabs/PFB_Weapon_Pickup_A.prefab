@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7963868972904213768}
   - component: {fileID: 3616431811262338551}
   m_Layer: 0
-  m_Name: PFB_Weapon_Pickup
+  m_Name: PFB_Weapon_Pickup_A
   m_TagString: Untagged
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0

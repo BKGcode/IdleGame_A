@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Manager : MonoBehaviour
 {
     [SerializeField] private ManagerData managerData;
     private bool isHired = false;
     private Business targetBusiness;
-    
+
     [SerializeField] private NavMeshAgent navMeshAgent;
-    
+
     private Coroutine findBusinessCoroutine;
 
     public void Initialize(ManagerData data, bool hired)
@@ -20,14 +21,24 @@ public class Manager : MonoBehaviour
 
     public void SetHired(bool hired)
     {
+        if (isHired == hired) return; // Evitar cambios innecesarios
+
         isHired = hired;
         if (isHired)
         {
+            BusinessManagerTracker.Instance.RegisterHiredManager(this);
             StartCoroutine(FindBusinessPeriodically());
+            Debug.Log($"Manager {managerData.managerName} ha sido contratado.");
         }
         else
         {
             StopFindingBusiness();
+            BusinessManagerTracker.Instance.UnregisterHiredManager(this);
+            if (navMeshAgent != null)
+            {
+                navMeshAgent.isStopped = true;
+            }
+            Debug.Log($"Manager {managerData.managerName} ha sido descontratado.");
         }
     }
 
@@ -55,10 +66,11 @@ public class Manager : MonoBehaviour
 
     private Business FindBusinessToAutomate()
     {
-        Business[] allBusinesses = FindObjectsOfType<Business>();
-        foreach (Business business in allBusinesses)
+        List<Business> hiredBusinesses = BusinessManagerTracker.Instance.GetHiredBusinesses();
+        foreach (Business business in hiredBusinesses)
         {
-            if (business.GetBusinessData() == managerData.businessToAutomate && !business.IsAutomated())
+            if (business.GetBusinessData() == managerData.businessToAutomate 
+                && !business.IsAutomated())
             {
                 return business;
             }
@@ -71,6 +83,7 @@ public class Manager : MonoBehaviour
         if (navMeshAgent != null && targetBusiness != null)
         {
             navMeshAgent.SetDestination(targetBusiness.transform.position);
+            Debug.Log($"Manager {managerData.managerName} se dirige a {targetBusiness.GetBusinessData().businessName}");
         }
         else
         {
@@ -95,7 +108,7 @@ public class Manager : MonoBehaviour
         {
             targetBusiness.AutomateWithManager(this);
             navMeshAgent.isStopped = true;
-            Debug.Log($"Manager ha automatizado el negocio: {targetBusiness.GetBusinessData().businessName}");
+            Debug.Log($"Manager {managerData.managerName} ha automatizado el negocio: {targetBusiness.GetBusinessData().businessName}");
             targetBusiness = null;
             StartCoroutine(FindBusinessPeriodically());
         }
@@ -112,7 +125,7 @@ public class Manager : MonoBehaviour
 
     private void OnDisable()
     {
-        StopFindingBusiness();
+        SetHired(false);
     }
 
 #if UNITY_EDITOR

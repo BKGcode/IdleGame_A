@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 97431682438290556}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -223,18 +223,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd7657c393f949498e0935234b4fb90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patrolRadius: 20
-  minPatrolWaitTime: 2
-  maxPatrolWaitTime: 4
-  detectionRadius: 10
-  chaseProbability: 8
-  chaseSpeed: 15
-  patrolSpeed: 3
-  rotationSpeed: 5
+  enemyType: {fileID: 11400000, guid: dbcc826e31c59d34ba8d34b1bbec8f69, type: 2}
   destructionParticlesPrefab: {fileID: 1004229041087787908, guid: e6eb729988ef2f349a24b0b4ae8fea47,
     type: 3}
   destructionSound: {fileID: 8300000, guid: fd99eb1d9d23fcf4fab0d276fa6e754a, type: 3}
+  currencyReward: 10
   maxHealth: 1
+  floatingTextPrefab: {fileID: 1807943954521465733, guid: 19684f3c67b60864cb47fe06f2a28e76,
+    type: 3}
 --- !u!95 &3762674376236320195
 Animator:
   serializedVersion: 7

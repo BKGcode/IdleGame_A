@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6059992930393690157
+--- !u!1 &7478243967329026818
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1534338914178739800}
-  - component: {fileID: 7490375550309839819}
+  - component: {fileID: 8669362602392085983}
+  - component: {fileID: 8013981403529342359}
   m_Layer: 0
-  m_Name: PFB_ENEMY_SPAWNER_A
+  m_Name: Spawner_Business_A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1534338914178739800
+--- !u!4 &8669362602392085983
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6059992930393690157}
+  m_GameObject: {fileID: 7478243967329026818}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -32,22 +32,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7490375550309839819
+--- !u!114 &8013981403529342359
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6059992930393690157}
+  m_GameObject: {fileID: 7478243967329026818}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f546795a864d72d4eb6bd20a680b73da, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a7dede94b0088646b4d2d3ec7b1bc02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyTypes:
-  - {fileID: 11400000, guid: c5bc0ef3ef45a1c4581c66c2f61c02b7, type: 2}
-  spawnRadius: 20
-  initialEnemyCount: 5
-  timeBetweenWaves: 10
-  spawnMultiplier: 1.5
-  initialSpawnDelay: 10
+  prefabToSpawn: {fileID: 5529736097347906205, guid: 69c6273cee22f944f9dade29d0c6a624,
+    type: 3}
+  numberOfPrefabs: 5
+  spawnCenter: {x: 0, y: 0, z: 0}
+  spawnRadius: 100
+  minDistance: 30
+  maxSpawnAttempts: 10

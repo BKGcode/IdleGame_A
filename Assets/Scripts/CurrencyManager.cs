@@ -7,40 +7,48 @@ public class CurrencyManager : MonoBehaviour
 {
     public static CurrencyManager Instance { get; private set; }
 
+    [Header("UI References")]
     [SerializeField] private TextMeshProUGUI currencyText;
-    [SerializeField] private double initialCurrency = 1000;
 
     [Header("Floating Text Settings")]
-    [SerializeField] private GameObject floatingTextPrefab;
+    [SerializeField] private TextMeshPro floatingTextPrefab;
     [SerializeField] private float floatingTextDuration = 1f;
     [SerializeField] private float floatingTextDistance = 50f;
     [SerializeField] private Color incomeColor = Color.green;
 
+    [Header("Currency Settings")]
+    [SerializeField] private double initialCurrency = 1000;
     private double currentCurrency;
+
     private List<Business> activeBusinesses = new List<Business>();
 
     public delegate void CurrencyChangedHandler(double newAmount);
-    public static event CurrencyChangedHandler OnCurrencyChanged;
+    public event CurrencyChangedHandler OnCurrencyChanged;
 
     private void Awake()
+    {
+        InitializeSingleton();
+    }
+
+    private void InitializeSingleton()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            currentCurrency = initialCurrency;
+            UpdateCurrencyDisplay();
+            Debug.Log("CurrencyManager instance created and set to DontDestroyOnLoad.");
         }
         else
         {
+            Debug.LogWarning("Multiple instances of CurrencyManager detected. Destroying the new instance.");
             Destroy(gameObject);
-            return;
         }
-
-        currentCurrency = initialCurrency;
     }
 
     private void Start()
     {
-        UpdateCurrencyDisplay();
         Business.OnIncomeGenerated += AddBusinessIncome;
     }
 
@@ -59,7 +67,7 @@ public class CurrencyManager : MonoBehaviour
     public void AddCurrencyWithFloatingText(double amount)
     {
         AddCurrency(amount);
-        SpawnFloatingText(amount);
+        SpawnFloatingText(amount, Camera.main.WorldToScreenPoint(transform.position));
     }
 
     public bool SpendCurrency(double amount)
@@ -98,53 +106,50 @@ public class CurrencyManager : MonoBehaviour
     private void AddBusinessIncome(double amount, string businessName)
     {
         AddCurrency(amount);
-        SpawnFloatingText(amount);
+        SpawnFloatingText(amount, Camera.main.WorldToScreenPoint(transform.position));
     }
 
-    private void SpawnFloatingText(double amount)
+    private void SpawnFloatingText(double amount, Vector3 position)
     {
         if (floatingTextPrefab != null && currencyText != null)
         {
-            GameObject floatingTextObj = Instantiate(floatingTextPrefab, currencyText.transform.position, Quaternion.identity, currencyText.transform);
-            TextMeshProUGUI floatingText = floatingTextObj.GetComponent<TextMeshProUGUI>();
-            
-            if (floatingText != null)
-            {
-                floatingText.text = "+" + amount.ToString("N0");
-                floatingText.color = incomeColor;
+            // Convert screen position to world position
+            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(position);
+            worldPosition.z = 0; // Ensure it's on the correct layer
 
-                StartCoroutine(AnimateFloatingText(floatingTextObj.transform, floatingText));
-            }
+            TextMeshPro floatingTextInstance = Instantiate(floatingTextPrefab, worldPosition, Quaternion.identity);
+            floatingTextInstance.text = "+" + amount.ToString("N0");
+            floatingTextInstance.color = incomeColor;
+
+            StartCoroutine(AnimateFloatingText(floatingTextInstance.transform, floatingTextInstance));
         }
     }
 
-   private IEnumerator AnimateFloatingText(Transform textTransform, TextMeshProUGUI textComponent, float offsetX = 0f, float offsetY = 0f)
-{
-    Vector3 startPosition = textTransform.localPosition + new Vector3(offsetX, offsetY, 0);
-    Vector3 endPosition = startPosition + Vector3.up * floatingTextDistance;
-    float elapsedTime = 0f;
-    Color startColor = textComponent.color;
-
-    // Aplicar el offset inicial
-    textTransform.localPosition = startPosition;
-
-    while (elapsedTime < floatingTextDuration)
+    private IEnumerator AnimateFloatingText(Transform textTransform, TextMeshPro textComponent)
     {
-        elapsedTime += Time.deltaTime;
-        float t = elapsedTime / floatingTextDuration;
+        Vector3 startPosition = textTransform.position;
+        Vector3 endPosition = startPosition + Vector3.up * floatingTextDistance;
+        float elapsedTime = 0f;
+        Color startColor = textComponent.color;
 
-        // Interpolar entre la posición inicial (con offset) y la posición final
-        textTransform.localPosition = Vector3.Lerp(startPosition, endPosition, t);
-        
-        float alpha = Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, t));
-        textComponent.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+        while (elapsedTime < floatingTextDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / floatingTextDuration;
 
-        yield return null;
+            // Interpolate between the initial and final positions
+            textTransform.position = Vector3.Lerp(startPosition, endPosition, t);
+
+            // Fade out the text
+            float alpha = Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, t));
+            textComponent.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+
+            yield return null;
+        }
+
+        textComponent.color = new Color(startColor.r, startColor.g, startColor.b, 0f);
+        Destroy(textTransform.gameObject);
     }
-
-    textComponent.color = new Color(startColor.r, startColor.g, startColor.b, 0f);
-    Destroy(textTransform.gameObject);
-}
 
     public double GetCurrentCurrency()
     {

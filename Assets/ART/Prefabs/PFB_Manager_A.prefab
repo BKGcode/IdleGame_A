@@ -340,10 +340,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managerData: {fileID: 11400000, guid: e454b839853cc2249b5bb13d9f602afb, type: 2}
-  businessToManage: {fileID: 11400000, guid: 38eb02f8953be4f4299ef649cc13bda3, type: 2}
-  animator: {fileID: 9178557159189712441}
-  idleFX: {fileID: 0}
-  hiredFX: {fileID: 0}
   navMeshAgent: {fileID: 5839832535509515706}
 --- !u!195 &5839832535509515706
 NavMeshAgent:

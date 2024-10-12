@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
+using System.Collections.Generic;
 
 public class GameOverManager : MonoBehaviour
 {
@@ -10,6 +12,10 @@ public class GameOverManager : MonoBehaviour
     [SerializeField] private Button restartButton;
     [SerializeField] private string mainMenuSceneName = "MainMenu";
     [SerializeField] private string gameSceneName = "GameScene";
+
+    [Header("Enemy Statistics")]
+    [SerializeField] private Transform enemyStatsContainer;
+    [SerializeField] private GameObject enemyStatPrefab;
 
     private void Awake()
     {
@@ -32,6 +38,41 @@ public class GameOverManager : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
             Time.timeScale = 0f;
+            DisplayEnemyStatistics();
+        }
+    }
+
+    private void DisplayEnemyStatistics()
+    {
+        if (enemyStatsContainer == null || enemyStatPrefab == null || GameManager.Instance == null)
+        {
+            Debug.LogWarning("Missing references for displaying enemy statistics.");
+            return;
+        }
+
+        // Clear existing stats
+        foreach (Transform child in enemyStatsContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        Dictionary<EnemyTypeSO, int> destroyedEnemies = GameManager.Instance.GetDestroyedEnemiesCounts();
+
+        foreach (var kvp in destroyedEnemies)
+        {
+            GameObject statObject = Instantiate(enemyStatPrefab, enemyStatsContainer);
+            Image enemyIcon = statObject.transform.Find("EnemyIcon").GetComponent<Image>();
+            TextMeshProUGUI enemyCountText = statObject.transform.Find("EnemyCount").GetComponent<TextMeshProUGUI>();
+
+            if (enemyIcon != null && enemyCountText != null)
+            {
+                enemyIcon.sprite = kvp.Key.enemySprite;
+                enemyCountText.text = kvp.Value.ToString();
+            }
+            else
+            {
+                Debug.LogWarning("Enemy stat prefab is missing required components.");
+            }
         }
     }
 
@@ -75,6 +116,7 @@ public class GameOverManager : MonoBehaviour
         ResetTimeSystem();
         ResetBusinessesAndManagers();
         ResetObjectPool();
+        ResetGameManager();
 
         // Aquí puedes añadir más resets para otros sistemas como vidas, armas, etc.
     }
@@ -129,6 +171,18 @@ public class GameOverManager : MonoBehaviour
         else
         {
             Debug.LogWarning("ObjectPool no encontrado al intentar resetear el pool de objetos.");
+        }
+    }
+
+    private void ResetGameManager()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResetGameManager();
+        }
+        else
+        {
+            Debug.LogWarning("GameManager.Instance no encontrado al intentar resetear.");
         }
     }
 }
