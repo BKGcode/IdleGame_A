@@ -17,8 +17,8 @@ MonoBehaviour:
     type: 3}
   projectilePrefab: {fileID: 6791290258166702501, guid: 640fcea0d6f616843a5b438c8dbe1d00,
     type: 3}
-  projectileSpeed: 50
-  fireRate: 5
-  magazineSize: 2
-  totalAmmo: 10
+  projectileSpeed: 70
+  fireRate: 3
+  magazineSize: 3
+  totalAmmo: 15
   reloadTime: 1

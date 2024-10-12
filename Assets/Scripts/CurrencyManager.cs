@@ -56,6 +56,12 @@ public class CurrencyManager : MonoBehaviour
         OnCurrencyChanged?.Invoke(currentCurrency);
     }
 
+    public void AddCurrencyWithFloatingText(double amount)
+    {
+        AddCurrency(amount);
+        SpawnFloatingText(amount);
+    }
+
     public bool SpendCurrency(double amount)
     {
         if (currentCurrency >= amount)
@@ -112,30 +118,33 @@ public class CurrencyManager : MonoBehaviour
         }
     }
 
-    private IEnumerator AnimateFloatingText(Transform textTransform, TextMeshProUGUI textComponent)
+   private IEnumerator AnimateFloatingText(Transform textTransform, TextMeshProUGUI textComponent, float offsetX = 0f, float offsetY = 0f)
+{
+    Vector3 startPosition = textTransform.localPosition + new Vector3(offsetX, offsetY, 0);
+    Vector3 endPosition = startPosition + Vector3.up * floatingTextDistance;
+    float elapsedTime = 0f;
+    Color startColor = textComponent.color;
+
+    // Aplicar el offset inicial
+    textTransform.localPosition = startPosition;
+
+    while (elapsedTime < floatingTextDuration)
     {
-        Vector3 startPosition = textTransform.localPosition;
-        Vector3 endPosition = startPosition + Vector3.up * floatingTextDistance;
-        float elapsedTime = 0f;
-        Color startColor = textComponent.color;
+        elapsedTime += Time.deltaTime;
+        float t = elapsedTime / floatingTextDuration;
 
-        while (elapsedTime < floatingTextDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / floatingTextDuration;
+        // Interpolar entre la posición inicial (con offset) y la posición final
+        textTransform.localPosition = Vector3.Lerp(startPosition, endPosition, t);
+        
+        float alpha = Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, t));
+        textComponent.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
 
-            textTransform.localPosition = Vector3.Lerp(startPosition, endPosition, t);
-            
-            float alpha = Mathf.Lerp(1f, 0f, Mathf.SmoothStep(0f, 1f, t));
-            textComponent.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
-
-            yield return null;
-        }
-
-        textComponent.color = new Color(startColor.r, startColor.g, startColor.b, 0f);
-
-        Destroy(textTransform.gameObject);
+        yield return null;
     }
+
+    textComponent.color = new Color(startColor.r, startColor.g, startColor.b, 0f);
+    Destroy(textTransform.gameObject);
+}
 
     public double GetCurrentCurrency()
     {

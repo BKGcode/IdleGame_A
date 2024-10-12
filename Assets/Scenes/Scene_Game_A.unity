@@ -1554,6 +1554,8 @@ MonoBehaviour:
   floatingTextDuration: 1
   floatingTextDistance: 50
   incomeColor: {r: 0, g: 1, b: 0, a: 1}
+  floatingTextOffsetX: 30
+  floatingTextOffsetY: 0
 --- !u!1001 &555325436
 PrefabInstance:
   m_ObjectHideFlags: 0

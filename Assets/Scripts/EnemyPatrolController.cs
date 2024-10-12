@@ -20,6 +20,7 @@ public class EnemyPatrolController : MonoBehaviour
     [Header("Destrucción")]
     [SerializeField] private GameObject destructionParticlesPrefab;
     [SerializeField] private AudioClip destructionSound;
+    [SerializeField] private double currencyReward = 10.0;
 
     [Header("Salud")]
     [SerializeField] private float maxHealth = 3f;
@@ -178,6 +179,16 @@ public class EnemyPatrolController : MonoBehaviour
         if (destructionSound != null)
         {
             AudioSource.PlayClipAtPoint(destructionSound, transform.position);
+        }
+
+        // Añadir la recompensa de moneda al CurrencyManager y mostrar el texto flotante
+        if (CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.AddCurrencyWithFloatingText(currencyReward);
+        }
+        else
+        {
+            Debug.LogWarning("CurrencyManager.Instance is null. Cannot add currency or show floating text.");
         }
 
         Destroy(gameObject);
