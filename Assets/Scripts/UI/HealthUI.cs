@@ -9,15 +9,29 @@ public class HealthUI : MonoBehaviour
 
     private void OnEnable()
     {
-        playerData.OnHealthChanged += UpdateHealthUI;
+        if (playerData != null)
+        {
+            playerData.OnHealthChanged += UpdateHealthUI;
+        }
+        else
+        {
+            Debug.LogError("PlayerData no está asignado en HealthUI.");
+        }
     }
 
     private void OnDisable()
     {
-        playerData.OnHealthChanged -= UpdateHealthUI;
+        if (playerData != null)
+        {
+            playerData.OnHealthChanged -= UpdateHealthUI;
+        }
     }
 
-    private void UpdateHealthUI(int newHealth)
+    /// <summary>
+    /// Actualiza la UI de salud con el nuevo valor de salud.
+    /// </summary>
+    /// <param name="newHealth">Nueva salud del jugador.</param>
+    public void UpdateHealthUI(int newHealth)
     {
         healthText.text = $"Salud: {newHealth}";
     }

@@ -9,12 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9c60927613a62d4db1125d9492c08dd, type: 3}
-  m_Name: Upgrade_A
+  m_Script: {fileID: 11500000, guid: 9caccbe28a3e86e48b5e4838441eff0d, type: 3}
+  m_Name: Collectable_A
   m_EditorClassIdentifier: 
-  upgradeName: 
-  upgradeIcon: {fileID: 0}
-  upgradeType: 0
-  effectValue: 0
-  description: 
-  cost: 0
+  resourceName: Collectable_A
+  resourceIcon: {fileID: 21300000, guid: 05e2365d1f435465dba168208ab98ada, type: 3}
+  amount: 1

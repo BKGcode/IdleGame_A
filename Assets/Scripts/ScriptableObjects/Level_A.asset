@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401b0bfae823bd3438a207e3bced13d8, type: 3}
   m_Name: Level_A
   m_EditorClassIdentifier: 
-  levelName: 
+  levelName: Level_A
   enemyPrefabs: []
-  enemyCount: 0
+  enemyCount: 10
   lootPrefabs: []
-  levelDuration: 0
+  levelDuration: 10
   spawnAreaSize: {x: 0, y: 0, z: 0}

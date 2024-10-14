@@ -11,67 +11,23 @@ public class FarmData
     public event Action<UpgradeData> OnUpgradeApplied;
     public event Action<int, PlantInstance> OnPlantAdded;
 
-    // Estructura para instancias de plantas en los tiles
-    [Serializable]
-    public class PlantInstance
-    {
-        public PlantData Plant;
-        public float TimePlanted; // Tiempo en que se plantó
-        public bool IsHarvested;
-
-        public PlantInstance(PlantData plant, float timePlanted)
-        {
-            Plant = plant;
-            TimePlanted = timePlanted;
-            IsHarvested = false;
-        }
-    }
-
     // Propiedades de la granja
-    public List<PlantInstance> PlantedPlants { get; private set; }
     public int Resources { get; private set; }
-    public List<string> AppliedUpgrades { get; private set; } // Almacena nombres de las mejoras aplicadas
+    public List<PlantInstance> PlantedPlants { get; private set; }
+    public List<string> AppliedUpgrades { get; private set; }
+
+    [Header("Datos de Plantas")]
+    public List<PlantData> PlantDataList;
 
     // Constructor inicial
     public FarmData()
     {
+        Resources = 0;
         PlantedPlants = new List<PlantInstance>();
         AppliedUpgrades = new List<string>();
-        Resources = 0;
     }
 
     // Métodos para gestionar la granja
-    public void PlantSeed(PlantData plant, float currentTime)
-    {
-        PlantInstance newPlant = new PlantInstance(plant, currentTime);
-        PlantedPlants.Add(newPlant);
-        OnPlantAdded?.Invoke(PlantedPlants.Count - 1, newPlant);
-    }
-
-    public void HarvestPlant(int index)
-    {
-        if (index < 0 || index >= PlantedPlants.Count) return;
-
-        PlantInstance plant = PlantedPlants[index];
-        if (!plant.IsHarvested)
-        {
-            Resources += plant.Plant.resourcesProduced;
-            plant.IsHarvested = true;
-            OnResourcesUpdated?.Invoke(Resources);
-        }
-    }
-
-    public void ApplyUpgrade(UpgradeData upgrade)
-    {
-        if (!AppliedUpgrades.Contains(upgrade.upgradeName))
-        {
-            AppliedUpgrades.Add(upgrade.upgradeName);
-            Resources -= upgrade.cost;
-            OnUpgradeApplied?.Invoke(upgrade);
-            OnResourcesUpdated?.Invoke(Resources);
-        }
-    }
-
     public void AddResources(int amount)
     {
         Resources += amount;
@@ -85,6 +41,53 @@ public class FarmData
         OnResourcesUpdated?.Invoke(Resources);
     }
 
+    public void PlantSeed(PlantData plantData, float plantedTime)
+    {
+        PlantInstance newPlant = new PlantInstance
+        {
+            plantData = plantData,
+            plantedTime = plantedTime
+        };
+        PlantedPlants.Add(newPlant);
+        OnPlantAdded?.Invoke(PlantedPlants.Count - 1, newPlant);
+    }
+
+    public void HarvestPlant(int tileIndex)
+    {
+        if (tileIndex < 0 || tileIndex >= PlantedPlants.Count)
+            return;
+
+        PlantInstance plant = PlantedPlants[tileIndex];
+        if (plant.IsMature())
+        {
+            AddResources(plant.plantData.resourcesProduced);
+            PlantedPlants.RemoveAt(tileIndex);
+            // Opcional: Notificar la cosecha
+        }
+    }
+
+    public void ApplyUpgrade(UpgradeData upgrade)
+    {
+        if (!AppliedUpgrades.Contains(upgrade.upgradeName))
+        {
+            AppliedUpgrades.Add(upgrade.upgradeName);
+            OnUpgradeApplied?.Invoke(upgrade);
+        }
+    }
+
+    // Clase interna para representar una instancia de planta
+    [Serializable]
+    public class PlantInstance
+    {
+        public PlantData plantData;
+        public float plantedTime;
+
+        public bool IsMature()
+        {
+            return Time.time - plantedTime >= plantData.growthTime;
+        }
+    }
+
     // Método para establecer todos los datos (usado en la carga)
     public void SetData(List<PlantInstance> plants, int resources, List<string> upgrades)
     {
@@ -93,5 +96,6 @@ public class FarmData
         AppliedUpgrades = upgrades;
 
         OnResourcesUpdated?.Invoke(Resources);
+        // Puedes notificar también sobre las plantas plantadas y las mejoras aplicadas
     }
 }

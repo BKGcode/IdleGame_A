@@ -5,86 +5,114 @@ using UnityEngine;
 [Serializable]
 public class PlayerData
 {
-    // Eventos para notificar cambios en los datos del jugador
+    // Eventos para notificar cambios
     public event Action<int> OnHealthChanged;
     public event Action<WeaponData> OnWeaponChanged;
     public event Action<int> OnAmmoChanged;
     public event Action<int> OnResourcesChanged;
 
     // Propiedades del jugador
-    public int Health { get; private set; }
-    public WeaponData CurrentWeapon { get; private set; }
-    public int Ammo { get; private set; }
-    public int Resources { get; private set; }
+    [SerializeField] private int health;
+    [SerializeField] private WeaponData currentWeapon;
+    [SerializeField] private int ammo;
+    [SerializeField] private int resources;
 
-    // Constructor inicial
-    public PlayerData(int initialHealth)
-    {
-        Health = initialHealth;
-        Ammo = 0;
-        Resources = 0;
-    }
+    public int Health => health;
+    public WeaponData CurrentWeapon => currentWeapon;
+    public int Ammo => ammo;
+    public int Resources => resources;
 
-    // Métodos para modificar los datos del jugador
+    // Métodos para gestionar la salud
     public void TakeDamage(int damage)
     {
-        Health -= damage;
-        Health = Mathf.Max(Health, 0);
-        OnHealthChanged?.Invoke(Health);
+        health -= damage;
+        health = Mathf.Max(health, 0);
+        OnHealthChanged?.Invoke(health);
     }
 
     public void Heal(int amount)
     {
-        Health += amount;
-        OnHealthChanged?.Invoke(Health);
+        health += amount;
+        OnHealthChanged?.Invoke(health);
     }
 
+    // Métodos para gestionar el arma
     public void ChangeWeapon(WeaponData newWeapon)
     {
-        CurrentWeapon = newWeapon;
-        Ammo = newWeapon.magazineSize;
+        currentWeapon = newWeapon;
+        ammo = newWeapon.magazineSize; // Reiniciar munición al cambiar de arma
         OnWeaponChanged?.Invoke(newWeapon);
-        OnAmmoChanged?.Invoke(Ammo);
-    }
-
-    public void Reload(int ammoAmount)
-    {
-        Ammo += ammoAmount;
-        Ammo = Mathf.Min(Ammo, CurrentWeapon.magazineSize);
-        OnAmmoChanged?.Invoke(Ammo);
+        OnAmmoChanged?.Invoke(ammo);
     }
 
     public void UseAmmo(int amount)
     {
-        Ammo -= amount;
-        Ammo = Mathf.Max(Ammo, 0);
-        OnAmmoChanged?.Invoke(Ammo);
+        ammo -= amount;
+        ammo = Mathf.Max(ammo, 0);
+        OnAmmoChanged?.Invoke(ammo);
     }
 
+    public void Reload(int magazineSize)
+    {
+        ammo = magazineSize;
+        OnAmmoChanged?.Invoke(ammo);
+    }
+
+    // Métodos para gestionar recursos
     public void AddResources(int amount)
     {
-        Resources += amount;
-        OnResourcesChanged?.Invoke(Resources);
+        resources += amount;
+        OnResourcesChanged?.Invoke(resources);
     }
 
-    public void SpendResources(int amount)
+    /// <summary>
+    /// Método para aplicar una mejora al arma
+    /// </summary>
+    /// <param name="upgrade">La mejora a aplicar.</param>
+    public void ApplyWeaponUpgrade(UpgradeData upgrade)
     {
-        Resources -= amount;
-        Resources = Mathf.Max(Resources, 0);
-        OnResourcesChanged?.Invoke(Resources);
+        if (upgrade == null)
+        {
+            Debug.LogWarning("UpgradeData es null en ApplyWeaponUpgrade.");
+            return;
+        }
+
+        if (currentWeapon == null)
+        {
+            Debug.LogWarning("No hay arma equipada para aplicar la mejora.");
+            return;
+        }
+
+        // Aplica la mejora al arma
+        currentWeapon.ApplyUpgrade(upgrade);
+
+        // Opcional: actualizar munición si se cambia el tamaño del cargador
+        ammo = currentWeapon.magazineSize;
+        OnAmmoChanged?.Invoke(ammo);
+
+        // Notificar que el arma ha sido actualizada
+        OnWeaponChanged?.Invoke(currentWeapon);
     }
 
-    // Método para establecer todos los datos (usado en la carga)
-    public void SetData(int health, WeaponData weapon, int ammo, int resources)
+    /// <summary>
+    /// Método para establecer todos los datos del jugador.
+    /// Utilizado principalmente para cargar datos guardados.
+    /// </summary>
+    /// <param name="health">Salud del jugador.</param>
+    /// <param name="currentWeapon">Arma actual del jugador.</param>
+    /// <param name="ammo">Munición actual del jugador.</param>
+    /// <param name="resources">Recursos del jugador.</param>
+    public void SetData(int health, WeaponData currentWeapon, int ammo, int resources)
     {
-        Health = health;
-        CurrentWeapon = weapon;
-        Ammo = ammo;
-        Resources = resources;
+        this.health = health;
+        this.currentWeapon = currentWeapon;
+        this.ammo = ammo;
+        this.resources = resources;
 
-        OnHealthChanged?.Invoke(Health);
-        OnWeaponChanged?.Invoke(weapon);
-        OnAmmoChanged?.Invoke(Ammo);
-        OnResourcesChanged?.Invoke(Resources);
+        // Notificar a los suscriptores sobre los cambios
+        OnHealthChanged?.Invoke(this.health);
+        OnWeaponChanged?.Invoke(this.currentWeapon);
+        OnAmmoChanged?.Invoke(this.ammo);
+        OnResourcesChanged?.Invoke(this.resources);
     }
 }

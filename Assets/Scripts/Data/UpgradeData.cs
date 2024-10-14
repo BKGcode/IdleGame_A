@@ -4,19 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewUpgrade", menuName = "ScriptableObjects/UpgradeData")]
 public class UpgradeData : ScriptableObject
 {
-    public string upgradeName;
-    public Sprite upgradeIcon;
-
-    [Header("Tipo de Mejora")]
-    public UpgradeType upgradeType;
-
-    [Header("Efecto de la Mejora")]
-    public float effectValue; // Valor del efecto (por ejemplo, aumento de velocidad)
-    public string description;
-
-    [Header("Costo de la Mejora")]
-    public int cost;
-
     public enum UpgradeType
     {
         FarmingEfficiency,
@@ -24,4 +11,14 @@ public class UpgradeData : ScriptableObject
         ShooterEfficiency,
         ShooterExpansion
     }
+
+    [Header("Información de la Mejora")]
+    public string upgradeName;
+    public UpgradeType upgradeType;
+    public string description;
+
+    [Header("Efectos de la Mejora")]
+    public float value; // Valor del efecto, por ejemplo, porcentaje de aumento
+
+    // Puedes añadir más campos según las necesidades de tus mejoras
 }

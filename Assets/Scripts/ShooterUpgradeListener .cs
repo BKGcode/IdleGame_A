@@ -8,21 +8,49 @@ public class ShooterUpgradeListener : MonoBehaviour
 
     private void OnEnable()
     {
-        farmData.OnUpgradeApplied += RespondToFarmUpgrade;
+        if (farmData != null)
+        {
+            farmData.OnUpgradeApplied += RespondToFarmUpgrade;
+        }
+        else
+        {
+            Debug.LogError("FarmData no está asignado en ShooterUpgradeListener.");
+        }
     }
 
     private void OnDisable()
     {
-        farmData.OnUpgradeApplied -= RespondToFarmUpgrade;
+        if (farmData != null)
+        {
+            farmData.OnUpgradeApplied -= RespondToFarmUpgrade;
+        }
     }
 
-    private void RespondToFarmUpgrade(UpgradeData upgrade)
+    /// <summary>
+    /// Responde a la aplicación de una mejora en la granja.
+    /// </summary>
+    /// <param name="upgrade">La mejora aplicada.</param>
+    public void RespondToFarmUpgrade(UpgradeData upgrade)
     {
+        if (upgrade == null)
+        {
+            Debug.LogWarning("UpgradeData es null en RespondToFarmUpgrade.");
+            return;
+        }
+
         if (upgrade.upgradeType == UpgradeData.UpgradeType.FarmingEfficiency ||
             upgrade.upgradeType == UpgradeData.UpgradeType.FarmingExpansion)
         {
             // Lógica para responder a las mejoras de la granja en el shooter
-            shooterData.ApplyUpgrade(upgrade);
+            if (shooterData != null)
+            {
+                shooterData.ApplyUpgrade(upgrade);
+                Debug.Log($"Mejora aplicada al shooter: {upgrade.upgradeName}");
+            }
+            else
+            {
+                Debug.LogError("ShooterData no está asignado en ShooterUpgradeListener.");
+            }
         }
     }
 }

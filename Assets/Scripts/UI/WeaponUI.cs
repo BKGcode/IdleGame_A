@@ -12,17 +12,31 @@ public class WeaponUI : MonoBehaviour
 
     private void OnEnable()
     {
-        playerData.OnWeaponChanged += UpdateWeaponUI;
-        playerData.OnAmmoChanged += UpdateAmmoUI;
+        if (playerData != null)
+        {
+            playerData.OnWeaponChanged += UpdateWeaponUI;
+            playerData.OnAmmoChanged += UpdateAmmoUI;
+        }
+        else
+        {
+            Debug.LogError("PlayerData no está asignado en WeaponUI.");
+        }
     }
 
     private void OnDisable()
     {
-        playerData.OnWeaponChanged -= UpdateWeaponUI;
-        playerData.OnAmmoChanged -= UpdateAmmoUI;
+        if (playerData != null)
+        {
+            playerData.OnWeaponChanged -= UpdateWeaponUI;
+            playerData.OnAmmoChanged -= UpdateAmmoUI;
+        }
     }
 
-    private void UpdateWeaponUI(WeaponData newWeapon)
+    /// <summary>
+    /// Actualiza la UI del arma con la nueva arma equipada.
+    /// </summary>
+    /// <param name="newWeapon">Nueva arma equipada.</param>
+    public void UpdateWeaponUI(WeaponData newWeapon)
     {
         if (newWeapon != null)
         {
@@ -38,7 +52,11 @@ public class WeaponUI : MonoBehaviour
         }
     }
 
-    private void UpdateAmmoUI(int newAmmo)
+    /// <summary>
+    /// Actualiza la UI de la munición con la nueva cantidad de munición.
+    /// </summary>
+    /// <param name="newAmmo">Nueva cantidad de munición.</param>
+    public void UpdateAmmoUI(int newAmmo)
     {
         if (playerData.CurrentWeapon != null)
         {

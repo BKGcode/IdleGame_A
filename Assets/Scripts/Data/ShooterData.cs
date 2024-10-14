@@ -70,16 +70,16 @@ public class ShooterData
         switch (upgrade.upgradeType)
         {
             case UpgradeData.UpgradeType.FarmingEfficiency:
-                // Lógica específica para FarmingEfficiency
+                // Implementa la lógica específica para FarmingEfficiency
                 break;
             case UpgradeData.UpgradeType.FarmingExpansion:
-                // Lógica específica para FarmingExpansion
+                // Implementa la lógica específica para FarmingExpansion
                 break;
             case UpgradeData.UpgradeType.ShooterEfficiency:
-                // Lógica específica para ShooterEfficiency
+                // Implementa la lógica específica para ShooterEfficiency
                 break;
             case UpgradeData.UpgradeType.ShooterExpansion:
-                // Lógica específica para ShooterExpansion
+                // Implementa la lógica específica para ShooterExpansion
                 break;
         }
 

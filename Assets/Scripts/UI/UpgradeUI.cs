@@ -1,32 +1,53 @@
 // Assets/Scripts/UI/UpgradeUI.cs
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class UpgradeUI : MonoBehaviour
 {
     [SerializeField] private ProgressionData progressionData;
-    [SerializeField] private TextMeshProUGUI farmingEfficiencyText;
-    [SerializeField] private TextMeshProUGUI farmingAreaText;
-    [SerializeField] private TextMeshProUGUI shooterEfficiencyText;
-    [SerializeField] private TextMeshProUGUI shooterCapacityText;
+    [SerializeField] private Button upgradeButton;
+    [SerializeField] private TextMeshProUGUI upgradeDescriptionText;
 
     private void OnEnable()
     {
-        progressionData.OnProgressionUpdated += UpdateProgressionUI;
-        // Inicializar UI con los valores actuales
-        UpdateProgressionUI(null);
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.AddListener(ApplyUpgrade);
+        }
+        else
+        {
+            Debug.LogError("UpgradeButton no está asignado en UpgradeUI.");
+        }
     }
 
     private void OnDisable()
     {
-        progressionData.OnProgressionUpdated -= UpdateProgressionUI;
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.RemoveListener(ApplyUpgrade);
+        }
     }
 
-    private void UpdateProgressionUI(UpgradeData upgrade)
+    /// <summary>
+    /// Aplica una mejora seleccionada.
+    /// </summary>
+    public void ApplyUpgrade()
     {
-        farmingEfficiencyText.text = $"Eficiencia Farming: {progressionData.FarmingEfficiency}";
-        farmingAreaText.text = $"Área Farming: {progressionData.FarmingArea}";
-        shooterEfficiencyText.text = $"Eficiencia Shooter: {progressionData.ShooterEfficiency}";
-        shooterCapacityText.text = $"Capacidad Shooter: {progressionData.ShooterCapacity}";
+        // Implementa la lógica para seleccionar y aplicar una mejora
+        // Por ejemplo, seleccionar la próxima mejora disponible y aplicarla
+
+        // Ejemplo:
+        if (progressionData != null && progressionData.CanApplyNextUpgrade())
+        {
+            UpgradeData nextUpgrade = progressionData.GetNextUpgrade();
+            progressionData.ApplyUpgrade(nextUpgrade);
+            upgradeDescriptionText.text = $"Mejora aplicada: {nextUpgrade.upgradeName}";
+            Debug.Log($"Mejora aplicada: {nextUpgrade.upgradeName}");
+        }
+        else
+        {
+            Debug.Log("No hay más mejoras disponibles o ProgressionData no está asignado.");
+        }
     }
 }

@@ -20,20 +20,35 @@ public class TimeUI : MonoBehaviour
         timeData.OnTotalPlayTimeUpdated -= UpdateTotalPlayTimeUI;
     }
 
-    private void UpdateSessionTimeUI(float newSessionTime)
+    /// <summary>
+    /// Actualiza la UI del tiempo de sesión.
+    /// </summary>
+    /// <param name="newSessionTime">Nuevo tiempo de sesión.</param>
+    public void UpdateSessionTimeUI(float newSessionTime)
     {
         sessionTimeText.text = $"Tiempo de Sesión: {FormatTime(newSessionTime)}";
     }
 
-    private void UpdateTotalPlayTimeUI(float newTotalPlayTime)
+    /// <summary>
+    /// Actualiza la UI del tiempo total de juego.
+    /// </summary>
+    /// <param name="newTotalPlayTime">Nuevo tiempo total de juego.</param>
+    public void UpdateTotalPlayTimeUI(float newTotalPlayTime)
     {
         totalPlayTimeText.text = $"Tiempo Total: {FormatTime(newTotalPlayTime)}";
     }
 
-    private string FormatTime(float timeInSeconds)
+    /// <summary>
+    /// Formatea el tiempo en horas, minutos y segundos.
+    /// </summary>
+    /// <param name="time">Tiempo en segundos.</param>
+    /// <returns>Cadena formateada.</returns>
+    private string FormatTime(float time)
     {
-        int minutes = Mathf.FloorToInt(timeInSeconds / 60F);
-        int seconds = Mathf.FloorToInt(timeInSeconds - minutes * 60);
-        return $"{minutes:00}:{seconds:00}";
+        int hours = Mathf.FloorToInt(time / 3600);
+        int minutes = Mathf.FloorToInt((time % 3600) / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
+
+        return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
     }
 }

@@ -10,34 +10,23 @@ public class TimeData
     public event Action<float> OnTotalPlayTimeUpdated;
 
     // Propiedades de tiempo
-    public float SessionTime { get; private set; } // Tiempo de la partida actual en segundos
-    public float TotalPlayTime { get; private set; } // Tiempo total jugado en segundos
+    public float SessionTime { get; private set; }
+    public float TotalPlayTime { get; private set; }
 
-    // Constructor inicial
-    public TimeData()
-    {
-        SessionTime = 0f;
-        TotalPlayTime = 0f;
-    }
-
-    // Métodos para gestionar el tiempo
+    // Método para actualizar el tiempo de sesión
     public void IncrementSessionTime(float deltaTime)
     {
         SessionTime += deltaTime;
         OnSessionTimeUpdated?.Invoke(SessionTime);
     }
 
+    // Método para finalizar la sesión
     public void EndSession()
     {
+        // Lógica para finalizar la sesión
+        // Por ejemplo, añadir SessionTime a TotalPlayTime
         TotalPlayTime += SessionTime;
-        OnTotalPlayTimeUpdated?.Invoke(TotalPlayTime);
         SessionTime = 0f;
-        OnSessionTimeUpdated?.Invoke(SessionTime);
-    }
-
-    public void AddPlayTime(float time)
-    {
-        TotalPlayTime += time;
         OnTotalPlayTimeUpdated?.Invoke(TotalPlayTime);
     }
 

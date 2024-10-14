@@ -1,4 +1,4 @@
-// Assets/Scripts/UI/TimeManager.cs
+// Assets/Scripts/Managers/TimeManager.cs
 using UnityEngine;
 
 public class TimeManager : MonoBehaviour
@@ -7,12 +7,27 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
-        float deltaTime = Time.deltaTime;
-        timeData.IncrementSessionTime(deltaTime);
+        // Incrementa el tiempo de sesión cada frame
+        if (timeData != null)
+        {
+            timeData.IncrementSessionTime(Time.deltaTime);
+        }
+        else
+        {
+            Debug.LogError("TimeData no está asignado en TimeManager.");
+        }
     }
 
     private void OnApplicationQuit()
     {
-        timeData.EndSession();
+        // Finaliza la sesión cuando la aplicación se cierra
+        if (timeData != null)
+        {
+            timeData.EndSession();
+        }
+        else
+        {
+            Debug.LogError("TimeData no está asignado en TimeManager.");
+        }
     }
 }
