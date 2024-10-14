@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: Upgrade_A
   m_EditorClassIdentifier: 
   upgradeName: Upgrade_A
-  upgradeIcon: {fileID: 21300000, guid: fe299e76a0a6a45e5be170ab756eaf05, type: 3}
   upgradeType: 0
-  effectValue: 10
-  description: Shine
-  cost: 10
+  value: 10

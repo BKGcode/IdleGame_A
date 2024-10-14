@@ -15,12 +15,12 @@ public class PlayerData
     [SerializeField] private int health;
     [SerializeField] private WeaponData currentWeapon;
     [SerializeField] private int ammo;
-    [SerializeField] private int resources;
+    [SerializeField] private int resources; // Moneda del jugador
 
     public int Health => health;
     public WeaponData CurrentWeapon => currentWeapon;
     public int Ammo => ammo;
-    public int Resources => resources;
+    public int Resources => resources; // Exposición de la moneda
 
     // Métodos para gestionar la salud
     public void TakeDamage(int damage)
@@ -58,11 +58,26 @@ public class PlayerData
         OnAmmoChanged?.Invoke(ammo);
     }
 
-    // Métodos para gestionar recursos
+    // Métodos para gestionar recursos (Moneda)
     public void AddResources(int amount)
     {
         resources += amount;
         OnResourcesChanged?.Invoke(resources);
+    }
+
+    public bool SpendResources(int amount)
+    {
+        if (resources >= amount)
+        {
+            resources -= amount;
+            OnResourcesChanged?.Invoke(resources);
+            return true;
+        }
+        else
+        {
+            Debug.LogWarning("Moneda insuficiente para gastar.");
+            return false;
+        }
     }
 
     /// <summary>
@@ -101,7 +116,7 @@ public class PlayerData
     /// <param name="health">Salud del jugador.</param>
     /// <param name="currentWeapon">Arma actual del jugador.</param>
     /// <param name="ammo">Munición actual del jugador.</param>
-    /// <param name="resources">Recursos del jugador.</param>
+    /// <param name="resources">Recursos (moneda) del jugador.</param>
     public void SetData(int health, WeaponData currentWeapon, int ammo, int resources)
     {
         this.health = health;

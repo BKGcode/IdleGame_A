@@ -1,63 +1,60 @@
 // Assets/Scripts/UI/ResourcesUI.cs
 using UnityEngine;
-using TMPro;
+using TMPro; // Si usas TextMeshPro
 
 public class ResourcesUI : MonoBehaviour
 {
-    [SerializeField] private PlayerData playerData;
-    [SerializeField] private FarmData farmData;
-    [SerializeField] private TextMeshProUGUI playerResourcesText;
-    [SerializeField] private TextMeshProUGUI farmResourcesText;
+    [SerializeField] private TextMeshProUGUI currencyText; // Referencia al texto de moneda
+    [SerializeField] private PlayerController playerController; // Referencia al PlayerController
 
-    private void OnEnable()
+    private PlayerData playerData;
+
+    private void Start()
     {
-        if (playerData != null)
+        if (playerController == null)
         {
-            playerData.OnResourcesChanged += UpdatePlayerResourcesUI;
-        }
-        else
-        {
-            Debug.LogError("PlayerData no está asignado en ResourcesUI.");
+            Debug.LogError("PlayerController no está asignado en ResourcesUI.");
+            return;
         }
 
-        if (farmData != null)
+        playerData = playerController.PlayerData;
+
+        if (playerData == null)
         {
-            farmData.OnResourcesUpdated += UpdateFarmResourcesUI;
+            Debug.LogError("PlayerData no está asignado en PlayerController.");
+            return;
         }
-        else
+
+        if (currencyText == null)
         {
-            Debug.LogError("FarmData no está asignado en ResourcesUI.");
+            Debug.LogError("CurrencyText no está asignado en ResourcesUI.");
+            return;
         }
+
+        // Inicializar el texto con la cantidad actual de moneda
+        UpdatePlayerResourcesUI(playerData.Resources);
+
+        // Suscribirse al evento para actualizar el texto cuando cambie la moneda
+        playerData.OnResourcesChanged += UpdatePlayerResourcesUI;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         if (playerData != null)
         {
             playerData.OnResourcesChanged -= UpdatePlayerResourcesUI;
         }
+    }
 
-        if (farmData != null)
+    /// <summary>
+    /// Actualiza el texto de la moneda en la UI.
+    /// </summary>
+    /// <param name="currentResources">La cantidad actual de moneda.</param>
+    public void UpdatePlayerResourcesUI(int currentResources)
+    {
+        if (currencyText != null)
         {
-            farmData.OnResourcesUpdated -= UpdateFarmResourcesUI;
+            currencyText.text = $"Moneda: {currentResources}";
         }
-    }
-
-    /// <summary>
-    /// Actualiza la UI de recursos del jugador con la nueva cantidad de recursos.
-    /// </summary>
-    /// <param name="newResources">Nueva cantidad de recursos del jugador.</param>
-    public void UpdatePlayerResourcesUI(int newResources)
-    {
-        playerResourcesText.text = $"Recursos Jugador: {newResources}";
-    }
-
-    /// <summary>
-    /// Actualiza la UI de recursos de la granja con la nueva cantidad de recursos.
-    /// </summary>
-    /// <param name="newResources">Nueva cantidad de recursos de la granja.</param>
-    public void UpdateFarmResourcesUI(int newResources)
-    {
-        farmResourcesText.text = $"Recursos Granja: {newResources}";
     }
 }
