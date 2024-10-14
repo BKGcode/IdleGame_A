@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponName: Weapon_A
   weaponIcon: {fileID: 21300000, guid: 112aa1cbfb7f5481992a893927e886bb, type: 3}
   fireRate: 1
-  magazineSize: 10
+  magazineSize: 20
   bulletPrefab: {fileID: 471392674947835763, guid: dd86bb03d01970240b3c182a69951e7e,
     type: 3}
-  bulletSpeed: 20
+  bulletSpeed: 50

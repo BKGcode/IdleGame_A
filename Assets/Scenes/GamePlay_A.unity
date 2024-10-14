@@ -1077,7 +1077,7 @@ Transform:
   m_GameObject: {fileID: 188512849}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22975302, y: -0.00000007476455, z: 0.000000017649525, w: 0.97324896}
-  m_LocalPosition: {x: 0, y: 6.856, z: -10}
+  m_LocalPosition: {x: 0, y: 6, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3461,8 +3461,8 @@ GameObject:
   - component: {fileID: 687264351}
   - component: {fileID: 687264350}
   - component: {fileID: 687264349}
-  - component: {fileID: 687264352}
   - component: {fileID: 687264353}
+  - component: {fileID: 687264352}
   m_Layer: 0
   m_Name: --ENEMY--
   m_TagString: Enemy
@@ -3485,7 +3485,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -3549,9 +3549,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 1
-  detectionRadius: 1
   attackDamage: 1
-  attackCooldown: 2
+  patrolRadius: 20
+  patrolSpeed: 3
+  minPatrolWaitTime: 2
+  maxPatrolWaitTime: 5
+  detectionRadius: 10
+  chaseChance: 8
+  chaseSpeed: 15
+  rotationSpeed: 5
 --- !u!195 &687264353
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5079,7 +5085,7 @@ Transform:
   m_GameObject: {fileID: 961739749}
   serializedVersion: 2
   m_LocalRotation: {x: 0.22975302, y: -0.00000007476455, z: 0.000000017649525, w: 0.97324896}
-  m_LocalPosition: {x: 0, y: 6.856, z: -10}
+  m_LocalPosition: {x: 0, y: 6, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5879,7 +5885,7 @@ Transform:
   m_GameObject: {fileID: 1192418088}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.856, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5903,11 +5909,13 @@ MonoBehaviour:
     currentWeapon: {fileID: 11400000, guid: 0cda58be959f0614cbf3a01be19b8028, type: 2}
     ammo: 10
     resources: 100
-  characterController: {fileID: 1582365539}
+  rb: {fileID: 1192418092}
   cameraTransform: {fileID: 1192418089}
-  moveSpeed: 10
-  jumpHeight: 0
-  gravity: -9.81
+  moveSpeed: 5
+  rotationSpeed: 10
+  boostMultiplier: 2
+  boostDuration: 3
+  boostCooldown: 5
   firePoint: {fileID: 621956969}
   bulletPrefab: {fileID: 471392674947835763, guid: dd86bb03d01970240b3c182a69951e7e,
     type: 3}
@@ -5916,6 +5924,9 @@ MonoBehaviour:
   resourcesUI: {fileID: 385430094}
   timeUI: {fileID: 385430093}
   upgradeUI: {fileID: 385430092}
+  hitSound: {fileID: 8300000, guid: 5a0df2f70058c4f488fc38e1ba3872b3, type: 3}
+  hitEffect: {fileID: 217993222680584944, guid: f970de182f6e61a4cbfe879f6b82b89d,
+    type: 3}
 --- !u!136 &1192418091
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -5961,10 +5972,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!1 &1247271919
 GameObject:
@@ -6828,7 +6839,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -7171,7 +7182,6 @@ GameObject:
   - component: {fileID: 1582365535}
   - component: {fileID: 1582365538}
   - component: {fileID: 1582365537}
-  - component: {fileID: 1582365539}
   m_Layer: 0
   m_Name: BODY
   m_TagString: Untagged
@@ -7250,31 +7260,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1582365534}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!143 &1582365539
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1582365534}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2.5
-  m_Radius: 0.7
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.25, z: 0}
 --- !u!1 &1584252054
 GameObject:
   m_ObjectHideFlags: 0
